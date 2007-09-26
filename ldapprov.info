@@ -1,0 +1,6 @@
+; $Id$
+name = ldapprov
+description = "Implements LDAP users provisioning."
+package = Administration
+dependencies = ldapauth
+

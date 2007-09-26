@@ -1,0 +1,38 @@
+<?php
+/* $Id$ */
+
+/**
+* Implementation of hook_install()
+*/
+function ldapprov_install() {
+  $ret = array();
+
+  switch ($GLOBALS['db_type']) {
+    case 'pgsql':
+      break;
+    case 'mysqli':
+    case 'mysql':
+      $ret[] = db_query("CREATE TABLE {ldapprov} (
+        rid int(11) unsigned NOT NULL auto_increment,
+        name varchar(60) default NULL,
+        mail varchar(64) default NULL,
+        first_name varchar(64) default NULL,
+        last_name varchar(64) default NULL,
+        code varchar(255) default NULL,
+        status tinyint(1) default '0',
+        registered int(11) default '0',
+        data longtext,
+        approved int(11) default NULL,
+	cuid int(10) default NULL,
+	uid int(10) default NULL,
+        notes longtext default NULL,
+        PRIMARY KEY  (rid)) 
+        /*!40100 DEFAULT CHARACTER SET utf8 */"
+      );
+
+      break;
+  }
+
+  return $ret;
+}
+
