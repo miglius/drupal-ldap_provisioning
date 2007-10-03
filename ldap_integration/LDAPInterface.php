@@ -29,7 +29,7 @@ class LDAPInterface2 extends LDAPInterface {
     return $ret;
   }
   
-  // This function is used by custom spawar module to delete attributes once they are
+  // This function is used by other modules to delete attributes once they are
   // moved to profiles cause ldap_mod_del does not delete facsimileTelephoneNumber if
   // attribute value to delete is passed to the function. 
   // OpenLDAP as per RFC 2252 doesn't have equality matching for facsimileTelephoneNumber
