@@ -364,15 +364,15 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
         $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
         // Get the name attribute
-	foreach (explode(',', $edit['ldap_dn']) as $entry) {
-	  $entry_arr = explode('=', $entry);
-	  if ($entry_arr[0] == $name_attr) {
+        foreach (explode(',', $edit['ldap_dn']) as $entry) {
+          $entry_arr = explode('=', $entry);
+          if ($entry_arr[0] == $name_attr) {
               $name = $entry_arr[1];
           }
         }
 
         // Search for the entry in LDAP
-	if (isset($name)) {
+        if (isset($name)) {
           if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
             watchdog('ldapprov', t('User validate: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
             return;
@@ -392,9 +392,9 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
         $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
         // Get the name attribute
-	foreach (explode(',', $edit['ldap_dn']) as $entry) {
-	  $entry_arr = explode('=', $entry);
-	  if ($entry_arr[0] == $name_attr) {
+        foreach (explode(',', $edit['ldap_dn']) as $entry) {
+          $entry_arr = explode('=', $entry);
+          if ($entry_arr[0] == $name_attr) {
               $name = $entry_arr[1];
           }
         }
@@ -2261,7 +2261,7 @@ function _ldapprov_create_user($edit) {
     if (preg_match('/^#.*$/', $line)) { continue; }
     list($attr, $var) = explode(': ', $line);
     $ldif_var = strtr($var, $ldap_vars);
-    if(!empty($ldif_var)) {
+    if (!empty($ldif_var)) {
       $ldif[$attr][] = $ldif_var;
     }
   }
