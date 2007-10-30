@@ -797,7 +797,7 @@ function ldapprov_admin_submit($form_id, $edit) {
     if (isset($edit['ldapprov_pass'])) {
       variable_set('ldapprov_pass', $edit['ldapprov_pass']);
     }
-    if (isset($edit['ldapprov_pass_clear'])) {
+    if (isset($edit['ldapprov_pass_clear']) && $edit['ldapprov_pass_clear'] == 1) {
       variable_set('ldapprov_pass_clear', $edit['ldapprov_pass_clear']);
       variable_set('ldapprov_pass', '');
     }
