@@ -778,7 +778,7 @@ function ldapprov_admin_submit($form_id, $edit) {
     }
 
     // Profiles
-    if (module_exists('captcha')) {
+    if (module_exists('profile')) {
       variable_set('ldapprov_profile', $edit['ldapprov_profile']);
       variable_set('ldapprov_profile_first', $edit['ldapprov_profile_first']);
       variable_set('ldapprov_profile_last', $edit['ldapprov_profile_last']);
