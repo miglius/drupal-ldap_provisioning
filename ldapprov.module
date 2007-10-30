@@ -342,7 +342,7 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
       $variables = array('%site' => variable_get('site_name', 'drupal'), '%mail' => $user_u->mail, '%first_name' => $row->first_name, '%last_name' => $row->last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%username' => $user_u->name);
       $subject = _ldapprov_mail_text('delete_subject', $variables);
       $body = _ldapprov_mail_text('delete_body', $variables);
-      $headers = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
+      $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
       $mail_success = drupal_mail('ldapprov_delete', $user_u->mail, $subject, $body, '', $headers);
 
       if ($mail_success) {
@@ -1228,7 +1228,7 @@ function ldapprov_register_submit($form_id, $edit) {
     $variables = array('%site' => variable_get('site_name', 'drupal'), '%validate_url' => url('user/validate/'. $hash, NULL, NULL, TRUE), '%validate_uri' => url('user/validate', NULL, NULL, TRUE), '%mail' => $edit['mail'], '%first_name' => $first_name, '%last_name' => $last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%code' => $hash);
     $subject = _ldapprov_mail_text('validate_subject', $variables);
     $body = _ldapprov_mail_text('validate_body', $variables);
-    $headers = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
+    $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
     $mail_success = drupal_mail('ldapprov_code', $edit['mail'], $subject, $body, '', $headers);
 
     if ($mail_success) {
@@ -1350,7 +1350,7 @@ function _ldapprov_validate_submit($edit) {
       $variables = array('%site' => variable_get('site_name', 'drupal'), '%mail' => $row->mail, '%first_name' => $row->first_name, '%last_name' => $row->last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%create_url' => url('admin/user/accounts/pending/create/'. $row->rid, NULL, NULL, TRUE));
       $subject = _ldapprov_mail_text('notify_subject', $variables);
       $body = _ldapprov_mail_text('notify_body', $variables);
-      $headers = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
+      $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
       $result = db_query("SELECT DISTINCT u.mail FROM {users} u INNER JOIN {users_roles} ur ON u.uid = ur.uid INNER JOIN {permission} p ON ur.rid = p.rid WHERE p.perm LIKE '%%%s%%'", LDAPPROV_PERMISSION);
       while ($row2 = db_fetch_object($result)) {
         $mail_success = drupal_mail('ldapprov_new_request', $row2->mail, $subject, $body, '', $headers);
@@ -2091,7 +2091,7 @@ function ldapprov_invite_submit($form_id, $edit) {
     $variables = array('%site' => variable_get('site_name', 'drupal'), '%name' => $user->name, '%register_uri' => url('user/register/'. $hash, NULL, NULL, TRUE), '%mail' => $edit['mail'], '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%message' => $edit['message']);
     $subject = _ldapprov_mail_text('invite_subject', $variables);
     $body = _ldapprov_mail_text('invite_body', $variables);
-    $headers = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
+    $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
     $mail_success = drupal_mail('ldapprov_invite', $edit['mail'], $subject, $body, '', $headers);
 
     if ($mail_success) {
@@ -2369,7 +2369,7 @@ function _ldapprov_create_user($edit) {
     $variables = array('%site' => variable_get('site_name', 'drupal'), '%login_uri' => url('user', NULL, NULL, TRUE), '%login_url' => $login_url, '%mail' => $edit['mail'], '%first_name' => $first_name, '%last_name' => $last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%username' => $username, '%password' => $pass, '%message' => $edit['message']);
     $subject = _ldapprov_mail_text('create_subject', $variables);
     $body = _ldapprov_mail_text('create_body', $variables);
-    $headers = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
+    $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
     $mail_success = drupal_mail('ldapprov_create', $edit['mail'], $subject, $body, '', $headers);
 
     if ($mail_success) {
@@ -2448,7 +2448,7 @@ function _ldapprov_reject_user($edit) {
   $variables = array('%site' => variable_get('site_name', 'drupal'), '%mail' => $row->mail, '%first_name' => $row->first_name, '%last_name' => $row->last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%message' => $edit['message']);
   $subject = _ldapprov_mail_text('reject_subject', $variables);
   $body = _ldapprov_mail_text('reject_body', $variables);
-  $headers = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
+  $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
   $mail_success = drupal_mail('ldapprov_reject', $row->mail, $subject, $body, '', $headers);
 
   if ($mail_success) {
