@@ -1371,13 +1371,15 @@ function _ldapprov_validate_submit($edit) {
       // Only default role can be assigned this way
 
       unset($edit['roles']);
-      foreach (unserialize($row->data) as $k => $v) {
-        $edit[$k] = $v;
+      if (is_array(unserialize($row->data))) {
+        foreach (unserialize($row->data) as $k => $v) {
+          $edit[$k] = $v;
+        }
       }
       $edit['rid'] = $row->rid;
       $edit['username'] = $row->name;
       $edit['first_name'] = $row->first_name;
-      $edit['last_name'] = $row->last_name;
+      $edit['last_name'] = (!empty($row->last_name)) ? $row->last_name : $row->name;
       $edit['mail'] = $row->mail;
       $new_user = _ldapprov_create_user($edit);
       if (isset($new_user)) {
@@ -2208,8 +2210,8 @@ function _ldapprov_create_user($edit) {
   $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
   // First and last names
-  $first_name = (!module_exists('profile') || variable_get('ldapprov_profile_first', '') == '') ? $edit['first_name'] : $edit[variable_get('ldapprov_profile_first', '')]; 
-  $last_name = (!module_exists('profile') || variable_get('ldapprov_profile_last', '') == '') ? $edit['last_name'] : $edit[variable_get('ldapprov_profile_last', '')]; 
+  $first_name = (!module_exists('profile') || !variable_get('ldapprov_profile', FALSE) || variable_get('ldapprov_profile_first', '') == '') ? $edit['first_name'] : $edit[variable_get('ldapprov_profile_first', '')]; 
+  $last_name = (!module_exists('profile') || !variable_get('ldapprov_profile', FALSE) || variable_get('ldapprov_profile_last', '') == '') ? $edit['last_name'] : $edit[variable_get('ldapprov_profile_last', '')]; 
   
   if (variable_get('ldapprov_allow_username', 1)) {
     $username = $edit['username'];
@@ -2250,7 +2252,10 @@ function _ldapprov_create_user($edit) {
     if (preg_match('/^\s*$/', $line)) { continue; }
     if (preg_match('/^#.*$/', $line)) { continue; }
     list($attr, $var) = explode(': ', $line);
-      $ldif[$attr][] = strtr($var, $ldap_vars);
+    $ldif_var = strtr($var, $ldap_vars);
+    if(!empty($ldif_var)) {
+      $ldif[$attr][] = $ldif_var;
+    }
   }
 
   /*
