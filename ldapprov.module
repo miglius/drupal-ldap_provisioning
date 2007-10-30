@@ -1765,19 +1765,27 @@ function ldapprov_create() {
   // Get all roles except authenticated user
   $roles = user_roles(1);
   unset($roles[DRUPAL_AUTHENTICATED_RID]);
-  if (user_access(LDAPPROV_ROLE_PERMISSION) && $roles && $status != 3) {
+
+  // Integration with role assign module 
+  if (module_exists('roleassign')) { 
+
+    // Get roles that are available for assignment.
+    $assignable_roles = _roleassign_assignable_roles($roles);
+  }
+  if (((user_access(LDAPPROV_ROLE_PERMISSION) && $roles) || user_access('assign roles') && $assignable_roles) && $status != 3) {
     $form['ldapprov_roles'] = array(
       '#type' => 'fieldset',
-      '#title' => 'Roles',
+      '#title' => t('Roles'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
       '#weight' => '3',
     );
+    $roles_available = (user_access(LDAPPROV_ROLE_PERMISSION)) ? $roles : $assignable_roles;
     $form['ldapprov_roles']['roles'] = array(
       '#type' => 'checkboxes', 
       '#title' => t('Roles'), 
       '#default_value' => array_keys((array)$edit['roles']), 
-      '#options' => $roles, 
+      '#options' => $roles_available, 
       '#description' => t('The user receives the combined permissions of the %au role, and all roles selected here.', array('%au' => t('authenticated user')))
     );
   }
@@ -1788,7 +1796,7 @@ function ldapprov_create() {
 
     $form['ldapprov_messages'] = array(
       '#type' => 'fieldset',
-      '#title' => 'Messages',
+      '#title' => t('Messages'),
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
       '#weight' => '4',
@@ -1805,7 +1813,7 @@ function ldapprov_create() {
 
   $form['ldapprov_notes'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Notes',
+    '#title' => t('Notes'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#weight' => '5',
@@ -2305,7 +2313,7 @@ function _ldapprov_create_user($edit) {
 
     // Set user roles
     $roles = $edit['roles'];
-    if (user_access(LDAPPROV_ROLE_PERMISSION) && isset($roles)) {
+    if ((user_access(LDAPPROV_ROLE_PERMISSION) || user_access('assign roles')) && isset($roles)) {
       foreach ($roles as $key => $value) {
         if ($value == 0) {
           unset($roles[$key]);
