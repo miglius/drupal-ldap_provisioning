@@ -24,6 +24,7 @@ function ldapprov_install() {
         data longtext,
         approved int(11) default NULL,
 	cuid int(10) default NULL,
+        cname varchar(60) default NULL,
 	uid int(10) default NULL,
         notes longtext default NULL,
         PRIMARY KEY  (rid)) 
