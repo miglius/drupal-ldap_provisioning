@@ -465,6 +465,12 @@ function ldapprov_admin() {
       '#default_value' => $captcha,
     );
   }
+  $form['general']['ldapprov_debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable debugging'),
+    '#description' => t('The LDIF entry will be print on the screen for configuration debugging.'),
+    '#default_value' => variable_get('ldapprov_debug', FALSE),
+  );
 
   // Registration form
   $form['registration'] = array(
@@ -776,6 +782,8 @@ function ldapprov_admin_submit($form_id, $edit) {
         db_query("DELETE FROM {captcha_points} WHERE form_id = 'ldapprov_register'");
       }
     }
+
+    variable_set('ldapprov_debug', $edit['ldapprov_debug']);
 
     // Profiles
     if (module_exists('profile')) {
@@ -2266,15 +2274,16 @@ function _ldapprov_create_user($edit) {
     }
   }
 
-  /*
-  // Print ldif
-  print "dn: $dn\n";
-  foreach ($ldif as $key => $val) {
-    foreach ($val as $k => $v) {
-      print "$key: $v\n";
+  // Print ldif if debugging is enabled
+  if (variable_get('ldapprov_debug', FALSE)) {
+    $ldif_out = "dn: $dn<br>";
+    foreach ($ldif as $key => $val) {
+      foreach ($val as $k => $v) {
+        $ldif_out .= "$key: $v<br>";
+      }
     }
+    drupal_set_message($ldif_out);
   }
-  */
 
   // Create writable attributes from ldapdata
   if (module_exists('ldapdata')) {
