@@ -2274,17 +2274,6 @@ function _ldapprov_create_user($edit) {
     }
   }
 
-  // Print ldif if debugging is enabled
-  if (variable_get('ldapprov_debug', FALSE)) {
-    $ldif_out = "dn: $dn<br>";
-    foreach ($ldif as $key => $val) {
-      foreach ($val as $k => $v) {
-        $ldif_out .= "$key: $v<br>";
-      }
-    }
-    drupal_set_message($ldif_out);
-  }
-
   // Create writable attributes from ldapdata
   if (module_exists('ldapdata')) {
     $server = ldapprov_get_server();
@@ -2303,6 +2292,17 @@ function _ldapprov_create_user($edit) {
     }
   }
   
+  // Print ldif if debugging is enabled
+  if (variable_get('ldapprov_debug', FALSE)) {
+    $ldif_out = "dn: $dn<br>";
+    foreach ($ldif as $key => $val) {
+      foreach ($val as $k => $v) {
+        $ldif_out .= "$key: $v<br>";
+      }
+    }
+    drupal_set_message($ldif_out);
+  }
+
   // Create user in LDAP
   if ($_ldapprov_ldap->create_entry($dn, $ldif)) {
     
