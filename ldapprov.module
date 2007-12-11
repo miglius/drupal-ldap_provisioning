@@ -105,25 +105,6 @@ function ldapprov_menu($may_cache) {
       'type' => MENU_NORMAL_ITEM,
     );
     if (variable_get('ldapprov_enabled', FALSE)) { 
-      if (variable_get('user_register', 0) > 0) {
-        $items[] = array(
-          'path' => 'user/register', 
-          'title' => t('Create new account'),
-          'callback' => 'drupal_get_form', 
-          'callback arguments' => array('ldapprov_register'), 
-          'access' => !$user->uid && variable_get('user_register', 1), 
-          'type' => MENU_LOCAL_TASK
-        );
-        $items[] = array(
-          'path' => 'user/validate', 
-          'title' => t('validate'),
-          'callback' => 'drupal_get_form', 
-          'callback arguments' => array('ldapprov_validate'), 
-          'access' => !$user->uid && variable_get('user_register', 1), 
-          'type' => MENU_CALLBACK
-        );
-      }
-  
       $items[] = array(
         'path' => 'admin/user/accounts', 
         'title' => t('Account management'),
@@ -288,6 +269,28 @@ function ldapprov_menu($may_cache) {
           'title' => t('Invite autocomplete'),
           'callback' => '_ldapprov_invite_autocomplete', 
           'access' => $access_invite || user_access('maintain buddy list'), 
+          'type' => MENU_CALLBACK
+        );
+      }
+    }
+  }
+  else {
+    if (variable_get('ldapprov_enabled', FALSE)) { 
+      if (variable_get('user_register', 0) > 0) {
+        $items[] = array(
+          'path' => 'user/register', 
+          'title' => t('Create new account'),
+          'callback' => 'drupal_get_form', 
+          'callback arguments' => array('ldapprov_register'), 
+          'access' => !$user->uid && variable_get('user_register', 1), 
+          'type' => MENU_LOCAL_TASK
+        );
+        $items[] = array(
+          'path' => 'user/validate', 
+          'title' => t('validate'),
+          'callback' => 'drupal_get_form', 
+          'callback arguments' => array('ldapprov_validate'), 
+          'access' => !$user->uid && variable_get('user_register', 1), 
           'type' => MENU_CALLBACK
         );
       }
