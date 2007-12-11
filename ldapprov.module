@@ -932,7 +932,7 @@ function _ldapprov_register_form($edit) {
       '#weight' => -2,
     );
   }
-  if (!module_exists('profile') || variable_get('ldapprov_profile_first', '') == '' || variable_get('ldapprov_profile_last', '') == '') {
+  if (!module_exists('profile') || !variable_get('ldapprov_profile', FALSE) || variable_get('ldapprov_profile_first', '') == '' || variable_get('ldapprov_profile_last', '') == '') {
     $form['account']['first_name'] = array(
       '#type' => 'textfield',
       '#title' => t('First Name'),
@@ -1187,8 +1187,8 @@ function ldapprov_register_submit($form_id, $edit) {
   }
 
   // First and last names
-  $first_name = (!module_exists('profile') || variable_get('ldapprov_profile_first', '') == '') ? $edit['first_name'] : $edit[variable_get('ldapprov_profile_first', '')]; 
-  $last_name = (!module_exists('profile') || variable_get('ldapprov_profile_last', '') == '') ? $edit['last_name'] : $edit[variable_get('ldapprov_profile_last', '')]; 
+  $first_name = (!module_exists('profile') || !variable_get('ldapprov_profile', FALSE) || variable_get('ldapprov_profile_first', '') == '') ? $edit['first_name'] : $edit[variable_get('ldapprov_profile_first', '')]; 
+  $last_name = (!module_exists('profile') || !variable_get('ldapprov_profile', FALSE) || variable_get('ldapprov_profile_last', '') == '') ? $edit['last_name'] : $edit[variable_get('ldapprov_profile_last', '')]; 
 
   // Check if registering from an invite
   if (variable_get('ldapprov_invite', FALSE) && isset($edit['code'])) {
