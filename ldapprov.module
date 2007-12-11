@@ -301,122 +301,124 @@ function ldapprov_menu($may_cache) {
  * Implementation of hook_user().
  */
 function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
-  switch ($op) {
-    case 'delete':
-      global $user, $_ldapprov_ldap;
-
-      $basedn = $_ldapprov_ldap->getOption('basedn');
-      $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
-
-      if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-        watchdog('ldapprov', t('User deletion: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
-        drupal_set_message(t('The user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), 'error');
-        return;
-      }
-      if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $user_u->name .')', array($name_attr))) {
-        if ($_ldapprov_ldap->delete_entry($user_u->ldap_dn)) {
-          watchdog('ldapprov', t('User deletion: user %username has been deleted from the LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_WARNING);
-        }
-        else {
-          watchdog('ldapprov', t('User deletion: user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_ERROR);
-          drupal_set_message(t('The user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), 'error');
-        }
-      }
-      else {
-        watchdog('ldapprov', t('User deletion: user %username is not found in LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_WARNING, l(t('edit'), 'user/'. $user_u->uid .'/edit'), WATCHDOG_ERROR);
-      }
-
-      // Mark registration entry as deleted.
-      $time = time();
-      $result = db_query("SELECT * FROM {ldapprov} WHERE uid = '%d'", $user_u->uid);
-      if ($row = db_fetch_object($result)) {
-        db_query("UPDATE {ldapprov} SET name = '%s', status = '4', cuid = '%d', approved = '%s' WHERE rid = '%d'", $user_u->name, $user->uid, $time, $row->rid);
-      }
-      else {
-        db_query("INSERT INTO {ldapprov} (name, mail, status, registered, approved, cuid) VALUES ('%s', '%s', '4', '%s', '%s', '%d')", $user_u->name, $user_u->mail, $time, $time, $user->uid);
-        $result = db_query("SELECT * FROM {ldapprov} WHERE name = '%s'", $user_u->name);
-      }
-
-      // Mail one time deletion notification.
-      $from = variable_get('site_mail', ini_get('sendmail_from'));
-      $variables = array('%site' => variable_get('site_name', 'drupal'), '%mail' => $user_u->mail, '%first_name' => $row->first_name, '%last_name' => $row->last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%username' => $user_u->name);
-      $subject = _ldapprov_mail_text('delete_subject', $variables);
-      $body = _ldapprov_mail_text('delete_body', $variables);
-      $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
-      $mail_success = drupal_mail('ldapprov_delete', $user_u->mail, $subject, $body, '', $headers);
-
-      if ($mail_success) {
-        watchdog('ldapprov', t('Account deletion notification e-mail mailed to %username at %mail.', array('%username' => $user_u->name, '%mail' => $user_u->mail)));
-      }
-      else {
-        watchdog('ldapprov', t('Error mailing account deletion notification to %username at %mail.', array('%username' => $user_u->name, '%mail' => $user_u->mail)), WATCHDOG_ERROR);
-      }
-
-      // If this user has created other users, then capture his name in the db for the record;
-      db_query("UPDATE {ldapprov} SET cname = '%s' WHERE cuid = '%d'", $user_u->name, $user_u->uid);
-      break;
-
-    case 'validate':
-      if (isset($edit['ldap_dn']) && $user_u->ldap_dn != $edit['ldap_dn']) {
-        global $_ldapprov_ldap;
+  if (variable_get('ldapprov_enabled', FALSE)) {
+    switch ($op) {
+      case 'delete':
+        global $user, $_ldapprov_ldap;
 
         $basedn = $_ldapprov_ldap->getOption('basedn');
         $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
-
-        // Get the name attribute
-        foreach (explode(',', $edit['ldap_dn']) as $entry) {
-          $entry_arr = explode('=', $entry);
-          if ($entry_arr[0] == $name_attr) {
-              $name = $entry_arr[1];
-          }
-        }
-
-        // Search for the entry in LDAP
-        if (isset($name)) {
-          if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-            watchdog('ldapprov', t('User validate: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
-            return;
-          }
-          if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
-            form_set_error('ldap_dn', t('The DN %name is already taken in LDAP.', array('%name' => $edit['ldap_dn'])));
-          }
-        }
-      }
-      break;
-    
-    case 'update':
-      if (isset($edit['ldap_dn']) && $user_u->ldap_dn != $edit['ldap_dn']) {
-        global $_ldapprov_ldap;
-
-        $basedn = $_ldapprov_ldap->getOption('basedn');
-        $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
-
-        // Get the name attribute
-        foreach (explode(',', $edit['ldap_dn']) as $entry) {
-          $entry_arr = explode('=', $entry);
-          if ($entry_arr[0] == $name_attr) {
-              $name = $entry_arr[1];
-          }
-        }
 
         if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-          watchdog('ldapprov', t('User update: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
-          drupal_set_message(t('User update: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
+          watchdog('ldapprov', t('User deletion: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+          drupal_set_message(t('The user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), 'error');
           return;
         }
-        if (!$_ldapprov_ldap->rename_entry($user_u->ldap_dn, $name_attr .'='. $name, $basedn, TRUE)) {
-          watchdog('ldapprov', t('User update: user ldap entry cannot be renamed.'), WATCHDOG_ERROR);
+        if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $user_u->name .')', array($name_attr))) {
+          if ($_ldapprov_ldap->delete_entry($user_u->ldap_dn)) {
+            watchdog('ldapprov', t('User deletion: user %username has been deleted from the LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_WARNING);
+          }
+          else {
+            watchdog('ldapprov', t('User deletion: user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_ERROR);
+            drupal_set_message(t('The user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), 'error');
+          }
         }
-	/*
         else {
-          $row = db_fetch_object(db_query("SELECT * FROM {users} WHERE uid = %d", $user_u->uid));
-          $data = unserialize($row->data);
-          $data['ldap_dn'] = $name_attr .'='. $edit['name'] .','. $basedn;
-          db_query("UPDATE {users} SET data = '%s' WHERE uid = '%d'", serialize($data), $user_u->uid);
+          watchdog('ldapprov', t('User deletion: user %username is not found in LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_WARNING, l(t('edit'), 'user/'. $user_u->uid .'/edit'), WATCHDOG_ERROR);
         }
-	*/
-      }
-      break;
+
+        // Mark registration entry as deleted.
+        $time = time();
+        $result = db_query("SELECT * FROM {ldapprov} WHERE uid = '%d'", $user_u->uid);
+        if ($row = db_fetch_object($result)) {
+          db_query("UPDATE {ldapprov} SET name = '%s', status = '4', cuid = '%d', approved = '%s' WHERE rid = '%d'", $user_u->name, $user->uid, $time, $row->rid);
+        }
+        else {
+          db_query("INSERT INTO {ldapprov} (name, mail, status, registered, approved, cuid) VALUES ('%s', '%s', '4', '%s', '%s', '%d')", $user_u->name, $user_u->mail, $time, $time, $user->uid);
+          $result = db_query("SELECT * FROM {ldapprov} WHERE name = '%s'", $user_u->name);
+        }
+
+        // Mail one time deletion notification.
+        $from = variable_get('site_mail', ini_get('sendmail_from'));
+        $variables = array('%site' => variable_get('site_name', 'drupal'), '%mail' => $user_u->mail, '%first_name' => $row->first_name, '%last_name' => $row->last_name, '%date' => format_date($time, LDAPPROV_DATE_FORMAT), '%username' => $user_u->name);
+        $subject = _ldapprov_mail_text('delete_subject', $variables);
+        $body = _ldapprov_mail_text('delete_body', $variables);
+        $headers = array('From' => $from, 'Reply-to' => $from, 'X-Mailer' => 'Drupal', 'Return-path' => $from, 'Errors-to' => $from);
+        $mail_success = drupal_mail('ldapprov_delete', $user_u->mail, $subject, $body, '', $headers);
+
+        if ($mail_success) {
+          watchdog('ldapprov', t('Account deletion notification e-mail mailed to %username at %mail.', array('%username' => $user_u->name, '%mail' => $user_u->mail)));
+        }
+        else {
+          watchdog('ldapprov', t('Error mailing account deletion notification to %username at %mail.', array('%username' => $user_u->name, '%mail' => $user_u->mail)), WATCHDOG_ERROR);
+        }
+
+        // If this user has created other users, then capture his name in the db for the record;
+        db_query("UPDATE {ldapprov} SET cname = '%s' WHERE cuid = '%d'", $user_u->name, $user_u->uid);
+        break;
+
+      case 'validate':
+        if (isset($edit['ldap_dn']) && $user_u->ldap_dn != $edit['ldap_dn']) {
+          global $_ldapprov_ldap;
+
+          $basedn = $_ldapprov_ldap->getOption('basedn');
+          $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
+
+          // Get the name attribute
+          foreach (explode(',', $edit['ldap_dn']) as $entry) {
+            $entry_arr = explode('=', $entry);
+            if ($entry_arr[0] == $name_attr) {
+                $name = $entry_arr[1];
+            }
+          }
+
+          // Search for the entry in LDAP
+          if (isset($name)) {
+            if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
+              watchdog('ldapprov', t('User validate: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+              return;
+            }
+            if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
+              form_set_error('ldap_dn', t('The DN %name is already taken in LDAP.', array('%name' => $edit['ldap_dn'])));
+            }
+          }
+        }
+        break;
+    
+      case 'update':
+        if (isset($edit['ldap_dn']) && $user_u->ldap_dn != $edit['ldap_dn']) {
+          global $_ldapprov_ldap;
+
+          $basedn = $_ldapprov_ldap->getOption('basedn');
+          $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
+
+          // Get the name attribute
+          foreach (explode(',', $edit['ldap_dn']) as $entry) {
+            $entry_arr = explode('=', $entry);
+            if ($entry_arr[0] == $name_attr) {
+              $name = $entry_arr[1];
+            }
+          }
+
+          if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
+            watchdog('ldapprov', t('User update: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+            drupal_set_message(t('User update: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
+            return;
+          }
+          if (!$_ldapprov_ldap->rename_entry($user_u->ldap_dn, $name_attr .'='. $name, $basedn, TRUE)) {
+            watchdog('ldapprov', t('User update: user ldap entry cannot be renamed.'), WATCHDOG_ERROR);
+          }
+          /*
+          else {
+            $row = db_fetch_object(db_query("SELECT * FROM {users} WHERE uid = %d", $user_u->uid));
+            $data = unserialize($row->data);
+            $data['ldap_dn'] = $name_attr .'='. $edit['name'] .','. $basedn;
+            db_query("UPDATE {users} SET data = '%s' WHERE uid = '%d'", serialize($data), $user_u->uid);
+          }
+          */
+        }
+        break;
+    }
   }
 }
 
