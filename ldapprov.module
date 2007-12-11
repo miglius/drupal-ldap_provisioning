@@ -99,7 +99,7 @@ function ldapprov_menu($may_cache) {
       'path' => 'admin/settings/ldapprov',
       'title' => t('LDAP Provisioning'),
       'callback' => 'drupal_get_form',
-      'callback arguments' => 'ldapprov_admin',
+      'callback arguments' => array('ldapprov_admin'),
       'access' => user_access('administer ldap modules'),
       'description' => t('Configure LDAP Provisioning settings'),
       'type' => MENU_NORMAL_ITEM,
@@ -110,7 +110,7 @@ function ldapprov_menu($may_cache) {
           'path' => 'user/register', 
           'title' => t('Create new account'),
           'callback' => 'drupal_get_form', 
-          'callback arguments' => 'ldapprov_register', 
+          'callback arguments' => array('ldapprov_register'), 
           'access' => !$user->uid && variable_get('user_register', 1), 
           'type' => MENU_LOCAL_TASK
         );
@@ -118,7 +118,7 @@ function ldapprov_menu($may_cache) {
           'path' => 'user/validate', 
           'title' => t('validate'),
           'callback' => 'drupal_get_form', 
-          'callback arguments' => 'ldapprov_validate', 
+          'callback arguments' => array('ldapprov_validate'), 
           'access' => !$user->uid && variable_get('user_register', 1), 
           'type' => MENU_CALLBACK
         );
@@ -143,7 +143,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/pending/create', 
         'title' => t('Pending'),
         'callback' => 'drupal_get_form', 
-        'callback arguments' => 'ldapprov_create', 
+        'callback arguments' => array('ldapprov_create'), 
         'access' => $access_create, 
         'type' => MENU_DEFAULT_LOCAL_TASK
       );
@@ -151,7 +151,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/created', 
         'title' => t('Created'),
         'callback' => 'ldapprov_list', 
-        'callback arguments' => '3', 
+        'callback arguments' => array('3'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK, 
         'weight' => 1
@@ -160,7 +160,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/created/create', 
         'title' => t('Created'),
         'callback' => 'drupal_get_form', 
-        'callback arguments' => 'ldapprov_create', 
+        'callback arguments' => array('ldapprov_create'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK
       );
@@ -168,7 +168,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/rejected', 
         'title' => t('Rejected'),
         'callback' => 'ldapprov_list', 
-        'callback arguments' => '2', 
+        'callback arguments' => array('2'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK, 
         'weight' => 2
@@ -177,7 +177,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/rejected/create', 
         'title' => t('Rejected'),
         'callback' => 'drupal_get_form', 
-        'callback arguments' => 'ldapprov_create', 
+        'callback arguments' => array('ldapprov_create'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK
       );  
@@ -185,7 +185,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/deleted', 
         'title' => t('Deleted'),
         'callback' => 'ldapprov_list', 
-        'callback arguments' => '4', 
+        'callback arguments' => array('4'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK, 
         'weight' => 3
@@ -194,7 +194,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/deleted/create', 
         'title' => t('Deleted'),
         'callback' => 'drupal_get_form', 
-        'callback arguments' => 'ldapprov_create', 
+        'callback arguments' => array('ldapprov_create'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK
       );
@@ -202,7 +202,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/unverified', 
         'title' => t('Unverified'),
         'callback' => 'ldapprov_list', 
-        'callback arguments' => '0', 
+        'callback arguments' => array('0'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK, 
         'weight' => 4
@@ -211,7 +211,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/unverified/create', 
         'title' => t('Unverified'),
         'callback' => 'drupal_get_form', 
-        'callback arguments' => 'ldapprov_create', 
+        'callback arguments' => array('ldapprov_create'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK
       );
@@ -219,7 +219,7 @@ function ldapprov_menu($may_cache) {
         'path' => 'admin/user/accounts/new', 
         'title' => t('New'),
         'callback' => 'drupal_get_form', 
-        'callback arguments' => 'ldapprov_create', 
+        'callback arguments' => array('ldapprov_create'), 
         'access' => $access_create, 
         'type' => MENU_LOCAL_TASK, 
         'weight' => 5
@@ -258,7 +258,7 @@ function ldapprov_menu($may_cache) {
           'path' => 'invite', 
           'title' => t('Invites'),
           'callback' => 'drupal_get_form', 
-          'callback arguments' => 'ldapprov_invite', 
+          'callback arguments' => array('ldapprov_invite'), 
           'access' => $access_invite, 
           'weight' => 0
         );
@@ -1015,7 +1015,7 @@ function _ldapprov_register_form($edit) {
  
   // Print profile fields
   if (module_exists('profile') && variable_get('ldapprov_profile', FALSE)) {
-    $extra = _ldapprov_profile($edit);
+    $extra = array(_ldapprov_profile($edit));
     $form = array_merge($form, $extra);
   }
 
@@ -1607,9 +1607,9 @@ function theme_ldapprov_list_form($form) {
   $output .= theme('table', $header, $rows);
   if ($form['pager']['#value']) {
     $output .= drupal_render($form['pager']);
-   }
+  }
 
-   $output .= drupal_render($form);
+  $output .= drupal_render($form);
 
   return $output;
 }
@@ -2294,7 +2294,7 @@ function _ldapprov_create_user($edit) {
   
   // Print ldif if debugging is enabled
   if (variable_get('ldapprov_debug', FALSE)) {
-    $ldif_out = "dn: $dn<br>";
+    $ldif_out = "dn: $dn<br />";
     foreach ($ldif as $key => $val) {
       foreach ($val as $k => $v) {
         $ldif_out .= "$key: $v<br>";
@@ -2687,7 +2687,7 @@ function ldapprov_js() {
     $function('upload_js', $form);
   }
   $form = form_builder('upload_js', $form);
-  $output = theme('status_messages') . form_render($form);
+  $output = theme('status_messages') . drupal_render($form);
 
   // We send the updated file attachments form.
   print drupal_to_js(array('status' => TRUE, 'data' => $output));
