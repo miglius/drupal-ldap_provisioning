@@ -553,7 +553,7 @@ function ldapprov_admin() {
   );
 
   if (variable_get('ldapprov_pass_clear', FALSE) || !variable_get('ldapprov_pass', FALSE)) {
-    variable_set('ldapprov_pass', '');
+    variable_del('ldapprov_pass');
     $form['ldap']['ldapprov_pass'] = array(
       '#type' => 'password',
       '#title' => t('Password'),
@@ -771,7 +771,22 @@ function ldapprov_admin_validate($form_id, $edit) {
  * Settings submission
  */
 function ldapprov_admin_submit($form_id, $edit) {
-  if ($form_id == 'ldapprov_admin') {
+  $op = isset($edit['op']) ? $edit['op'] : '';
+
+  // Exclude unnecessary elements.
+  unset($edit['submit'], $edit['reset'], $edit['form_id'], $edit['op'], $edit['form_token']);
+
+  if ($op == t('Reset to defaults')) {
+    foreach ($edit as $key => $value) {
+      variable_del($key);
+    }
+    // password is not shown in the form
+    variable_del('ldapprov_pass');
+    variable_del('ldapprov_pass_clear');
+
+    drupal_set_message(t('The configuration options have been reset to their default values.'));
+  }
+  else {
     // General settings
     variable_set('ldapprov_enabled', $edit['ldapprov_enabled']);
     variable_set('ldapprov_allow_username', $edit['ldapprov_allow_username']);
@@ -842,6 +857,8 @@ function ldapprov_admin_submit($form_id, $edit) {
     variable_set('ldapprov_invite_from', $edit['ldapprov_invite_from']);
     variable_set('ldapprov_mail_invite_subject', $edit['ldapprov_mail_invite_subject']);
     variable_set('ldapprov_mail_invite_body', $edit['ldapprov_mail_invite_body']);
+    
+    drupal_set_message(t('The configuration options have been saved.'));
   }
 }
 
