@@ -40,7 +40,7 @@ if (variable_get('ldapprov_enabled', FALSE)) {
  */
 function _ldapprov_init() {
   global $_ldapprov_ldap;
-  $server = ldapprov_get_server();
+  $server = _ldapprov_get_server();
 
   $_ldapprov_ldap = new LDAPInterface2();
   $_ldapprov_ldap->setOption('name', $server->name);
@@ -63,10 +63,6 @@ function ldapprov_help($section) {
   $output = '';
 
   switch ($section) {
-    case 'admin/modules#ldapprov':
-      $output = 'ldapprov';
-      break;
-    case 'admin/modules#description':
     case 'admin/help#ldapprov':
       $output = t('Implements LDAP users provisioning.');
       break;
@@ -100,8 +96,8 @@ function ldapprov_menu($may_cache) {
       'title' => t('LDAP Provisioning'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('ldapprov_admin'),
-      'access' => user_access('administer ldap modules'),
-      'description' => t('Configure LDAP Provisioning settings'),
+      'access' => user_access('administer site configuration'),
+      'description' => t('Configure LDAP Provisioning settings.'),
       'type' => MENU_NORMAL_ITEM,
     );
     if (variable_get('ldapprov_enabled', FALSE)) { 
@@ -293,6 +289,14 @@ function ldapprov_menu($may_cache) {
           'access' => !$user->uid && variable_get('user_register', 1), 
           'type' => MENU_CALLBACK
         );
+        $items[] = array(
+          'path' => 'admin/user/user/create', 
+          'title' => t('create'),
+          'callback' => 'drupal_get_form', 
+          'callback arguments' => array('ldapprov_create'), 
+          'access' => $access_create, 
+          'type' => MENU_LOCAL_TASK
+        );
       }
     }
   }
@@ -317,7 +321,10 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
           drupal_set_message(t('The user %username has not been deleted from the LDAP directory.', array('%username' => $user_u->name)), 'error');
           return;
         }
-        if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $user_u->name .')', array($name_attr))) {
+        
+        $name = _ldapprov_get_name_from_dn($user_u->ldap_dn);
+
+        if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
           if ($_ldapprov_ldap->delete_entry($user_u->ldap_dn)) {
             watchdog('ldapprov', t('User deletion: user %username has been deleted from the LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_WARNING);
           }
@@ -329,6 +336,7 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
         else {
           watchdog('ldapprov', t('User deletion: user %username is not found in LDAP directory.', array('%username' => $user_u->name)), WATCHDOG_WARNING, l(t('edit'), 'user/'. $user_u->uid .'/edit'), WATCHDOG_ERROR);
         }
+        $_ldapprov_ldap->disconnect();
 
         // Mark registration entry as deleted.
         $time = time();
@@ -367,13 +375,7 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
           $basedn = $_ldapprov_ldap->getOption('basedn');
           $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
-          // Get the name attribute
-          foreach (explode(',', $edit['ldap_dn']) as $entry) {
-            $entry_arr = explode('=', $entry);
-            if ($entry_arr[0] == $name_attr) {
-                $name = $entry_arr[1];
-            }
-          }
+          $name = _ldapprov_get_name_from_dn($edit['ldap_dn']);
 
           // Search for the entry in LDAP
           if (isset($name)) {
@@ -384,6 +386,7 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
             if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
               form_set_error('ldap_dn', t('The DN %name is already taken in LDAP.', array('%name' => $edit['ldap_dn'])));
             }
+            $_ldapprov_ldap->disconnect();
           }
         }
         break;
@@ -395,13 +398,7 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
           $basedn = $_ldapprov_ldap->getOption('basedn');
           $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
-          // Get the name attribute
-          foreach (explode(',', $edit['ldap_dn']) as $entry) {
-            $entry_arr = explode('=', $entry);
-            if ($entry_arr[0] == $name_attr) {
-              $name = $entry_arr[1];
-            }
-          }
+          $name = _ldapprov_get_name_from_dn($edit['ldap_dn']);
 
           if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
             watchdog('ldapprov', t('User update: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
@@ -419,6 +416,7 @@ function ldapprov_user($op, &$edit, &$user_u, $category = NULL) {
             db_query("UPDATE {users} SET data = '%s' WHERE uid = '%d'", serialize($data), $user_u->uid);
           }
           */
+          $_ldapprov_ldap->disconnect();
         }
         break;
     }
@@ -482,7 +480,7 @@ function ldapprov_admin() {
     '#type' => 'fieldset',
     '#title' => t('Registration form'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUEE
+    '#collapsed' => TRUE
   );
 
   if (module_exists('profile')) {
@@ -579,7 +577,7 @@ function ldapprov_admin() {
     '#collapsed' => TRUE
   );
   if (module_exists('ldapdata')) {
-    $server = ldapprov_get_server();
+    $server = _ldapprov_get_server();
     $rwattrs = unserialize($server->ldapdata_rwattrs);
 
     if (!empty($rwattrs)) {
@@ -863,18 +861,36 @@ function ldapprov_admin_submit($form_id, $edit) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// LDAP SERVER
+// LDAP RELATED 
 
 /**
  * Load server settings
  */
-function ldapprov_get_server() {
+function _ldapprov_get_server() {
   $row = array();
 
   $result = db_query("SELECT * FROM {ldapauth} WHERE sid = %d", variable_get('ldapprov_server', ''));
   $row = db_fetch_object($result);
 
   return $row;
+}
+
+/**
+ * Get name from a dn
+ */
+function _ldapprov_get_name_from_dn($dn) {
+  global $_ldapprov_ldap;
+  
+  $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
+  
+  foreach (explode(',', $dn) as $entry) {
+    $entry_arr = explode('=', $entry);
+    if ($entry_arr[0] == $name_attr) {
+      $name = $entry_arr[1];
+    }
+  }
+
+  return $name;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1014,7 +1030,7 @@ function _ldapprov_register_form($edit) {
 
   // Print writable ldap fields
   if (module_exists('ldapdata')) {
-    $server = ldapprov_get_server();
+    $server = _ldapprov_get_server();
     $rwattrs = unserialize($server->ldapdata_rwattrs);
 
     if (!empty($rwattrs)) {
@@ -1107,7 +1123,7 @@ function _ldapprov_register_validate($edit, $messages = TRUE) {
     drupal_set_message(t('User validate: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
     return;
   }
-  if ($ret = $_ldapprov_ldap->search(variable_get('ldap_base_dn', ''), '(mail='. $edit['mail'] .')', array('mail'))) {
+  if ($ret = $_ldapprov_ldap->search($_ldapprov_ldap->getOption('basedn'), '(mail='. $edit['mail'] .')', array('mail'))) {
     $errors = ($messages) ? form_set_error('mail', t('The user with e-mail address %s is already registered with the system. Click ', array('%s' => $edit['mail'])) . l(t('request new password'), 'user/password') . t(' if you forgot your login information.')) : $errors + 1;
   }
   $_ldapprov_ldap->disconnect();
@@ -2040,7 +2056,7 @@ function ldapprov_invite_validate($form_id, $edit) {
     watchdog('ldapprov', t('User registration: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
     return;
   }
-  if ($ret = $_ldapprov_ldap->search(variable_get('ldap_base_dn', ''), '(mail='.$edit['mail'].')', array('mail'))) {
+  if ($ret = $_ldapprov_ldap->search($_ldapprov_ldap->getOption('basedn'), '(mail='.$edit['mail'].')', array('mail'))) {
     form_set_error('mail', t('The user with e-mail address %s is already registered with the system.', array('%s' => $edit['mail'])));
   }
   $_ldapprov_ldap->disconnect();
@@ -2276,7 +2292,7 @@ function _ldapprov_create_user($edit) {
   $pass_ldap = $_ldapprov_ldap->getOption('encrypted') ? '{md5}'. base64_encode(pack('H*', md5($pass))) : $pass;
 
   $ldap_vars['%uid'] = $username;
-  $ldap_vars['%base_dn'] = variable_get('ldap_base_dn', '');
+  $ldap_vars['%base_dn'] = $_ldapprov_ldap->getOption('basedn');
   $ldap_vars['%mail'] = $edit['mail'];
   $ldap_vars['%first_name'] = $first_name;
   $ldap_vars['%last_name'] = $last_name;
@@ -2298,7 +2314,7 @@ function _ldapprov_create_user($edit) {
 
   // Create writable attributes from ldapdata
   if (module_exists('ldapdata')) {
-    $server = ldapprov_get_server();
+    $server = _ldapprov_get_server();
     $rwattrs = unserialize($server->ldapdata_rwattrs);
 
     if (!empty($rwattrs)) {
@@ -2319,7 +2335,7 @@ function _ldapprov_create_user($edit) {
     $ldif_out = "dn: $dn<br />";
     foreach ($ldif as $key => $val) {
       foreach ($val as $k => $v) {
-        $ldif_out .= "$key: $v<br>";
+        $ldif_out .= "$key: $v<br />";
       }
     }
     drupal_set_message($ldif_out);
@@ -2329,19 +2345,7 @@ function _ldapprov_create_user($edit) {
   if ($_ldapprov_ldap->create_entry($dn, $ldif)) {
     
     // Proceed with a Drupal user only if LDAP user is created successfully
-
-    // execute create hooks
-    foreach (module_implements('ldapcreate') as $module) {
-      if (module_hook($module, 'ldapcreate')) {
-        if ($ldif_add = call_user_func_array($module .'_ldapcreate', array($username, $pass))) {
-          $oc = array_merge($ldif['objectClass'], $ldif_add['objectClass']);
-          $ldif['objectClass'] = $oc;
-          $ldif_add['objectClass'] = $oc;
-          $_ldapprov_ldap->writeAttributes($dn, $ldif_add);
-        }
-      }
-    }
-
+    
     // Set user roles
     $roles = $edit['roles'];
     if ((user_access(LDAPPROV_ROLE_PERMISSION) || user_access('assign roles')) && isset($roles)) {
@@ -2421,6 +2425,14 @@ function _ldapprov_create_user($edit) {
     }
     else {
       watchdog('ldapprov', t('Error mailing account creation notification to %username at %mail.', array('%username' => $username, '%mail' => $edit['mail'])), WATCHDOG_ERROR);
+    }
+
+    // execute additional create hooks
+    $new_user->clear_pass = $pass;
+    foreach (module_implements('ldapuser') as $module) {
+      if (module_hook($module, 'ldapuser')) {
+        $ret = call_user_func_array($module .'_ldapuser', array(&$new_user));
+      }
     }
   }
   else {
@@ -2885,7 +2897,7 @@ function _ldapprov_template() {
 
   // Print writable ldap fields
   if (module_exists('ldapdata')) {
-    $server = ldapprov_get_server();
+    $server = _ldapprov_get_server();
     $rwattrs = unserialize($server->ldapdata_rwattrs);
 
     if (!empty($rwattrs)) {

@@ -1,0 +1,679 @@
+## Attributetypes and ObjectClasses needed for Asterisk
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.1 NAME 'astUsername' 
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.2 NAME 'astSecret'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.3 NAME 'astMailbox'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.4 NAME 'astTemplate'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.5 NAME 'astFromdomain'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.6 NAME 'astRegexten'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.7 NAME 'astFromuser'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.8 NAME 'astHost'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.9 NAME 'astMask'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.10 NAME 'astPort'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.11 NAME 'astQualify'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.12 NAME 'astipaddr'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.13 NAME 'astRtptimeout'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.14 NAME 'astRtpholdtimeout'
+        DESC ''
+        SUP name )
+
+#attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.15 NAME 'astType'
+#        DESC ''
+#        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.16 NAME 'astContext'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.17 NAME 'astPermit'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.18 NAME 'astDeny'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.19 NAME 'astMd5Secret'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.20 NAME 'astDtmfmode'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.21 NAME 'astCanReinvite'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.22 NAME 'astNat'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.23 NAME 'astCallgroup'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.24 NAME 'astPickupgroup'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.25 NAME 'astLanguage'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.26 NAME 'astAllow'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.27 NAME 'astDisallow'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.28 NAME 'astInsecure'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.29 NAME 'astTrustrpid'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.30 NAME 'astProgressinband'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.31 NAME 'astPromiscredir'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.32 NAME 'astCallerid'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.33 NAME 'astAccountcode'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.34 NAME 'astAmaflags'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.35 NAME 'astIncominglimit'
+        DESC ''
+        SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.36 NAME 'astRestrictcid'
+        DESC ''
+        SUP name )
+	
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.37 NAME 'astRegseconds'
+        DESC ''
+	SUP name )
+		
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.38 NAME 'astAuth'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.39 NAME 'astInkeys'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.40 NAME 'astNotransfer'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.41 NAME 'astJitterbuf'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.42 NAME 'astSendani'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.43 NAME 'astPeercontext'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.44 NAME 'astTrunk'
+        DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.45 NAME 'astname'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.46 NAME 'astVoicemailContext'
+	DESC 'VoiceMail Context'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.47 NAME 'astVoicemailVoiceboxNr'
+	DESC 'ummer der VoiceMailBox'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.48 NAME 'astVoicemailPassword'
+	DESC 'Passwort der VoiceMailBox'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.49 NAME 'astVoicemailPager'
+	DESC 'Pageradresse'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.50 NAME 'astVoicemailTz'
+	DESC 'Zeitzone für Zone-Nachrichten'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.51 NAME 'astVoicemailAttach'
+	DESC 'Soll die Mail die Sprachnachricht als Anhang beinhalten'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.52 NAME 'astVoicemailSaycid'
+	DESC 'Sage die CallerID Informationen vor der Nachricht'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.53 NAME 'astVoicemailDialout'
+	DESC 'Context zum Rauswählen'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.54 NAME 'astVoicemailCallback'
+	DESC 'Context zum Rückrufen'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.55 NAME 'astVoicemailReview'
+	DESC 'Erlaubt dem Sender das review/rerecord der Nachricht vor dem Speichern'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.56 NAME 'astVoicemailOperator'
+	DESC 'Erlaubt dem Sender eine 0 vor/nach/während einer VoiceMail zu drücken um einen Operator zu kontaktieren'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.57 NAME 'astVoicemailEnvelope'
+	DESC 'Ein\Aus der umfassenden Wiedergabe vor dem Abspielen der Nachrichten'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.58 NAME 'astVoicemailSayduration'
+	DESC 'Ein\Aus der Wiedergabedauer am Anfang der Nachricht'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.59 NAME 'astVoicemailSaydurationm'
+	DESC 'Die minimale Wiedergabedauer der Ansage'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.60 NAME 'astVoicemailSendvoicemail'
+	DESC 'Context zum Senden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.61 NAME 'astVoicemailDelete'
+	DESC 'Löschen der VoiceMail nach Benachrichtigung'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.62 NAME 'astVoicemailNextaftercmd'
+	DESC 'Springen zur nächsten Nachricht nach drücken der Tasten 7 oder 9 und löschen/speichern der aktuellen Nachricht'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.63 NAME 'astVoicemailForcename'
+	DESC 'Zwingt einen neuen Benutzer seinen Namen anzugeben'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.64 NAME 'astVoicemailForcegreetings'
+	DESC 'Erzwingen der Begrüßung'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.65 NAME 'astVoicemailHidefromdir'
+	DESC 'Verstecke die Mailbox vom Verzeichnis'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.66 NAME 'astVoicemailStamp'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.67 NAME 'astQueueContext'
+	DESC 'Queue Context'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.68 NAME 'astQueueMusiconhold'
+	DESC 'Setzt MusicOnHold'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.69 NAME 'astQueueAnnounce'
+	DESC 'Eine Ankündigung die für eien Member gespielt wird wenn der Anruf beantwortet wird'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.70 NAME 'astQueueStrategy'
+	DESC 'Definiert eine Klingelstrategie'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.71 NAME 'astQueueTimeout'
+	DESC 'Wie lange soll es bis zum TimeOut klingeln'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.72 NAME 'astQueueMonitorJoin'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.73 NAME 'astQueueMonitorFormat'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.74 NAME 'astQueueQueueYouarenext'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.75 NAME 'astQueueQueueThereare'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.76 NAME 'astQueueQueueCallswaiting'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.77 NAME 'astQueueQueueHoldtime'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.78 NAME 'astQueueQueueMinutes'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.79 NAME 'astQueueQueueSeconds'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.80 NAME 'astQueueQueueLessthan'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.81 NAME 'astQueueQueueThankyou'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.82 NAME 'astQueueQueueReporthold'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.83 NAME 'astQueueAnnounceFrequency'
+	DESC 'Wie oft soll die Queueposition angesagt werden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.84 NAME 'astQueueAnnounceHoldtime'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.85 NAME 'astQueueRetry'
+	DESC 'Wie lange soll gewartet werden bis versucht wird alle Mitglieder erneut anzurufen'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.86 NAME 'astQueueMaxlen'
+	DESC 'Wieviele Leute dürfen in der Queue warten'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.87 NAME 'astQueueMember'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.88 NAME 'astAgentContext'
+	DESC 'Agent Context'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.89 NAME 'astAgentPersistentagents'
+	DESC 'Sollen CallBackLogins in AstDB gespeichert werden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.90 NAME 'astAgentAutologoff'
+	DESC 'Wielange soll das Telefon klingeln bis Agent automatisch Ausgelogt wird (in Sekunden)'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.91 NAME 'astAgentAckcall'
+	DESC 'Bestätigung bei login "#"'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.92 NAME 'astAgentWrapuptime'
+	DESC 'Zeit nach Beendigung bis der Anrufer einen neuen Anruf entgegennehmen kann (Millisekunden)'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.93 NAME 'astAgentMusiconhold'
+	DESC 'Definiert MusicOnHold'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.94 NAME 'astAgentUpdatecdr'
+	DESC 'Definiert UpdateCDR'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.95 NAME 'astAgentGroup'
+	DESC 'ruppenzugehörigkeit der Agents'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.96 NAME 'astAgentRecordagentcalls'
+	DESC 'Einschalten des Anrufmitschneidens'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.97 NAME 'astAgentRecordformat'
+	DESC 'Das Format in dem die Mitschnitte abgelegt werden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.98 NAME 'astAgentCreatelink'
+	DESC 'Einfügen eines Namens in das CDR-Userfeld'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.99 NAME 'astAgentUrlprefix'
+	DESC 'Text der an die Aufnahme angehangen wird'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.100 NAME 'astAgentSavecallsin'
+	DESC 'Verzeichnis in dem die Konversationen abgelegt werden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.101 NAME 'astAgentCustombeep'
+	DESC 'Eine Sound-Datei die bei "always-connected" Agents wiedergegeben wird'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.102 NAME 'astAgentAgentID'
+	DESC 'Eindeutige ID des Agents'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.103 NAME 'astAgentAgentPassword'
+	DESC 'Passwort des Agents'
+	SUP name )
+
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.104 NAME 'astMeetMeContext'
+	DESC 'MeetMe Context'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.105 NAME 'astMeetMeConfno'
+	DESC 'Eindeuteige Konferenznummer'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.106 NAME 'astMeetMePincode'
+	DESC 'Pin-Code für den Konferenzraum'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.107 NAME 'astMeetMeAdminpin'
+	DESC 'Admin-Pin für den Konferenzraum'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.108 NAME 'astMeetMeAudiobuffers'
+	DESC 'Definiert den Audiopuffer in Millisekunden (max. 32)'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.109 NAME 'astVoicemailFormat'
+	DESC 'Format in dem VoiceMails abgelegt werden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.110 NAME 'astVoicemailServeremail'
+	DESC 'Wo kommt die E-Mail her'
+	SUP name )
+
+#attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.111 NAME 'astVoicemailAttach'
+#	DESC 'Soll die Mail die Sprachnachricht als Anhang beinhalten'
+#	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.112 NAME 'astVoicemailMaxmsg'
+	DESC 'Maximale Anzahl der Nachrichten pro Ordner'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.113 NAME 'astVoicemailMaxmessage'
+	DESC 'Maximale Länge der Sprachnachricht in Sekunden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.114 NAME 'astVoicemailMinmessage'
+	DESC 'Minimale Länge der Sprachnachricht in Sekunden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.115 NAME 'astVoicemailMaxgreet'
+	DESC 'Maximale Länge der Begrüßung in Sekunden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.116 NAME 'astVoicemailSkipms'
+	DESC 'Nach wieviel Millisekunden soll forward/back beendet werden, wenn rew/ff in der Nachricht ist'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.117 NAME 'astVoicemailMaxsilence'
+	DESC 'Nach wieviel Sekunden Stille soll der Anruf beendet werden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.118 NAME 'astVoicemailMaxlogins'
+	DESC 'Anzahl der fehlerhaften Anmeldeversuche'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.119 NAME 'astVoicemailExternnotify'
+	DESC 'Angabe eines externen Programmes zum Versenden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.120 NAME 'astVoicemailExternpass'
+	DESC 'Angabe eines externen Programmes beim Ändern des Passwortes'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.121 NAME 'astVoicemailDirectoryintro'
+	DESC 'Zum Überschreiben der Intro-Datei'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.122 NAME 'astVoicemailCharset'
+	DESC 'Angabe einer Norm (ISO-8859-1)'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.123 NAME 'astVoicemailAdsifdn'
+	DESC 'ADSI-Feature beschreibt Nummer zum Downloaden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.124 NAME 'astVoicemailAdsisec'
+	DESC 'ADSI-Sicherheits LockCode'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.125 NAME 'astVoicemailAdsiver'
+	DESC 'ADSI VoiceMail-Anwendungs-Versionsnummer'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.126 NAME 'astVoicemailPbxskip'
+	DESC 'Überspringe den "[PBX]:" String des Nachrichtentitels'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.127 NAME 'astVoicemailFromstring'
+	DESC 'Angabe des "From:" Feldes'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.128 NAME 'astVoicemailUsedirectory'
+	DESC 'Erlaubt das Finden von Einträgen für forward/compose von einem Verzeichnis'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.129 NAME 'astVoicemailEmailsubject'
+	DESC 'Das "Subject:"-Feld'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.130 NAME 'astVoicemailEmailbody'
+	DESC 'Der E-Mail Body max. 512 Zeichen'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.131 NAME 'astVoicemailEmaildateformat'
+	DESC 'Setzt das Datumsformat ausgehender Nachrichten'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.132 NAME 'astQueuePersistentmembers'
+	DESC 'Speichert jeden dynamischen Agenten in der AstDB'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.133 NAME 'astQueueDervicelevel'
+	DESC 'Setzen des Service-Levels'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.134 NAME 'astQueueGoToContext'
+	DESC 'Context der aufgerufen wird und einen Nutzer aus der Queue nimmt'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.135 NAME 'astQueueWeight'
+	DESC 'Wichtung der Queue'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.136 NAME 'astQueueWrapuptime'
+	DESC 'Wartezeit bis neuer Anruf angenommen werden kann'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.137 NAME 'astQueuePeriodicAnnounceFrequency'
+	DESC 'Wie oft soll eine periodische Begrüßung stattfinden'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.138 NAME 'astQueueAnnounceRoundSeconds'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.139 NAME 'astQueuePeriodicAnnounce'
+	DESC ''
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.140 NAME 'astQueueJoinempty'
+	DESC 'Wie können Anrufer der Queue beitreten'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.141 NAME 'astQueueLeavewhenempty'
+	DESC 'Entfernen von Anrufern, wenn neue Anrufer der Queue nicht beitreten können'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.142 NAME 'astQueueEventwhencalled'
+	DESC 'Generieren von Manager-Ereignissen "AgentCalled, AgentDump, AgentConnect, AgentComplete"'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.143 NAME 'astQueueEventmemberstatusoff'
+	DESC 'Generieren von Manager-Ereignis "QueueMemberStatus"'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.144 NAME 'astQueueReportholdtime'
+	DESC 'Berichten der Anruferwartezeit'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.145 NAME 'astQueueMemberdelay'
+	DESC 'Verzugszeit bis ein Mitglied verbunden wird'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.146 NAME 'astQueueTimeoutrestart'
+	DESC 'Reset AgentTimeout'
+	SUP name )
+
+attributetype ( 1.3.6.1.4.1.23935.5.2.1.1.147 NAME 'astVoicemailEmail'
+	DESC 'EMail-Adresse, an die Voicemails zugestellt werden sollen'
+	SUP name )
+
+
+
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.1 NAME 'astSipGeneric'
+        DESC ''
+        SUP top ABSTRACT
+	MUST ( astContext ) 
+	MAY ( astAuth $ astSecret $ astPermit $ astDeny $ astMd5Secret $ astDtmfmode $ astCanreinvite $ astNat $ astCallgroup $ astPickupgroup $ astAllow $ astDisallow $ astInsecure $ astTrustrpid $ astProgressinband $ astPromiscredir $ astRegseconds $ astname $ astLanguage ) )
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.2 NAME 'astSipPeer'
+        DESC ''
+        SUP astSipGeneric AUXILIARY
+        MUST astUsername
+	MAY ( astMailbox $ astTemplate $ astFromdomain $ astRegexten $ astFromuser $ astHost $ astMask $ astPort $ astQualify $ astipaddr $ astRtptimeout $ astRtpholdtimeout )  )
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.3 NAME 'astSipUser'
+        DESC ''
+        SUP astSipGeneric AUXILIARY
+        MAY ( AstCallerid $ astAccountcode $ astAmaflags $ astIncominglimit $ astRestrictcid ) )
+
+
+#objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.4 NAME 'astSipFriend'
+#        DESC ''
+#        SUP astSipPeer AUXILIARY
+#	MAY ( astCallerid $ astAccountcode $ astAmaflags $ astIncominglimit $ astRestrictcid ) )
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.5 NAME 'astQueue'
+	DESC ''
+	SUP top AUXILIARY
+	MUST ( astQueueContext )
+	MAY ( astQueueMusiconhold  $ astQueueAnnounce  $ astQueueStrategy  $ astQueueTimeout  $ astQueueMonitorJoin  $ astQueueMonitorFormat  $ astQueueQueueYouarenext  $ astQueueQueueThereare  $ astQueueQueueCallswaiting  $ astQueueQueueHoldtime  $ astQueueQueueMinutes  $ astQueueQueueSeconds  $ astQueueQueueLessthan   $ astQueueQueueThankyou  $ astQueueQueueReporthold  $ astQueueAnnounceFrequency  $ astQueueAnnounceHoldtime  $ astQueueRetry  $ astQueueMaxlen  $ astQueueMember $ astQueuePersistentmembers $ astQueueDervicelevel $ astQueueGoToContext $ astQueueWeight $ astQueueWrapuptime $ astQueuePeriodicAnnounceFrequency $ astQueueAnnounceRoundSeconds $ astQueuePeriodicAnnounce $ astQueueJoinempty $ astQueueLeavewhenempty $ astQueueEventwhencalled $ astQueueEventmemberstatusoff $ astQueueReportholdtime $ astQueueMemberdelay $ astQueueTimeoutrestart )
+	)
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.6 NAME 'astVoicemail'
+	DESC ''
+	SUP top AUXILIARY
+	MUST ( astVoicemailContext  $ astVoicemailVoiceboxNr )
+	MAY ( astVoicemailPassword  $ cn  $ astVoicemailPager  $ astVoicemailTz  $ astVoicemailAttach  $ astVoicemailSaycid  $ astVoicemailDialout  $ astVoicemailCallback  $ astVoicemailReview  $ astVoicemailOperator  $ astVoicemailEnvelope  $ astVoicemailSayduration  $ astVoicemailSaydurationm  $ astVoicemailSendvoicemail  $ astVoicemailDelete  $ astVoicemailNextaftercmd  $ astVoicemailForcename  $ astVoicemailForcegreetings  $ astVoicemailHidefromdir  $ astVoicemailStamp $ astVoicemailEmail )
+	)
+
+# astAgent -> braucht nur AgentID, kann AgentPW haben
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.7 NAME 'astAgent'
+	DESC ''
+	SUP top AUXILIARY 
+	MUST astAgentAgentID
+	MAY ( astAgentAgentPassword )
+	)
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.8 NAME 'astAgentGeneralConfig'
+	DESC ''
+	SUP top AUXILIARY
+	MAY ( astAgentContext $ astAgentPersistentagents  $ astAgentAutologoff  $ astAgentAckcall  $ astAgentWrapuptime  $ astAgentMusiconhold  $ astAgentUpdatecdr  $ astAgentGroup  $ astAgentRecordagentcalls  $ astAgentRecordformat  $ astAgentCreatelink  $ astAgentUrlprefix  $ astAgentSavecallsin  $ astAgentCustombeep )
+	)
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.9 NAME 'astMeetMe'
+	DESC ''
+	SUP top AUXILIARY
+	MUST ( astMeetMeContext $ astMeetMeConfno )
+	MAY ( astMeetMePincode $ astMeetMeAdminpin  $ astMeetMeAudiobuffers )
+	)
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.10 NAME 'astMeetMeGeneralConfig'
+	DESC ''
+	SUP top AUXILIARY
+	MAY ( astMeetMeContext $ astMeetMeAudiobuffers )
+	)
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.11 NAME 'astVoicemailGeneralConfig'
+	DESC ''
+	SUP top AUXILIARY
+	MAY ( astVoicemailContext $ astVoicemailTz $ astVoicemailAttach $ astVoicemailSaycid $ astVoicemailDialout $ astVoicemailCallback $ astVoicemailReview $ astVoicemailOperator $ astVoicemailEnvelope $ astVoicemailSayduration $ astVoicemailSaydurationm $ astVoicemailSendvoicemail $ astVoicemailDelete $ astVoicemailNextaftercmd $ astVoicemailForcename $ astVoicemailForcegreetings $ astVoicemailHidefromdir $ astVoicemailStamp $ astVoicemailFormat $ astVoicemailServeremail $ astVoicemailAttach $ astVoicemailMaxmsg $ astVoicemailMaxmessage $ astVoicemailMinmessage $ astVoicemailMaxgreet $ astVoicemailSkipms $ astVoicemailMaxsilence $ astVoicemailMaxlogins $ astVoicemailExternnotify $ astVoicemailExternpass $ astVoicemailDirectoryintro $ astVoicemailCharset $ astVoicemailAdsifdn $ astVoicemailAdsisec $ astVoicemailAdsiver $ astVoicemailPbxskip $ astVoicemailFromstring $ astVoicemailUsedirectory $ astVoicemailEmailsubject $ astVoicemailEmailbody $ astVoicemailEmaildateformat )
+	)
+
+
+objectclass ( 1.3.6.1.4.1.23935.5.2.1.2.12 NAME 'astQueueGeneralConfig'
+	DESC ''
+	SUP top AUXILIARY
+	MAY ( astQueueContext $ astQueuePersistentmembers )
+	)
