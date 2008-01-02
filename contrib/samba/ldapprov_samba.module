@@ -322,8 +322,8 @@ function _ldapprov_samba_user_submit(&$user, &$edit) {
     if ($edit['pass']) {
       // calculate nt and lm passwords for samba
       $hash = new smbHash();
-      $samba_vars['%lm_pass'] = $hash->lmhash($user->clear_pass);
-      $samba_vars['%nt_pass'] = $hash->nthash($user->clear_pass);
+      $samba_vars['%lm_pass'] = $hash->lmhash($edit['pass']);
+      $samba_vars['%nt_pass'] = $hash->nthash($edit['pass']);
       
       $time = time();
       $samba_vars['%pwd_timestamp'] = $time;
