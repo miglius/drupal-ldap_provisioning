@@ -272,7 +272,7 @@ function ldapprov_menu($may_cache) {
   }
   else {
     if (variable_get('ldapprov_enabled', FALSE)) { 
-      if (variable_get('user_register', 0) > 0) {
+      if (variable_get('user_register', 1) > 0) {
         $items[] = array(
           'path' => 'user/register', 
           'title' => t('Create new account'),
@@ -496,7 +496,7 @@ function ldapprov_admin() {
       '#default_value' => variable_get('ldapprov_profile_first', ''),
       '#size' => 50,
       '#maxlength' => 255,
-      '#description' => t('Profile field associated with the user\'s firt name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
+      '#description' => t('Profile field associated with the user\'s first name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
     );
     $form['registration']['ldapprov_profile_last'] = array(
       '#type' => 'textfield',
@@ -1384,7 +1384,7 @@ function _ldapprov_validate_submit($edit) {
   if ($row = db_fetch_object($result)) {
 
     // Check if users should be approved
-    if (variable_get('user_register', 0) == 2) {
+    if (variable_get('user_register', 1) == 2) {
 
       // User approval is needed
 
