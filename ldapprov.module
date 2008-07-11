@@ -2261,6 +2261,7 @@ function _ldapprov_create_user($edit) {
   global $user, $_ldapprov_ldap;
 
   $basedn = $_ldapprov_ldap->getOption('basedn');
+  $server_name = $_ldapprov_ldap->getOption('name');
   $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
   // First and last names
@@ -2357,7 +2358,7 @@ function _ldapprov_create_user($edit) {
     }
 
     // Create a drupal user
-    $new_user = user_save('', array('name' => $username, 'pass' => $pass, 'mail' => $edit['mail'], 'init' => $edit['mail'], 'status' => 1, 'authname_ldapauth' => $username, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn));
+    $new_user = user_save('', array('name' => $username, 'pass' => $pass, 'mail' => $edit['mail'], 'init' => $edit['mail'], 'status' => 1, 'authname_ldapauth' => $username, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, 'ldap_config' => $server_name));
     watchdog('ldapprov', t('New external user: %user using module %module.', array('%user' => $username, '%module' => 'ldapprov')), WATCHDOG_NOTICE, l(t('edit'), 'user/'. $new_user->uid .'/edit'));
 
     $login_url = url('user/reset/'. $new_user->uid .'/'. $new_user->created .'/'. user_pass_rehash($new_user->pass, $new_user->created, $new_user->login), NULL, NULL, TRUE);
