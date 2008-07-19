@@ -1,0 +1,335 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Implements invites for LDAP user provisioning.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+
+define(LDAPPROV_INVITE_ENABLED, variable_get('ldapprov_invite_enabled', 0));
+
+define(LDAPPROV_INVITE_PERMISSION,  'invite friends');
+define(LDAPPROV_INVITE_MAX_ENTRIES, 10);
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implementation of hook_perm().
+ */
+function ldapprov_invite_perm() {
+  return array(LDAPPROV_INVITE_PERMISSION);
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function ldapprov_invite_menu() {
+  return array(
+    'admin/settings/ldapprov_invite' => array(
+      'title' => 'LDAP Invites',
+      'description' => 'Configure invites for LDAP provisioning settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_invite_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'ldapprov_invite.admin.inc',
+    ),
+    'invite' => array(
+      'title' => 'Invites',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_invite_form'),
+      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+    ),
+    'invite/new' => array(
+      'title' => 'Invite',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+    ),
+    'invite/manage' => array(
+      'title' => 'Manage invites',
+      'page callback' => 'ldapprov_invite_list',
+      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'type' => MENU_LOCAL_TASK,
+    ),
+    'invite/resend' => array(
+      'title' => 'Resend',
+      'page callback' => 'ldapprov_invite_resend',
+      'page arguments' => array(2),
+      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'type' => MENU_CALLBACK,
+    ),
+    'invite/delete' => array(
+      'title' => 'Delete',
+      'page callback' => 'ldapprov_invite_delete',
+      'page arguments' => array(2),
+      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'type' => MENU_CALLBACK,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_mail().
+ */
+function ldapprov_invite_mail($key, &$message, $params) {
+  $language = $message['language'];
+  $account = $params['account'] ? $params['account'] : (object)array();
+  $variables = array_merge(user_mail_tokens($account, $language), $params['variables'] ? $params['variables'] : array());
+  $message['subject'] .= _ldapprov_invite_mail_text($key .'_subject', $language, $variables);
+  $message['body'][] = _ldapprov_invite_mail_text($key .'_body', $language, $variables);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Mail strings
+
+/**
+ * Returns a mail string for a variable name.
+ *
+ * Used by ldapprov_mail() and the settings forms to retrieve strings.
+ */
+function _ldapprov_invite_mail_text($key, $language = NULL, $variables = array()) {
+  $langcode = isset($language) ? $language->language : NULL;
+
+  if ($admin_setting = variable_get('ldapprov_invite_mail_'. $key, FALSE)) {
+    // An admin setting overrides the default string.
+    return strtr($admin_setting, $variables);
+  }
+  else {
+    // No override, return default string.
+    switch ($key) {
+      case 'invite_subject':
+        return t('You have been invited to the !site', $variables, $language->language);
+      case 'invite_body':
+        return t("Your friend, !name has invited you to join !site site. You may now register to the site at \n\n!register_uri\n\n----------\n\n!message\n\n--  !site team", $variables, $language->language);
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Invites
+
+/**
+ * Invites form.
+ */
+function ldapprov_invite_form() {
+  $form = array();
+
+  $form['invite'] = array(
+    '#type' => 'fieldset',
+  );
+  $form['invite']['#title'] = t('Invite a contact to the site');
+  $form['invite']['mail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('To'),
+    '#size' => '50',
+    '#maxlength' => '64',
+    '#required' => TRUE,
+  );
+  $form['invite']['mail']['#description'] = t('Type the e-mail of the person you would like to invite to the site.');
+  $form['invite']['message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Your message'),
+    '#required' => FALSE,
+    '#description' => t('This message will be added to the e-mail sent to the person you are inviting to the site.'),
+  );
+  $form['invite']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Invite'),
+  );
+
+  return $form;
+}
+
+/**
+ * Invite form validation.
+ */
+function ldapprov_invite_form_validate($form, &$form_state) {
+  global $user;
+
+  $values = $form_state['values'];
+
+  foreach (explode(',', $values['mail']) as $mail) {
+    $mail = trim($mail);
+    if (empty($mail))
+      continue;
+
+    if (!valid_email_address($mail)) {
+      form_set_error('mail', t('The e-mail address %mail is not valid.', array('%mail' => $mail)));
+    }
+
+    $result = db_query("SELECT rid FROM {ldapprov_invite} WHERE uid = %d AND mail = '%s'", $user->uid, $mail);
+    if ($row = db_fetch_object($result)) {
+      form_set_error('mail', t('The invitation already was sent to user with e-mail address %mail.', array('%mail' => $mail)));
+    }
+
+    // The user with this e-mails address already exist.
+    $result = db_query("SELECT * FROM {users} WHERE mail = '%s'", $mail);
+    if ($row = db_fetch_object($result)) {
+      form_set_error('mail', t('The user with e-mail address %mail is already registered with the system.', array('%mail' => $mail)));
+    }
+  }
+}
+
+/**
+ * Invite form submission.
+ */
+function ldapprov_invite_form_submit($form, &$form_state, $data = array()) {
+  global $user;
+
+  $values = $form_state['values'];
+  $time = time();
+
+  foreach (explode(',', $values['mail']) as $mail) {
+    $mail = trim($mail);
+    if (empty($mail))
+      continue;
+
+    // Sending invite.
+    $hash = _ldapprov_hash($mail, $time);
+
+    $result = db_query("SELECT l.* FROM {ldapprov} l WHERE l.mail = '%s' AND l.status < '2'", $mail);
+    if ($row = db_fetch_object($result)) {
+      $hash = $row->code;
+    }
+    else {
+      $registration_data = array();
+      db_query("INSERT INTO {ldapprov} (mail, code, status, data) VALUES ('%s', '%s', '0', '%s')", $mail, $hash, serialize($registration_data));
+      $rid = db_result(db_query("SELECT rid FROM {ldapprov} WHERE code = '%s' AND mail = '%s'", $hash, $mail));
+    }
+    db_query("INSERT INTO {ldapprov_invite} (uid, mail, message, data, rid, sent) VALUES (%d, '%s', '%s', '%s', %d, %d)", $user->uid, $mail, $values['message'], serialize($data), $rid, $time);
+
+    // Mail one time login URL and instructions.
+    _ldapprov_invite_mail($mail, $hash, $values['message']);
+  }
+}
+
+/**
+ * Mail invite.
+ */
+function _ldapprov_invite_mail($mail, $hash, $message) {
+  global $user;
+
+  // Mail one time login URL and instructions.
+  $variables = array('!name' => $user->name, '!register_uri' => url('user/register/'. $hash, array('absolute' => TRUE)), '!mail' => $mail, '!message' => $message);
+  $params = array('account' => $user, 'variables' => $variables);
+  $message = drupal_mail('ldapprov', 'invite', $mail, user_preferred_language($user), $params, !LDAPPROV_INVITE_FROM ? $user->mail : NULL);
+  if ($message['result']) {
+    watchdog('ldapprov_invite', 'Invite e-mail was mailed from %name to %mail.', array('%name' => $user->name, '%mail' => $mail));
+    drupal_set_message(t('The invite has been mailed to e-mail address %mail.', array('%mail' => $mail)));
+  }
+  else {
+    watchdog('ldapprov_invite', 'Error mailing invite e-mail from %user to %mail.', array('%name' => $user->name, '%mail' => $mail), WATCHDOG_ERROR);
+    drupal_set_message(t('Unable to send mail. Please contact the site admin.'), 'error');
+  }
+}
+
+/**
+ * Invites list.
+ */
+function ldapprov_invite_list() {
+  global $user;
+
+  $header = array(
+    array('data' => t('E-mail'), 'field' => 'mail'),
+    array('data' => t('Sent'), 'field' => 'sent', 'sort' => 'desc'),
+    array('data' => t('Status')),
+    array('data' => t('Action')),
+  );
+
+  // Show the invites mailed out.
+  $sql = "SELECT li.iid, li.mail, li.sent, l.uid, l.status, u.name FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid LEFT JOIN {users} u ON l.uid = u.uid WHERE li.uid = %d";
+  $query_count = "SELECT COUNT(li.iid) FROM {ldapprov_invite} li WHERE li.uid = %d";
+  $result = pager_query($sql . tablesort_sql($header), LDAPPROV_INVITE_MAX_ENTRIES, 0, $query_count, $user->uid);
+  $entries = _ldapprov_invite_list_entry($result);
+  $page = theme_table($header, $entries) . theme_pager(array(), LDAPPROV_INVITE_MAX_ENTRIES, 0);
+
+  return $page;
+}
+
+/**
+ * Formats an invite list entry.
+ */
+function _ldapprov_invite_list_entry($result) {
+  while ($row = db_fetch_object($result)) {
+    if ($row->uid > 0) {
+      $status = t('Joined');
+      $action = l(t("View account"), 'user/'. $row->uid);
+    }
+    else {
+      $status = t('Pending');
+      $action = l(t("resend"), 'invite/resend/'. $row->iid) .', '. l(t("delete"), 'invite/delete/'. $row->iid);
+    }
+
+    $entry = array(
+      check_plain($row->mail),
+      format_date($row->sent, LDAPPROV_DATE_FORMAT),
+      $status,
+      $action,
+    );
+
+    $entries[$row->rid] = $entry;
+  }
+
+  if (!isset($entry)) {
+    $entries[] = array(array('data' => t('No invites'), 'colspan' => 4));
+  }
+
+  return $entries;
+}
+
+/**
+ * Resend invitation.
+ */
+function ldapprov_invite_resend($iid) {
+  global $user;
+
+  $result = db_query("SELECT li.mail, li.message, l.code FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid WHERE li.iid = %d AND li.uid = %d", $iid, $user->uid);
+  if ($row = db_fetch_object($result)) {
+    _ldapprov_invite_mail($row->mail, $row->code, $row->message);
+    db_query("UPDATE {ldapprov_invite} SET sent = %d WHERE iid = %d", time(), $iid);
+  }
+
+  drupal_goto('invite/manage');
+}
+
+/**
+ * Delete invitation.
+ */
+function ldapprov_invite_delete($iid) {
+  global $user;
+
+  $result = db_query("SELECT * FROM {ldapprov_invite} WHERE iid = %d AND uid = %d", $iid, $user->uid);
+  if ($row = db_fetch_object($result)) {
+    $result = db_result(db_query("SELECT COUNT(li.iid) FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid  WHERE li.rid = %d AND l.status = '0'", $row->rid));
+    if ($result == 1)
+      db_query("DELETE FROM {ldapprov} WHERE rid = %d", $row->rid);
+    db_query("DELETE FROM {ldapprov_invite} WHERE iid = %d", $iid);
+    drupal_set_message(t('The invitation to %mail has been deleted.', array('%mail' => $row->mail)));
+  }
+  else {
+    drupal_set_message(t('Unable to delete the invite.'), 'error');
+  }
+
+  drupal_goto('invite/manage');
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// ldapprov hooks
+
+/**
+ * Implementation of hook_ldapuser().
+ */
+function ldapprov_invite_ldapuser(&$account) {
+  if (!$account->rid)
+    return;
+
+  $result = db_query("SELECT li.* FROM {ldapprov_invite} li WHERE li.rid = %d", $account->rid);
+  while ($row = db_fetch_object($result)) {
+    $data = unserialize($row->data);
+    if (!empty($data)) {
+      module_invoke_all('ldapinvite', $row->uid, $account, $data);
+    }
+  }
+}
+

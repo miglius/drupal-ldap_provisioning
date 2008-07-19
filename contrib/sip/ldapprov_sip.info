@@ -1,6 +1,8 @@
 ; $Id$
-name = LDAP provisioning SIP
-description = "Adds LDAP SIP extensions upon creation of a new usere via LDAP provisioning."
-package = Administration
-dependencies = ldapprov
+name = Provisioning SIP
+description = Adds LDAP SIP extensions upon creation of a new usere via LDAP provisioning.
+package = LDAP integration
+dependencies[] = ldapprov
+core = 6.x
+php = 5.2
 

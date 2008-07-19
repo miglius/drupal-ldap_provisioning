@@ -1,39 +1,195 @@
 <?php
-/* $Id$ */
+// $Id$
 
 /**
-* Implementation of hook_install()
-*/
+ * @file
+ * ldapprov module installation and upgrade code.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implementation of hook_enable().
+ */
+function ldapprov_enable() {
+  drupal_set_message(t('ldapprov module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldapprov'))));
+}
+
+/**
+ * Implementation of hook_install().
+ */
 function ldapprov_install() {
-  $ret = array();
+  drupal_install_schema('ldapprov');
+}
 
-  switch ($GLOBALS['db_type']) {
-    case 'pgsql':
-      break;
-    case 'mysqli':
-    case 'mysql':
-      $ret[] = db_query("CREATE TABLE {ldapprov} (
-        rid int(11) unsigned NOT NULL auto_increment,
-        name varchar(60) default NULL,
-        mail varchar(64) default NULL,
-        first_name varchar(64) default NULL,
-        last_name varchar(64) default NULL,
-        code varchar(255) default NULL,
-        status tinyint(1) default '0',
-        registered int(11) default '0',
-        data longtext,
-        approved int(11) default NULL,
-	cuid int(10) default NULL,
-        cname varchar(60) default NULL,
-	uid int(10) default NULL,
-        notes longtext default NULL,
-        PRIMARY KEY  (rid)) 
-        /*!40100 DEFAULT CHARACTER SET utf8 */"
-      );
+/**
+ * Implementation of hook_uninstall().
+ */
+function ldapprov_uninstall() {
+  drupal_uninstall_schema('ldapprov');
 
-      break;
+  // General settings.
+  variable_del('ldapprov_enabled');
+  variable_del('ldapprov_allow_username');
+  variable_del('ldapprov_username');
+
+  if (module_exists('captcha')) {
+    db_query("DELETE FROM {captcha_points} WHERE form_id = 'ldapprov_register'");
   }
 
-  return $ret;
+  variable_del('ldapprov_disable_create');
+  variable_del('ldapprov_debug');
+
+  variable_del('ldapprov_og');
+
+  variable_del('ldapprov_profile');
+  variable_del('ldapprov_profile_first');
+  variable_del('ldapprov_profile_last');
+
+  // Registration form.
+  variable_del('ldapprov_custom'. $key);
+
+  // LDAP authentication.
+  variable_del('ldapprov_server');
+  variable_del('ldapprov_dn');
+  variable_del('ldapprov_pass');
+  variable_del('ldapprov_pass_clear');
+
+  // LDAP fields.
+  variable_del('ldapprov_ldapdata');
+  variable_del('ldapprov_user_entry');
+
+  // E-mail notification.
+  variable_del('ldapprov_mail_code_subject');
+  variable_del('ldapprov_mail_code_body');
+  variable_del('ldapprov_mail_notify_subject');
+  variable_del('ldapprov_mail_notify_body');
+  variable_del('ldapprov_mail_reject_subject');
+  variable_del('ldapprov_mail_reject_body');
+  variable_del('ldapprov_mail_create_subject');
+  variable_del('ldapprov_mail_create_body');
+  variable_del('ldapprov_mail_delete_subject');
+  variable_del('ldapprov_mail_delete_body');
+
+  // Invites.
+  variable_del('ldapprov_invite');
+  variable_del('ldapprov_invite_from');
+  variable_del('ldapprov_mail_invite_subject');
+  variable_del('ldapprov_mail_invite_body');
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Schema API hooks
+
+/**
+ * Implementation of hook_schema().
+ */
+function ldapprov_schema() {
+  return array(
+    'ldapprov' => array(
+      'description' => t('Stores LDAP provisioning user registration data.'),
+      'fields' => array(
+        'rid' => array(
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'description' => t("The registration ID."),
+        ),
+        'name' => array(
+          'type' => 'varchar',
+          'length' => 60,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("{users}.name user's name."),
+        ),
+        'mail' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("User's email address."),
+        ),
+        'first_name' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("User's first name."),
+        ),
+        'last_name' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("User's last name."),
+        ),
+        'code' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("Secret code to validate e-mail address."),
+        ),
+        'status' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+          'size' => 'tiny',
+          'description' => t('Whether the user is unverified(0), pending(1), rejected(2), created(3) or deleted(4).'),
+        ),
+        'registered' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('Timestamp for when user filed in registration form.'),
+        ),
+        'data' => array(
+          'type' => 'text',
+          'not null' => FALSE,
+          'size' => 'big',
+          'description' => t('A serialized array of registration data.'),
+        ),
+        'approved' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('Timestamp for when user has been approved.'),
+        ),
+        'cuid' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('{users}.uid of the account approver.'),
+        ),
+        'cname' => array(
+          'type' => 'varchar',
+          'length' => 60,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("{users}.name account approver's name."),
+        ),
+        'uid' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('{users}.uid of the created user.'),
+        ),
+        'notes' => array(
+          'type' => 'text',
+          'not null' => FALSE,
+          'size' => 'big',
+          'description' => t('A user registration notes.'),
+        ),
+      ),
+      'indexes' => array(
+        'registered' => array('registered'),
+        'approved' => array('approved'),
+      ),
+      'primary key' => array('rid'),
+    ),
+  );
 }
 

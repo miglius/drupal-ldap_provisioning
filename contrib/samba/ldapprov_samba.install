@@ -1,0 +1,35 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * ldapprov_samba module installation and upgrade code.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implementation of hook_enable().
+ */
+function ldapprov_samba_enable() {
+  drupal_set_message(t('ldapprov_samba module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldapprov_samba'))));
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function ldapprov_samba_install() {}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ldapprov_samba_uninstall() {
+  variable_del('ldapprov_samba_enabled');
+  variable_del('ldapprov_samba_entry');
+  variable_del('ldapprov_samba_domain_sid');
+  variable_del('ldapprov_samba_default_group');
+  variable_del('ldapprov_samba_group_base_dn');
+  variable_del('ldapprov_samba_pass_expire');
+}
+

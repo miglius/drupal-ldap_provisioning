@@ -1,6 +1,8 @@
 ; $Id$
-name = ldapprov
-description = "Implements LDAP users provisioning."
-package = Administration
-dependencies = ldapauth
+name = Provisioning
+description = Implements LDAP users provisioning.
+package = LDAP integration
+dependencies[] = ldapauth
+core = 6.x
+php = 5.2
 

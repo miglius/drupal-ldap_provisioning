@@ -1,6 +1,8 @@
 ; $Id$
-name = LDAP provisioning Samba
-description = "Adds LDAP Samba extensions upon creation of a new usere via LDAP provisioning."
-package = Administration
-dependencies = ldapprov
+name = Provisioning Samba
+description = Adds LDAP Samba extensions upon creation of a new usere via LDAP provisioning.
+package = LDAP integration
+dependencies[] = ldapprov
+core = 6.x
+php = 5.2
 

@@ -1,0 +1,101 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * ldapprov_install module installation and upgrade code.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implementation of hook_enable().
+ */
+function ldapprov_invite_enable() {
+  drupal_set_message(t('ldapprov_invite module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldapprov_invite'))));
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function ldapprov_invite_install() {
+  drupal_install_schema('ldapprov_invite');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ldapprov_invite_uninstall() {
+  drupal_uninstall_schema('ldapprov_invite');
+
+  variable_del('ldapprov_invite_enebled');
+  variable_del('ldapprov_invite_from');
+  variable_del('ldapprov_invite_mail_invite_subject');
+  variable_del('ldapprov_invite_mail_invite_body');
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Schema API hooks
+
+/**
+ * Implementation of hook_schema().
+ */
+function ldapprov_invite_schema() {
+  return array(
+    'ldapprov_invite' => array(
+      'description' => t('Stores LDAP provisioning invitation data.'),
+      'fields' => array(
+        'iid' => array(
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'description' => t("The invitation ID."),
+        ),
+        'uid' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('{users}.uid of the inviter.'),
+        ),
+        'mail' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'default' => '',
+          'description' => t("Email address an invite was sent to."),
+        ),
+        'message' => array(
+          'type' => 'text',
+          'not null' => FALSE,
+          'size' => 'big',
+          'description' => t('A message was mailed in invitation.'),
+        ),
+        'data' => array(
+          'type' => 'text',
+          'not null' => FALSE,
+          'size' => 'big',
+          'description' => t('A serialized array of invitation data.'),
+        ),
+        'rid' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('{ldapprov}.rid registration ID.'),
+        ),
+        'sent' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => t('Timestamp for when an invitation was sent out.'),
+        ),
+      ),
+      'indexes' => array(
+        'sent' => array('sent'),
+      ),
+      'primary key' => array('iid'),
+    ),
+  );
+}
+

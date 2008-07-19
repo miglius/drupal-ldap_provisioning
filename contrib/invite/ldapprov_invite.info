@@ -1,0 +1,8 @@
+; $Id$
+name = Provisioning invites
+description = Implements invites for LDAP users provisioning.
+package = LDAP integration
+dependencies[] = ldapprov
+core = 6.x
+php = 5.2
+

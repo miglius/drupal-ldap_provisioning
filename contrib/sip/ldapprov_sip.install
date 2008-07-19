@@ -1,0 +1,32 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * ldapprov_sip module installation and upgrade code.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implementation of hook_enable().
+ */
+function ldapprov_sip_enable() {
+  drupal_set_message(t('ldapprov_sip module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldapprov_sip'))));
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function ldapprov_sip_install() {}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ldapprov_sip_uninstall() {
+  variable_del('ldapprov_sip_enabled');
+  variable_del('ldapprov_sip_name');
+  variable_del('ldapprov_sip_entry');
+}
+

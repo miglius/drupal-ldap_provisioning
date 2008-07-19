@@ -1,68 +1,51 @@
 <?php
-/* $Id$ */
+// $Id$
 
 /**
- * @ldapprov sip
+ * @file
  * Adds LDAP SIP extensions upon creation of a new usere via LDAP provisioning
  */
 
 //////////////////////////////////////////////////////////////////////////////
 
-define(LDAP_SIP_OBJECTCLASS, 'astSipUser');
+define(LDAPPROV_SIP_ENABLED, variable_get('ldapprov_sip_enabled', FALSE));
+define(LDAPPROV_SIP_NAME,    variable_get('ldapprov_sip_name', '!name_!ldap_ou'));
+define(LDAPPROV_SIP_ENTRY,   variable_get('ldapprov_sip_entry', "objectClass: astSipGeneric\nobjectClass: astSipUser\nobjectClass: astSipPeer\nobjectClass: astVoicemail\nastname: !sip_name\nastMd5Secret: !sip_pass\nastHost: dynamic\nastContext: default\nastNat: yes\nastCanReinvite: yes\nastVoicemailContext: default\nastVoicemailVoiceboxNr: !sip_name\nastVoicemailPassword: !sip_voicemail_pass\nastipaddr: 0.0.0.0\nastPort: 5060\nastRegseconds: 3600\nastUsername: !sip_name"));
+
+define(LDAPPROV_SIP_OBJECTCLASS, 'astSipUser');
 
 //////////////////////////////////////////////////////////////////////////////
-// CORE API HOOKS
-
-/**
- * Implementation of hook_help().
- */
-function ldapprov_sip_help($section) {
-  $output = '';
-
-  switch ($section) {
-    case 'admin/help#ldapprov_sip':
-      $output = t('Adds LDAP SIP extensions upon creation of a new usere via LDAP provisioning.');
-      break;
-  }
-
-  return $output;
-}
+// Core API hooks
 
 /**
  * Implementation of hook_menu().
  */
-function ldapprov_sip_menu($may_cache) {
-
-  $items = array();
-
-  if ($may_cache) {
-    $items[] = array(
-      'path' => 'admin/settings/ldapprov_sip',
-      'title' => t('LDAP Provisioning SIP'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('ldapprov_sip_admin'),
-      'access' => user_access('administer site configuration'),
-      'description' => t('Configure LDAP Provisioning SIP extensions settings.'),
-      'type' => MENU_NORMAL_ITEM,
-    );
-  }
-
-  return $items;
+function ldapprov_sip_menu() {
+  return array(
+    'admin/settings/ldapprov_sip' => array(
+      'title' => 'LDAP SIP',
+      'description' => 'Configure LDAP provisioning SIP settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_sip_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'ldapprov_sip.admin.inc',
+    ),
+  );
 }
 
 /**
  * Implementation of hook_user().
  */
-function ldapprov_sip_user($op, &$edit, &$user, $category = NULL) {
-  if (variable_get('ldapprov_sip_enabled', FALSE)) {
+function ldapprov_sip_user($op, &$edit, &$account, $category = NULL) {
+  if (LDAPPROV_SIP_ENABLED) {
     switch ($op) {
       case 'view':
-        if ($user->ldap_authentified && _ldapprov_sip_check($user)) { 
-          return _ldapprov_sip_user_view($user);
+        if ($account->ldap_authentified && _ldapprov_sip_check($account)) {
+          return _ldapprov_sip_user_view($account);
         }
         break;
       case 'form':
-        if ($user->ldap_authentified && _ldapprov_sip_check($user) && $category == 'account') { 
+        if ($account->ldap_authentified && _ldapprov_sip_check($account) && $category == 'account') {
           $form['sip'] = array(
             '#type' => 'fieldset',
             '#title' => t('SIP settings'),
@@ -73,7 +56,7 @@ function ldapprov_sip_user($op, &$edit, &$user, $category = NULL) {
           $form['sip']['voice_mail_pass'] = array(
             '#type' => 'textfield',
             '#title' => t('Voice mail password'),
-            '#default_value' => _ldapprov_sip_get_voicemail_pass($user),
+            '#default_value' => _ldapprov_sip_get_voicemail_pass($account),
             '#size' => 5,
             '#maxlength' => 4,
             '#description' => t('Your four digits voice mail password.'),
@@ -83,15 +66,15 @@ function ldapprov_sip_user($op, &$edit, &$user, $category = NULL) {
         }
         break;
       case 'validate':
-        if ($user->ldap_authentified && _ldapprov_sip_check($user) && $category == 'account') { 
+        if ($account->ldap_authentified && _ldapprov_sip_check($account) && $category == 'account') {
           if (!preg_match('/\d\d\d\d/', $edit['voice_mail_pass'])) {
             form_set_error('voice_mail_pass', t('The voice mail password should be four digits.'));
           }
         }
         break;
       case 'submit':
-        if ($user->ldap_authentified && $category == 'account') { 
-          _ldapprov_sip_user_submit($user, $edit);
+        if ($account->ldap_authentified && $category == 'account') {
+          _ldapprov_sip_user_submit($account, $edit);
         }
         break;
     }
@@ -99,78 +82,40 @@ function ldapprov_sip_user($op, &$edit, &$user, $category = NULL) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// SETTINGS
-
-/**   
- * Module settings form
- */
-function ldapprov_sip_admin() {
-
-  // SIP extensions
-  $form['sip'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('SIP extensions'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE
-  );
-  $form['sip']['ldapprov_sip_enabled'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable SIP extensions'),
-    '#default_value' => variable_get('ldapprov_sip_enabled', false),
-  );
-  $form['sip']['ldapprov_sip_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('SIP name'),
-    '#default_value' => variable_get('ldapprov_sip_name', '%name_%ldap_ou'),
-    '#size' => 50,
-    '#maxlength' => 255,
-    '#description' => t('Customize the SIP name (%sip_name variable used in SIP attributes).') .' '. t('Available variables are:') .' %name ('. t('drupal user name') .'), %ldap_ou ('. t('LDAP organizational unit (ou)') .').',
-  );
-  $form['sip']['ldapprov_sip_entry'] = array(
-    '#type' => 'textarea', 
-    '#title' => t('SIP LDAP attributes'), 
-    '#default_value' => variable_get('ldapprov_sip_entry', "objectClass: astSipGeneric\nobjectClass: astSipUser\nobjectClass: astSipPeer\nobjectClass: astVoicemail\nastname: %sip_name\nastMd5Secret: %sip_pass\nastHost: dynamic\nastContext: default\nastNat: yes\nastCanReinvite: yes\nastVoicemailContext: default\nastVoicemailVoiceboxNr: %sip_name\nastVoicemailPassword: %sip_voicemail_pass\nastipaddr: 0.0.0.0\nastPort: 5060\nastRegseconds: 3600\nastUsername: %sip_name"), 
-    '#rows' => 20, 
-    '#description' => t('Customize the LDAP SIP attributes in LDIF style.') .' '. t('Available variables are:') .' %sip_name, %sip_pass, %sip_voicemail_pass. '. t('Empty lines and lines starting with "#" will be ignored.'),
-  );
- 
-  return system_settings_form($form);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// LDAPPROV HOOKS 
+// ldapprov hooks
 
 /**
  * Implementation of hook_ldapuser().
  */
-function ldapprov_sip_ldapuser(&$user) {
-  if (variable_get('ldapprov_sip_enabled', false)) {
+function ldapprov_sip_ldapuser(&$account) {
+  if (LDAPPROV_SIP_ENABLED) {
     global $_ldapprov_ldap;
 
-    $name_vars['%name'] = ($user->new_name) ? $user->new_name : $user->name;
-    $name_vars['%ou'] = preg_replace('/.*ou=([^,]+),.*/', '\1', $_ldapprov_ldap->getOption('basedn'));
-    $sip_name = _ldapprov_sip_name($user);
-    $sip_pass = _ldapprov_sip_password($sip_name, $user->clear_pass);
+    $name_vars['!name'] = ($account->new_name) ? $account->new_name : $account->name;
+    $name_vars['!ou'] = preg_replace('/.*ou=([^,]+),.*/', '\1', $_ldapprov_ldap->getOption('basedn'));
+    $sip_name = _ldapprov_sip_name($account);
+    $sip_pass = _ldapprov_sip_password($sip_name, $account->clear_pass);
 
     $sip_voicemail_pass = '';
     for ($i = 0; $i < 4; $i++) {
       $sip_voicemail_pass .= mt_rand(0, 9);
     }
 
-    $sip_vars['%sip_name'] = $sip_name;
-    $sip_vars['%sip_pass'] = $sip_pass;
-    $sip_vars['%sip_voicemail_pass'] = $sip_voicemail_pass;
+    $sip_vars['!sip_name'] = $sip_name;
+    $sip_vars['!sip_pass'] = $sip_pass;
+    $sip_vars['!sip_voicemail_pass'] = $sip_voicemail_pass;
 
-    foreach (explode("\n", variable_get('ldapprov_sip_entry', '')) as $line) {
+    foreach (explode("\n", LDAPPROV_SIP_ENTRY) as $line) {
       $line = str_replace("\r", '', $line);
-      if (preg_match('/^\s*$/', $line)) { continue; }
-      if (preg_match('/^#.*$/', $line)) { continue; }
+      if (preg_match('/^\s*$/', $line) || preg_match('/^#.*$/', $line)) {
+        continue;
+      }
       list($attr, $var) = explode(': ', $line);
       $ldif[$attr][] = strtr($var, $sip_vars);
     }
 
-    // Print ldif if debugging is enabled
-    if (variable_get('ldapprov_debug', FALSE)) {
+    // Print ldif if debugging is enabled.
+    if (LDAPPROV_DEBUG) {
       foreach ($ldif as $key => $val) {
         foreach ($val as $k => $v) {
           $ldif_out .= "$key: $v<br />";
@@ -178,72 +123,72 @@ function ldapprov_sip_ldapuser(&$user) {
       }
       drupal_set_message($ldif_out);
     }
-    
-    if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-      watchdog('ldapprov_sip', t('User edit: user data could not be written in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+
+    if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+      watchdog('ldapprov_sip', 'User create: user data could not be written in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
       return;
     }
 
-    $oc = $_ldapprov_ldap->retrieveMultiAttribute($user->ldap_dn, 'objectClass');
+    $oc = $_ldapprov_ldap->retrieveMultiAttribute($account->ldap_dn, 'objectClass');
     $ldif['objectClass'] = array_merge($oc, $ldif['objectClass']);
-    $_ldapprov_ldap->writeAttributes($user->ldap_dn, $ldif);
+    $_ldapprov_ldap->writeAttributes($account->ldap_dn, $ldif);
 
     $_ldapprov_ldap->disconnect();
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// MISC FUNCTIONS 
+// Misc functions
 
-/* 
- * Sets SIP name
+/**
+ * Sets SIP name.
  */
-function _ldapprov_sip_name(&$user) {
+function _ldapprov_sip_name(&$account) {
   global $_ldapprov_ldap;
 
-  $name_vars['%name'] = ($user->new_name) ? $user->new_name : $user->name;
-  $name_vars['%ldap_ou'] = preg_replace('/.*ou=([^,]+),.*/', '\1', $_ldapprov_ldap->getOption('basedn'));
-  $sip_name = strtr(variable_get('ldapprov_sip_name', '%name_%ldap_ou'), $name_vars);
+  $name_vars['!name'] = ($account->new_name) ? $account->new_name : $account->name;
+  $name_vars['!ldap_ou'] = preg_replace('/.*ou=([^,]+),.*/', '\1', $_ldapprov_ldap->getOption('basedn'));
+  $sip_name = strtr(LDAPPROV_SIP_NAME, $name_vars);
 
   return $sip_name;
 }
 
-/* 
+/*
  * Sets SIP password
  */
 function _ldapprov_sip_password($sip_name, $pass) {
   return md5($sip_name .':asterisk:'. $pass);
 }
 
-/* 
- * Checks if a user has SIP extensions
+/**
+ * Checks if a user has SIP extensions.
  */
-function _ldapprov_sip_check(&$user) {
+function _ldapprov_sip_check(&$account) {
   global $_ldapprov_ldap;
 
-  if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-    watchdog('ldapprov_sip', t('User view: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+  if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+    watchdog('ldapprov_sip', 'User view: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
     return;
   }
 
-  $oc = $_ldapprov_ldap->retrieveMultiAttribute($user->ldap_dn, 'objectClass');
+  $oc = $_ldapprov_ldap->retrieveMultiAttribute($account->ldap_dn, 'objectClass');
   $_ldapprov_ldap->disconnect();
 
-  return in_array(LDAP_SIP_OBJECTCLASS, $oc);
+  return in_array(LDAPPROV_SIP_OBJECTCLASS, $oc);
 }
 
-/* 
- * Prints SIP information in profile
+/**
+ * Prints SIP information in profile.
  */
-function _ldapprov_sip_user_view(&$user) {
+function _ldapprov_sip_user_view(&$account) {
   global $_ldapprov_ldap;
 
-  if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-    watchdog('ldapprov_sip', t('User view: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+  if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+    watchdog('ldapprov_sip', 'User view: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
     return;
   }
 
-  $sip_name = $_ldapprov_ldap->retrieveAttribute($user->ldap_dn, 'astName');
+  $sip_name = $_ldapprov_ldap->retrieveAttribute($account->ldap_dn, 'astName');
 
   $_ldapprov_ldap->disconnect();
 
@@ -255,58 +200,59 @@ function _ldapprov_sip_user_view(&$user) {
   return $ret;
 }
 
-/* 
- * Gets voicemail password
+/**
+ * Gets voicemail password.
  */
-function _ldapprov_sip_get_voicemail_pass(&$user) {
+function _ldapprov_sip_get_voicemail_pass(&$account) {
   global $_ldapprov_ldap;
 
-  if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-    watchdog('ldapprov_sip', t('User view: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+  if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+    watchdog('ldapprov_sip', 'User view: user data could not be written in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
     return;
   }
 
-  $voicemail_pass = $_ldapprov_ldap->retrieveAttribute($user->ldap_dn, 'astVoicemailPassword');
+  $voicemail_pass = $_ldapprov_ldap->retrieveAttribute($account->ldap_dn, 'astVoicemailPassword');
 
   $_ldapprov_ldap->disconnect();
 
   return $voicemail_pass;
 }
 
-/* 
- * Saves sip extensions
+/**
+ * Saves sip extensions.
  */
-function _ldapprov_sip_user_submit(&$user, &$edit) {
+function _ldapprov_sip_user_submit(&$account, &$edit) {
   global $_ldapprov_ldap;
 
-  $sip_extensions = _ldapprov_sip_check($user);
+  $sip_extensions = _ldapprov_sip_check($account);
 
   if ($sip_extensions) {
-    if (!$_ldapprov_ldap->connect(variable_get('ldapprov_dn', ''), variable_get('ldapprov_pass', ''))) {
-      watchdog('ldapprov_sip', t('User edit: user data could not be written in the LDAP directory. Could not bind as %dn.', array('%dn' => variable_get('ldapprov_dn', ''))), WATCHDOG_ERROR);
+    if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+      watchdog('ldapprov_sip', 'User edit: user data could not be written in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
       return;
     }
 
-    $_ldapprov_ldap->writeAttributes($user->ldap_dn, array('astVoicemailPassword' => $edit['voice_mail_pass']));
+    $_ldapprov_ldap->writeAttributes($account->ldap_dn, array('astVoicemailPassword' => $edit['voice_mail_pass']));
 
-    if (isset($edit['name']) && $user->name != $edit['name']) {
-      $user->new_name = $edit['name'];
-      $sip_name = _ldapprov_sip_name($user);
-      $sip_vars['%sip_name'] = $sip_name;
+    if (isset($edit['name']) && $account->name != $edit['name']) {
+      $account->new_name = $edit['name'];
+      $sip_name = _ldapprov_sip_name($account);
+      $sip_vars['!sip_name'] = $sip_name;
     }
     else {
-      $sip_name = $_ldapprov_ldap->retrieveAttribute($user->ldap_dn, 'astName');
+      $sip_name = $_ldapprov_ldap->retrieveAttribute($account->ldap_dn, 'astName');
     }
 
     if ($edit['pass']) {
-      $sip_vars['%sip_pass'] = _ldapprov_sip_password($sip_name, $edit['pass']);
+      $sip_vars['!sip_pass'] = _ldapprov_sip_password($sip_name, $edit['pass']);
     }
 
     if (is_array($sip_vars)) {
-      foreach (explode("\n", variable_get('ldapprov_sip_entry', '')) as $line) {
+      foreach (explode("\n", LDAPPROV_SIP_ENTRY) as $line) {
         $line = str_replace("\r", '', $line);
-        if (preg_match('/^\s*$/', $line)) { continue; }
-        if (preg_match('/^#.*$/', $line)) { continue; }
+        if (preg_match('/^\s*$/', $line) || preg_match('/^#.*$/', $line)) {
+          continue;
+        }
         list($attr, $var) = explode(': ', $line);
         foreach ($sip_vars as $key => $sip_var) {
           if (preg_match('/'. $key .'/', $var)) {
@@ -316,21 +262,21 @@ function _ldapprov_sip_user_submit(&$user, &$edit) {
       }
 
       if (is_array($ldif)) {
-        $_ldapprov_ldap->writeAttributes($user->ldap_dn, $ldif);
+        $_ldapprov_ldap->writeAttributes($account->ldap_dn, $ldif);
       }
     }
 
     $_ldapprov_ldap->disconnect();
   }
   else {
-    // create sip extensions
+    // create sip extensions.
     // the sip password will be saved only on drupal password change.
-    if (isset($edit['name']) && $user->name != $edit['name']) {
-      $user->new_name = $edit['name'];
+    if (isset($edit['name']) && $account->name != $edit['name']) {
+      $account->new_name = $edit['name'];
     }
-    $user->clear_pass = $edit['pass'];
-  
-    ldapprov_sip_ldapuser($user);
+    $account->clear_pass = $edit['pass'];
+
+    ldapprov_sip_ldapuser($account);
   }
 }
 
