@@ -18,11 +18,6 @@
 function ldapprov_invite_admin_settings() {
   // Invites
   $form['invite'] = array('#type' => 'fieldset', '#title' => t('Invites'), '#collapsible' => TRUE, '#collapsed' => FALSE);
-  $form['invite']['ldapprov_invite_enabled'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable invites'),
-    '#default_value' => LDAPPROV_INVITE_ENABLED,
-  );
   $form['invite']['ldapprov_invite_from'] = array(
     '#type' => 'radios',
     '#title' => t('"From" e-mail address'),
@@ -77,7 +72,6 @@ function ldapprov_invite_admin_settings_submit($form, &$form_state) {
     case "Save configuration":
       $values = $form_state['values'];
 
-      variable_set('ldapprov_invite_enabled', $values['ldapprov_invite_enabled']);
       variable_set('ldapprov_invite_from', $values['ldapprov_invite_from']);
       variable_set('ldapprov_invite_mail_invite_subject', $values['ldapprov_invite_mail_invite_subject']);
       variable_set('ldapprov_invite_mail_invite_body', $values['ldapprov_invite_mail_invite_body']);
@@ -86,7 +80,6 @@ function ldapprov_invite_admin_settings_submit($form, &$form_state) {
       break;
     case "Reset to defaults":
 
-      variable_del('ldapprov_invite_enabled');
       variable_del('ldapprov_invite_from');
       variable_del('ldapprov_invite_mail_invite_subject');
       variable_del('ldapprov_invite_mail_invite_body');

@@ -8,8 +8,6 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define(LDAPPROV_INVITE_ENABLED, variable_get('ldapprov_invite_enabled', 0));
-
 define(LDAPPROV_INVITE_PERMISSION,  'invite friends');
 define(LDAPPROV_INVITE_MAX_ENTRIES, 10);
 
