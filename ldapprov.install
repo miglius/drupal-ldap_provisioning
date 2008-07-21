@@ -196,7 +196,7 @@ function ldapprov_schema() {
 function ldapprov_update_6000() {
   $ret = array();
 
-  db_rename_table($ret, 'register', 'ldapprov')
+  db_rename_table($ret, 'register', 'ldapprov');
   db_add_field($ret, 'ldapprov', 'cname', array(
     'type' => 'varchar',
     'length' => 60,
