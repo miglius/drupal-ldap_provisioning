@@ -124,12 +124,12 @@ function ldapprov_invite_form() {
     '#maxlength' => '64',
     '#required' => TRUE,
   );
-  $form['invite']['mail']['#description'] = t('Type the e-mail of the person you would like to invite to the site.');
+  $form['invite']['mail']['#description'] = t('Type the comma separated list of e-mails of the people you would like to invite to the site.');
   $form['invite']['message'] = array(
     '#type' => 'textarea',
     '#title' => t('Your message'),
     '#required' => FALSE,
-    '#description' => t('This message will be added to the e-mail sent to the person you are inviting to the site.'),
+    '#description' => t('This message will be added to the e-mails sent to the people you are inviting to the site.'),
   );
   $form['invite']['submit'] = array(
     '#type' => 'submit',
