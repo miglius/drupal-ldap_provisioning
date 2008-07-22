@@ -219,21 +219,22 @@ function ldapprov_user($op, &$edit, &$account, $category = NULL) {
       case 'delete':
         _ldapprov_user_delete($edit, $account);
         break;
-      case 'validate':
-        if (isset($edit['ldap_dn']) && $account->ldap_dn != $edit['ldap_dn']) {
-          _ldapprov_user_validate($edit, $account);
-        }
-        break;
-      case 'update':
-        // This code should live in ldapauth module.
-        if (isset($edit['name']) && $account->name != $edit['name']) {
-          db_query("UPDATE {authmap} SET authname = '%s' WHERE module = 'ldapauth' AND uid = %d", $edit['name'], $account->uid);
-        }
-        if (isset($edit['ldap_dn']) && $account->ldap_dn != $edit['ldap_dn']) {
-          _ldapprov_user_update($edit, $account);
-        }
-        break;
     }
+  }
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function ldapprov_form_alter(&$form, $form_state, $form_id) {
+  switch ($form_id) {
+    case "user_profile_form":
+      if (LDAPPROV_ENABLED && user_access(LDAPPROV_PERMISSION)) {
+        // Set a custom form validate and submit handlers.
+        $form['#validate'][] = 'ldapprov_account_validate';
+        $form['#submit'][] = 'ldapprov_account_submit';
+      }
+      break;
   }
 }
 
@@ -246,6 +247,33 @@ function ldapprov_mail($key, &$message, $params) {
   $variables = array_merge(user_mail_tokens($account, $language), $params['variables'] ? $params['variables'] : array());
   $message['subject'] .= _ldapprov_mail_text($key .'_subject', $language, $variables);
   $message['body'][] = _ldapprov_mail_text($key .'_body', $language, $variables);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// FAPI
+
+/**
+ * Account save validate handler.
+ */
+function ldapprov_account_validate($form, &$form_state) {
+  $values = $form_state['values'];
+  $account = $form['_account']['#value'];
+
+  if (isset($values['name']) && $account->name != $values['name']) {
+    _ldapprov_user_validate($values['name']);
+  }
+}
+
+/**
+ * Account save submit handler.
+ */
+function ldapprov_account_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  $account = $form['_account']['#value'];
+
+  if (isset($values['name']) && $account->name != $values['name']) {
+    _ldapprov_user_update($values['name'], $account);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -296,23 +324,21 @@ function _ldapprov_mail_text($key, $language = NULL, $variables = array()) {
 /**
  * User validate action.
  */
-function _ldapprov_user_validate(&$edit, &$account) {
+function _ldapprov_user_validate($name) {
   global $_ldapprov_ldap;
-
-  $name = _ldapprov_get_name_from_dn($edit['ldap_dn']);
 
   // Search for the entry in LDAP.
   if (isset($name)) {
     if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
       watchdog('ldapprov', 'User validate: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
-      form_set_error('ldap_dn', t('User data could not be read in the LDAP directory. Please contact site administrator.'));
+      form_set_error('name', t('User data could not be read in the LDAP directory. Please contact site administrator.'));
       return;
     }
 
     $basedn = $_ldapprov_ldap->getOption('basedn');
     $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
     if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
-      form_set_error('ldap_dn', t('The DN %name is already taken in LDAP.', array('%name' => $edit['ldap_dn'])));
+      form_set_error('name', t('The DN %dn is already taken in LDAP.', array('%dn' => $ret[0]['dn'])));
     }
 
     $_ldapprov_ldap->disconnect();
@@ -322,7 +348,7 @@ function _ldapprov_user_validate(&$edit, &$account) {
 /**
  * User update action.
  */
-function _ldapprov_user_update(&$edit, &$account) {
+function _ldapprov_user_update($name, $account) {
   global $_ldapprov_ldap;
 
   if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
@@ -333,12 +359,14 @@ function _ldapprov_user_update(&$edit, &$account) {
 
   $basedn = $_ldapprov_ldap->getOption('basedn');
   $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
-  $name = _ldapprov_get_name_from_dn($edit['ldap_dn']);
   if (!$_ldapprov_ldap->rename_entry($account->ldap_dn, $name_attr .'='. $name, $basedn, TRUE)) {
-    watchdog('ldapprov', 'User update: user %name ldap entry cannot be renamed.', array('%name' => $account->name), WATCHDOG_ERROR);
+    watchdog('ldapprov', 'User update: user %name ldap entry %dn was not renamed to a new name %name_new.', array('%name' => $account->name, '%dn' => $account->ldap_dn, '%name_new' => $name), WATCHDOG_ERROR);
   }
 
   $_ldapprov_ldap->disconnect();
+
+  user_save($account, array('ldap_dn' => $name_attr .'='. $name .','. $basedn, 'ldap_config' => $_ldapprov_ldap->getOption('sid')));
+  db_query("UPDATE {authmap} SET authname = '%s' WHERE module = 'ldapauth' AND uid = %d", $name, $account->uid);
 }
 
 /**
@@ -409,6 +437,7 @@ function _ldapprov_init() {
   $server = _ldapprov_get_server();
 
   $_ldapprov_ldap = new LDAPInterface();
+  $_ldapprov_ldap->setOption('sid', $server->sid);
   $_ldapprov_ldap->setOption('name', $server->name);
   $_ldapprov_ldap->setOption('server', $server->server);
   $_ldapprov_ldap->setOption('port', $server->port);
