@@ -64,7 +64,7 @@ function ldapprov_invite_og_form(&$form_state, $node) {
  * Invite form validation.
  */
 function ldapprov_invite_og_form_validate($form, &$form_state) {
-  ldapprov_invite_form_validate($form, &$form_state);
+  ldapprov_invite_form_validate($form, $form_state);
 }
 
 /**
@@ -78,7 +78,7 @@ function ldapprov_invite_og_form_submit($form, &$form_state) {
     'string' => t('Group !group', array('!group' => l($node->title, 'node/'. $node->nid))),
   );
 
-  ldapprov_invite_form_submit($form, &$form_state, $data);
+  ldapprov_invite_form_submit($form, $form_state, $data);
 }
 
 //////////////////////////////////////////////////////////////////////////////
