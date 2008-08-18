@@ -29,6 +29,7 @@ function ldapprov_invite_install() {
 function ldapprov_invite_uninstall() {
   drupal_uninstall_schema('ldapprov_invite');
 
+  variable_del('ldapprov_invite_enabled');
   variable_del('ldapprov_invite_from');
   variable_del('ldapprov_invite_mail_invite_subject');
   variable_del('ldapprov_invite_mail_invite_body');

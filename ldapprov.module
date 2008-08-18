@@ -516,7 +516,7 @@ function ldapprov_register(&$form_state, $code = FALSE) {
   );
 
   // Unset several form elements if user is coming from invite.
-  if (LDAPPROV_INVITE_ENABLED && $code) {
+  if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && $code) {
     $row = db_fetch_object(db_query("SELECT l.* FROM {ldapprov} l WHERE code = '%s'", $code));
     if ($row->rid) {
       if ($row->status > 0) {
@@ -843,7 +843,7 @@ function ldapprov_register_submit($form, &$form_state) {
   $last_name = (!module_exists('profile') || !LDAPPROV_PROFILE || LDAPPROV_PROFILE_LAST == '') ? $values['last_name'] : $values[LDAPPROV_PROFILE_LAST];
 
   // Check if registering from an invite.
-  if (LDAPPROV_INVITE_ENABLED && isset($values['code'])) {
+  if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && isset($values['code'])) {
 
     // Registering from an invite. E-mail is valid.
     $result = db_query("SELECT * FROM {ldapprov} WHERE code = '%s' AND status = '0'", $values['code']);
@@ -1006,14 +1006,14 @@ function _ldapprov_code_submit($values) {
       $variables = array('!mailto' => $row->mail, '!first_name' => $row->first_name, '!last_name' => $row->last_name, '!create_url' => url('admin/user/accounts/pending/create/'. $row->rid, array('absolute' => TRUE)));
       $result = db_query("SELECT DISTINCT u.uid FROM {users} u INNER JOIN {users_roles} ur ON u.uid = ur.uid INNER JOIN {permission} p ON ur.rid = p.rid WHERE p.perm LIKE '%%%s%%'", LDAPPROV_PERMISSION);
       while ($row2 = db_fetch_object($result)) {
-        $account = user_load($row->uid);
+        $account = user_load($row2->uid);
         $params = array('account' => $account, 'variables' => $variables);
         $message = drupal_mail('ldapprov', 'notify', $account->mail, user_preferred_language($account), $params);
         if ($message['result']) {
-          watchdog('ldapprov', 'E-mail notification message about %first_name %last_name account request mailed to %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $row2->mail));
+          watchdog('ldapprov', 'E-mail notification message about %first_name %last_name account request mailed to %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $account->mail));
         }
         else {
-          watchdog('ldapprov', 'Error mailing notification e-mail about %first_name %last_name account request mailed to %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $row2->mail), WATCHDOG_EROR);
+          watchdog('ldapprov', 'Error mailing notification e-mail about %first_name %last_name account request mailed to %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $account->mail), WATCHDOG_EROR);
         }
       }
 
@@ -1121,7 +1121,7 @@ function ldapprov_list_form(&$form_state, $tab) {
   $header[] = array('data' => t('First Name'), 'field' => 'first_name');
   $header[] = array('data' => t('Last Name'), 'field' => 'last_name');
   $header[] = array('data' => t('E-Mail'), 'field' => 'mail');
-  if (LDAPPROV_INVITE_ENEBLAED) {
+  if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENEBLAED) {
     $header[] = array('data' => t('Inviter'));
   }
   if ($status > 1) {
@@ -1160,7 +1160,7 @@ function ldapprov_list_form(&$form_state, $tab) {
     $form['first_name'][$row->rid] = array('#value' => check_plain($row->first_name));
     $form['last_name'][$row->rid] = array('#value' => check_plain($row->last_name));
     $form['mail'][$row->rid] = array('#value' => check_plain($row->mail));
-    if (LDAPPROV_INVITE_ENABLAED) {
+    if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLAED) {
       $inviters = array();
       $result2 = db_query("SELECT * FROM {ldapprov_invite} WHERE rid = %d", $row->rid);
       while ($row2 = db_fetch_object($result2)) {
@@ -1329,7 +1329,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
   $form = array();
 
   // Invite information.
-  if (LDAPPROV_INVITE_ENABLED && $rid) {
+  if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && $rid) {
     $result = db_query("SELECT li.*, u.name FROM {ldapprov_invite} li LEFT JOIN {users} u ON li.uid = u.uid WHERE li.rid = %d", $rid);
     while ($row = db_fetch_object($result)) {
       $invite_data = unserialize($row->data);

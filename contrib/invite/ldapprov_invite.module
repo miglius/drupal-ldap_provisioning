@@ -8,6 +8,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+define(LDAPPROV_INVITE_ENABLED, variable_get('ldapprov_invite_enabled', 0));
+
 define(LDAPPROV_INVITE_PERMISSION,  'invite friends');
 define(LDAPPROV_INVITE_MAX_ENTRIES, 10);
 
@@ -38,7 +40,7 @@ function ldapprov_invite_menu() {
       'title' => 'Invites',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_invite_form'),
-      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'access callback' => 'ldapprov_invite_access',
     ),
     'invite/new' => array(
       'title' => 'Invite',
@@ -47,24 +49,32 @@ function ldapprov_invite_menu() {
     'invite/manage' => array(
       'title' => 'Manage invites',
       'page callback' => 'ldapprov_invite_list',
-      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'access callback' => 'ldapprov_invite_access',
       'type' => MENU_LOCAL_TASK,
     ),
     'invite/resend' => array(
       'title' => 'Resend',
       'page callback' => 'ldapprov_invite_resend',
       'page arguments' => array(2),
-      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'access callback' => 'ldapprov_invite_access',
       'type' => MENU_CALLBACK,
     ),
     'invite/delete' => array(
       'title' => 'Delete',
       'page callback' => 'ldapprov_invite_delete',
       'page arguments' => array(2),
-      'access arguments' => array(LDAPPROV_INVITE_PERMISSION),
+      'access callback' => 'ldapprov_invite_access',
       'type' => MENU_CALLBACK,
     ),
   );
+}
+
+
+/**
+ * Access control.
+ */
+function ldapprov_invite_access() {
+  return LDAPPROV_INVITE_ENABLED && user_access(LDAPPROV_INVITE_PERMISSION);
 }
 
 /**
@@ -112,7 +122,6 @@ function _ldapprov_invite_mail_text($key, $language = NULL, $variables = array()
  */
 function ldapprov_invite_form() {
   $form = array();
-
   $form['invite'] = array(
     '#type' => 'fieldset',
   );
