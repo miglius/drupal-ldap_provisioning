@@ -12,6 +12,7 @@ define(LDAPPROV_ENABLED,        variable_get('ldapprov_enabled', 0));
 define(LDAPPROV_ALLOW_USERNAME, variable_get('ldapprov_allow_username', 1));
 define(LDAPPROV_USERNAME,       variable_get('ldapprov_username', '%f.%l'));
 define(LDAPPROV_DISABLE_CREATE, variable_get('ldapprov_disable_create', 0));
+define(LDAPPROV_PASS_LENGTH,    variable_get('ldapprov_pass_length', 6));
 define(LDAPPROV_DEBUG,          variable_get('ldapprov_debug', 0));
 define(LDAPPROV_PROFILE,        variable_get('ldapprov_profile', 0));
 define(LDAPPROV_OG,             variable_get('ldapprov_og', 0));
@@ -817,6 +818,11 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
     }
   }
 
+  // Validating password length.
+  if ($values['password'] && drupal_strlen(trim($values['password'])) < LDAPPROV_PASS_LENGTH) {
+    form_set_error('password', t('Password should be at least %length characters in length.', array('%length' => LDAPPROV_PASS_LENGTH)));
+  }
+
   // Checking for a batch user upload.
   if (!$messages) {
     return $errors;
@@ -1569,7 +1575,7 @@ function _ldapprov_create_user($data) {
   }
 
   // ldapauth defines if we use md5 for ldap passwords.
-  $pass = $data['password'] ? $data['password'] : user_password();
+  $pass = $data['password'] ? $data['password'] : user_password(LDAPPROV_PASS_LENGTH);
   $pass_ldap = $_ldapprov_ldap->getOption('encrypted') ? '{md5}'. base64_encode(pack('H*', md5($pass))) : $pass;
 
   $ldap_vars['!uid'] = $name;

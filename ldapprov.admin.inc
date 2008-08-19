@@ -53,6 +53,14 @@ function ldapprov_admin_settings() {
     '#description' => t('Whether the drupal user creation form for admin users should be disabled.'),
     '#default_value' => LDAPPROV_DISABLE_CREATE,
   );
+  $form['general']['ldapprov_pass_length'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Password length'),
+    '#size' => 2,
+    '#maxlength' => 2,
+    '#default_value' => LDAPPROV_PASS_LENGTH,
+    '#description' => t('Minimum password length for the new users.'),
+  );
   $form['general']['ldapprov_debug'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable debugging'),
@@ -273,6 +281,10 @@ function ldapprov_admin_settings_validate($form, &$form_state) {
   switch ($op) {
     case "Save configuration":
       $values = $form_state['values'];
+      if (!is_numeric($values['ldapprov_pass_length'])) {
+        form_set_error('ldapprov_pass_length', t('Password lenght should be numeric.'));
+      }
+
       // Check the profile first and last names
       if (module_exists('profile') && !LDAPPROV_ALLOW_USERNAME) {
         if (!empty($values['ldapprov_profile_first'])) {
@@ -332,6 +344,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       }
 
       variable_set('ldapprov_disable_create', $values['ldapprov_disable_create']);
+      variable_set('ldapprov_pass_length', $values['ldapprov_pass_length']);
       variable_set('ldapprov_debug', $values['ldapprov_debug']);
 
       // OG.
@@ -403,6 +416,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       }
 
       variable_del('ldapprov_disable_create');
+      variable_del('ldapprov_pass_length');
       variable_del('ldapprov_debug');
 
       variable_del('ldapprov_og');

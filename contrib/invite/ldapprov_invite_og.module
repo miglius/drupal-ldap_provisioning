@@ -7,6 +7,10 @@
  */
 
 //////////////////////////////////////////////////////////////////////////////
+
+define(LDAPPROV_INVITE_OG_TAB, variable_get('ldapprov_invite_og_tab', 1));
+
+//////////////////////////////////////////////////////////////////////////////
 // Core API hooks
 
 /**
@@ -14,13 +18,21 @@
  */
 function ldapprov_invite_og_menu() {
   return array(
+    'admin/settings/ldapprov_invite_og' => array(
+      'title' => 'LDAP Invites OG',
+      'description' => 'Configure OG invites for LDAP provisioning settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_invite_og_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'ldapprov_invite_og.admin.inc',
+    ),
     'node/%node/invite' => array(
       'title' => 'Invite',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_invite_og_form', 1),
       'access callback' => 'ldapprov_invite_og_can_invite',
       'access arguments' => array(1),
-      'type' => MENU_LOCAL_TASK,
+      'type' => variable_get('ldapprov_invite_og_tab', 1) ? MENU_LOCAL_TASK : MENU_CALLBACK,
       'weight' => 8,
     ),
   );

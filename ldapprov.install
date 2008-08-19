@@ -39,6 +39,7 @@ function ldapprov_uninstall() {
   }
 
   variable_del('ldapprov_disable_create');
+  variable_del('ldapprov_pass_length');
   variable_del('ldapprov_debug');
 
   variable_del('ldapprov_og');
