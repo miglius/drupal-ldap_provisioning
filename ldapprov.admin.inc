@@ -279,7 +279,7 @@ function ldapprov_admin_settings() {
 function ldapprov_admin_settings_validate($form, &$form_state) {
   $op = $form_state['clicked_button']['#value'];
   switch ($op) {
-    case "Save configuration":
+    case t('Save configuration'):
       $values = $form_state['values'];
       if (!is_numeric($values['ldapprov_pass_length'])) {
         form_set_error('ldapprov_pass_length', t('Password lenght should be numeric.'));
@@ -324,7 +324,7 @@ function ldapprov_admin_settings_validate($form, &$form_state) {
 function ldapprov_admin_settings_submit($form, &$form_state) {
   $op = $form_state['clicked_button']['#value'];
   switch ($op) {
-    case "Save configuration":
+    case t('Save configuration'):
       $values = $form_state['values'];
 
       // General settings.
@@ -403,7 +403,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
 
       drupal_set_message(t('The configuration options have been saved.'));
       break;
-    case "Reset to defaults":
+    case t('Reset to defaults'):
       $values = $form_state['values'];
 
       // General settings.

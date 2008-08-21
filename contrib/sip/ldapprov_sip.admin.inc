@@ -56,7 +56,7 @@ function ldapprov_sip_admin_settings() {
 function ldapprov_sip_admin_settings_validate($form, &$form_state) {
   $op = $form_state['clicked_button']['#value'];
   switch ($op) {
-    case "Save configuration":
+    case t('Save configuration'):
       $values = $form_state['values'];
       break;
   }
@@ -68,7 +68,7 @@ function ldapprov_sip_admin_settings_validate($form, &$form_state) {
 function ldapprov_sip_admin_settings_submit($form, &$form_state) {
   $op = $form_state['clicked_button']['#value'];
   switch ($op) {
-    case "Save configuration":
+    case t('Save configuration'):
       $values = $form_state['values'];
 
       variable_set('ldapprov_sip_enabled', $values['ldapprov_sip_enabled']);
@@ -77,7 +77,7 @@ function ldapprov_sip_admin_settings_submit($form, &$form_state) {
 
       drupal_set_message(t('The configuration options have been saved.'));
       break;
-    case "Reset to defaults":
+    case ('Reset to defaults'):
 
       variable_del('ldapprov_sip_enabled');
       variable_del('ldapprov_sip_name');
