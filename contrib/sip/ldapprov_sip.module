@@ -37,7 +37,7 @@ function ldapprov_sip_menu() {
  * Implementation of hook_user().
  */
 function ldapprov_sip_user($op, &$edit, &$account, $category = NULL) {
-  if (LDAPPROV_SIP_ENABLED) {
+  if (LDAPPROV_ENABLED && LDAPPROV_SIP_ENABLED) {
     switch ($op) {
       case 'view':
         if ($account->ldap_authentified && _ldapprov_sip_check($account)) {

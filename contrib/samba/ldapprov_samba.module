@@ -50,7 +50,7 @@ function ldapprov_samba_menu() {
  * Implementation of hook_user().
  */
 function ldapprov_samba_user($op, &$edit, &$account, $category = NULL) {
-  if (LDAPPROV_SAMBA_ENABLED) {
+  if (LDAPPROV_ENABLED && LDAPPROV_SAMBA_ENABLED) {
     switch ($op) {
       case 'submit':
         if ($account->ldap_authentified && $category == 'account') {
