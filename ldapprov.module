@@ -54,8 +54,8 @@ function ldapprov_help($path, $arg) {
  */
 function ldapprov_init() {
   // Initiates LDAP object.
+  include_once(drupal_get_path('module', 'ldapprov') .'/ldapprov.conf.inc');
   if (LDAPPROV_ENABLED) {
-    include_once(drupal_get_path('module', 'ldapprov') .'/ldapprov.conf.inc');
     _ldapprov_init();
   }
 }
@@ -272,7 +272,10 @@ function ldapprov_account_submit($form, &$form_state) {
   $values = $form_state['values'];
   $account = $form['_account']['#value'];
 
-  if (isset($values['name']) && $account->name != $values['name']) {
+  // The user name in $form['_account']['#value'] is already changed.
+  // Has to look for the old name in the authmap.
+  $result = db_query("SELECT * FROM {authmap} WHERE uid = %d", $account->uid);
+  if (isset($values['name']) && ($row = db_fetch_object($result)) && $account->name != $row->authname) {
     _ldapprov_user_update($values['name'], $account);
   }
 }
@@ -1566,9 +1569,9 @@ function _ldapprov_create_user($data) {
   $basedn = $_ldapprov_ldap->getOption('basedn');
   $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
-  if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
+  if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr)) || user_load(array('name' => $name))) {
     $i = 1;
-    while ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name . $i .')', array($name_attr))) {
+    while ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name . $i .')', array($name_attr)) || user_load(array('name' => $name . $i))) {
       $i++;
     }
     $name = $name . $i;

@@ -77,7 +77,7 @@ function ldapprov_sip_admin_settings_submit($form, &$form_state) {
 
       drupal_set_message(t('The configuration options have been saved.'));
       break;
-    case ('Reset to defaults'):
+    case t('Reset to defaults'):
 
       variable_del('ldapprov_sip_enabled');
       variable_del('ldapprov_sip_name');
