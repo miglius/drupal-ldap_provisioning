@@ -241,12 +241,13 @@ function ldapprov_invite_list() {
   $header = array(
     array('data' => t('E-mail'), 'field' => 'mail'),
     array('data' => t('Sent'), 'field' => 'sent', 'sort' => 'desc'),
+    array('data' => t('To')),
     array('data' => t('Status')),
     array('data' => t('Action')),
   );
 
   // Show the invites mailed out.
-  $sql = "SELECT li.iid, li.mail, li.sent, l.rid, l.uid, l.status, u.name FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid LEFT JOIN {users} u ON l.uid = u.uid WHERE li.uid = %d";
+  $sql = "SELECT li.iid, li.mail, li.sent, li.data, l.rid, l.uid, l.status, u.name, u.status u_status FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid LEFT JOIN {users} u ON l.uid = u.uid WHERE li.uid = %d";
   $query_count = "SELECT COUNT(li.iid) FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid WHERE li.uid = %d";
   $result = pager_query($sql . tablesort_sql($header), LDAPPROV_INVITE_MAX_ENTRIES, 0, $query_count, $user->uid);
   $entries = _ldapprov_invite_list_entry($result);
@@ -261,17 +262,29 @@ function ldapprov_invite_list() {
 function _ldapprov_invite_list_entry($result) {
   while ($row = db_fetch_object($result)) {
     if ($row->uid > 0) {
-      $status = t('Joined');
-      $action = l(t("View account"), 'user/'. $row->uid);
+      if ($row->status == 4) {
+        $status = t('Deleted');
+        $action = '';
+      }
+      else if (!$row->u_status) {
+        $status = t('Blocked');
+        $action = '';
+      }
+      else {
+        $status = t('Joined');
+        $action = theme('username', user_load($row->uid));
+      }
     }
     else {
       $status = t('Pending');
       $action = l(t("resend"), 'invite/resend/'. $row->iid) .', '. l(t("delete"), 'invite/delete/'. $row->iid);
     }
 
+    $data = unserialize($row->data);
     $entry = array(
       check_plain($row->mail),
       format_date($row->sent, LDAPPROV_DATE_FORMAT),
+      !empty($data) ? $data['string'] : 'Site',
       $status,
       $action,
     );
