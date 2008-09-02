@@ -206,6 +206,15 @@ function ldapprov_menu_alter(&$callbacks) {
     );
   }
 
+  if (!variable_get('ldapprov_enabled', 0)) {
+    unset($callbacks['admin/user/accounts']);
+    unset($callbacks['admin/user/accounts/pending']);
+    unset($callbacks['admin/user/accounts/created']);
+    unset($callbacks['admin/user/accounts/rejected']);
+    unset($callbacks['admin/user/accounts/deleted']);
+    unset($callbacks['admin/user/accounts/unverified']);
+    unset($callbacks['admin/user/accounts/new']);
+  }
   if (variable_get('ldapprov_enabled', 0) && variable_get('ldapprov_disable_create', 0)) {
     unset($callbacks['admin/user/user/create']);
   }
@@ -1234,6 +1243,31 @@ function ldapprov_list_submit($form, &$form_state) {
           foreach ($data as $key => $val) {
             if (!isset($val) || $val == '') {
               $errors += _ldapprov_check_required($register_form, $key);
+            }
+          }
+
+          // Check if the user with the same name already created in the system.
+          if (!LDAPPROV_ALLOW_USERNAME) {
+            $name = _ldapprov_make_username($data['first_name'], $data['last_name']);
+            $result = db_query("SELECT mail FROM {users} WHERE name = '%s'", $name);
+            if ($row = db_fetch_object($result)) {
+              $errors++;
+            }
+            else {
+              // When ldap users are in sync with drupal users, ldap search is not needed.
+              global $_ldapprov_ldap;
+
+              $basedn = $_ldapprov_ldap->getOption('basedn');
+              $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
+
+              if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+                watchdog('ldapprov', 'User creation: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
+                drupal_set_message(t('User creation: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
+              }
+              if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array('mail'))) {
+                $errors++;
+              }
+              $_ldapprov_ldap->disconnect();
             }
           }
 

@@ -198,6 +198,7 @@ function ldapprov_invite_form_submit($form, &$form_state, $data = array()) {
     $result = db_query("SELECT l.* FROM {ldapprov} l WHERE l.mail = '%s' AND l.status < '2'", $mail);
     if ($row = db_fetch_object($result)) {
       $hash = $row->code;
+      $rid = $row->rid;
     }
     else {
       $registration_data = array();
@@ -220,7 +221,7 @@ function _ldapprov_invite_mail($mail, $hash, $message) {
   // Mail one time login URL and instructions.
   $variables = array('!name' => $user->name, '!register_uri' => url('user/register/'. $hash, array('absolute' => TRUE)), '!mail' => $mail, '!message' => $message);
   $params = array('account' => $user, 'variables' => $variables);
-  $message = drupal_mail('ldapprov', 'invite', $mail, user_preferred_language($user), $params, !LDAPPROV_INVITE_FROM ? $user->mail : NULL);
+  $message = drupal_mail('ldapprov_invite', 'invite', $mail, user_preferred_language($user), $params, !LDAPPROV_INVITE_FROM ? $user->mail : NULL);
   if ($message['result']) {
     watchdog('ldapprov_invite', 'Invite e-mail was mailed from %name to %mail.', array('%name' => $user->name, '%mail' => $mail));
     drupal_set_message(t('The invite has been mailed to e-mail address %mail.', array('%mail' => $mail)));
