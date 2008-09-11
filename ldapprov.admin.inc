@@ -79,13 +79,14 @@ function ldapprov_admin_settings() {
     );
   }
   if (module_exists('profile')) {
-    $form['registration']['ldapprov_profile'] = array(
+    $form['registration']['profile'] = array('#type' => 'fieldset', '#title' => ('Profile integration'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+    $form['registration']['profile']['ldapprov_profile'] = array(
       '#type' => 'checkbox',
       '#title' => t('Use profile fields in the registration form'),
       '#default_value' => LDAPPROV_PROFILE,
       '#description' => t('Profile fields are shown on the registration form according to their setup in the profile.'),
     );
-    $form['registration']['ldapprov_profile_first'] = array(
+    $form['registration']['profile']['ldapprov_profile_first'] = array(
       '#type' => 'textfield',
       '#title' => t('Profile first name'),
       '#size' => 50,
@@ -93,13 +94,38 @@ function ldapprov_admin_settings() {
       '#default_value' => LDAPPROV_PROFILE_FIRST,
       '#description' => t('Profile field associated with the user\'s first name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
     );
-    $form['registration']['ldapprov_profile_last'] = array(
+    $form['registration']['profile']['ldapprov_profile_last'] = array(
       '#type' => 'textfield',
       '#title' => t('Profile last name'),
       '#size' => 50,
       '#maxlength' => 255,
       '#default_value' => LDAPPROV_PROFILE_LAST,
       '#description' => t('Profile field associated with the user\'s last name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
+    );
+  }
+  if (module_exists('content_profile_registration')) {
+    $form['registration']['content_profile'] = array('#type' => 'fieldset', '#title' => ('Content profile integration'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+    $form['registration']['content_profile']['ldapprov_content_profile'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use profile fields in the registration form'),
+      '#default_value' => LDAPPROV_CONTENT_PROFILE,
+      '#description' => t('Profile fields are shown on the registration form according to their setup in the profile.'),
+    );
+    $form['registration']['content_profile']['ldapprov_content_profile_first'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Content profile first name'),
+      '#size' => 50,
+      '#maxlength' => 255,
+      '#default_value' => LDAPPROV_CONTENT_PROFILE_FIRST,
+      '#description' => t('Content profile field associated with the user\'s first name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
+    );
+    $form['registration']['content_profile']['ldapprov_content_profile_last'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Content profile last name'),
+      '#size' => 50,
+      '#maxlength' => 255,
+      '#default_value' => LDAPPROV_CONTENT_PROFILE_LAST,
+      '#description' => t('Content profile field associated with the user\'s last name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
     );
   }
   if (module_exists('ldapdata')) {
@@ -112,7 +138,7 @@ function ldapprov_admin_settings() {
       foreach ($rwattrs as $attribute) {
         if ($attribute != LDAPPROV_LDAP_FIRST_NAME && $attribute != LDAPPROV_LDAP_LAST_NAME) {
           $attr_info = $ldapdata_attributes[$attribute];
-          $form['registration']['ldapprov_ldapdata_'. $attribute] = array(
+          $form_ldapdata['registration']['ldapdata']['ldapprov_ldapdata_'. $attribute] = array(
             '#type' => 'select',
             '#title' => t($attr_info[2]),
             '#options' => $options,
@@ -122,18 +148,26 @@ function ldapprov_admin_settings() {
         }
       }
     }
+    if (!empty($form_ldapdata)) {
+      $form['registration']['ldapdata'] = array('#type' => 'fieldset', '#title' => ('LDAP data fields'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+      $form = array_merge_recursive($form, $form_ldapdata);
+    }
   }
   include_once(drupal_get_path('module', 'ldapprov') .'/ldapprov.conf.inc');
   $ldapprov_custom = variable_get('ldapprov_custom', array());
   $options = array('not shown', 'optional', 'required');
   foreach (ldapprov_custom_elements() as $key => $val) {
-    $form['registration']['ldapprov_custom_'. $key] = array(
+    $form_custom['registration']['custom']['ldapprov_custom_'. $key] = array(
       '#type' => 'select',
       '#title' => t($val['title']),
       '#options' => $options,
       '#description' => t($val['title'] .' field on the registration form.'),
       '#default_value' => $ldapprov_custom[$key],
     );
+  }
+  if (!empty($form_custom)) {
+    $form['registration']['custom'] = array('#type' => 'fieldset', '#title' => ('Custom elements'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+    $form = array_merge_recursive($form, $form_custom);
   }
 
   // LDAP authentication.
@@ -190,76 +224,107 @@ function ldapprov_admin_settings() {
   );
 
   // E-mail notification.
-  $form['mail'] = array('#type' => 'fieldset', '#title' => t('E-mail notification'), '#collapsible' => TRUE, '#collapsed' => TRUE);
-  $form['mail']['ldapprov_mail_code_subject'] = array(
+  $form['mail'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('E-mail settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Drupal sends emails whenever new users register on your site, and optionally, may also notify users after other account actions. Using a simple set of content templates, notification e-mails can be customized to fit the specific needs of your site.'),
+    );
+  $form['mail']['code'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Email validate'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Customize request validate messages sent to new members upon registering.') .' '. t('Available variables are:') .' !site, !validate_url, !validate_uri, !mailto, !first_name, !last_name, !date, !code.',
+  );
+  $form['mail']['code']['ldapprov_mail_code_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject of validate e-mail'),
     '#maxlength' => 180,
     '#default_value' => _ldapprov_mail_text('code_subject'),
-    '#description' => t('Customize the subject of your request validate e-mail message, which is sent to new members upon registering.') .' '. t('Available variables are:') .' !site, !validate_url, !validate_uri, !mailto, !first_name, !last_name, !date, !code.',
   );
-  $form['mail']['ldapprov_mail_code_body'] = array(
+  $form['mail']['code']['ldapprov_mail_code_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body of validate e-mail'),
     '#rows' => 15,
     '#default_value' => _ldapprov_mail_text('code_body'),
-    '#description' => t('Customize the body of your request validate e-mail message, which is sent to new members upon registering.') .' '. t('Available variables are:') .' !site, !validate_url, !validate_uri, !mailto, !first_name, !last_name, !date, !code.',
   );
-  $form['mail']['ldapprov_mail_notify_subject'] = array(
+  $form['mail']['notify'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Account manager notify email'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Customize account manager notification messages.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !create_url.',
+  );
+  $form['mail']['notify']['ldapprov_mail_notify_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject of notify e-mail'),
     '#maxlength' => 180,
     '#default_value' => _ldapprov_mail_text('notify_subject'),
-    '#description' => t('Customize the subject of your account manager notification e-mail message.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !create_url.',
   );
-  $form['mail']['ldapprov_mail_notify_body'] = array(
+  $form['mail']['notify']['ldapprov_mail_notify_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body of notify e-mail'),
     '#rows' => 15,
     '#default_value' => _ldapprov_mail_text('notify_body'),
-    '#description' => t('Customize the body of your account manager notification e-mail message.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !create_url.',
   );
-  $form['mail']['ldapprov_mail_reject_subject'] = array(
+  $form['mail']['reject'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Account reject email'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Customize request reject messages.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !message.',
+  );
+  $form['mail']['reject']['ldapprov_mail_reject_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject of reject e-mail'),
     '#maxlength' => 180,
     '#default_value' => _ldapprov_mail_text('reject_subject'),
-    '#description' => t('Customize the subject of your request reject e-mail message.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !message.',
   );
-  $form['mail']['ldapprov_mail_reject_body'] = array(
+  $form['mail']['reject']['ldapprov_mail_reject_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body of reject e-mail'),
     '#rows' => 15,
     '#default_value' => _ldapprov_mail_text('reject_body'),
-    '#description' => t('Customize the body of your request reject e-mail message.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !message.',
   );
-  $form['mail']['ldapprov_mail_create_subject'] = array(
+  $form['mail']['create'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Account create email'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Customize account creation notification messages.') .' '. t('Available variables are:') .' !site, !login_uri, !login_url, !mailto, !first_name, !last_name, !date, !username, !password, !message.',
+  );
+  $form['mail']['create']['ldapprov_mail_create_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject of creation e-mail'),
     '#maxlength' => 180,
     '#default_value' => _ldapprov_mail_text('create_subject'),
-    '#description' => t('Customize the subject of new account creation notification e-mail message.') .' '. t('Available variables are:') .' !site, !login_uri, !login_url, !mailto, !first_name, !last_name, !date, !username, !password, !message.',
   );
-  $form['mail']['ldapprov_mail_create_body'] = array(
+  $form['mail']['create']['ldapprov_mail_create_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body of creation e-mail'),
     '#rows' => 15,
     '#default_value' => _ldapprov_mail_text('create_body'),
-    '#description' => t('Customize the body of new account creation notification e-mail message.') .' '. t('Available variables are:') .' !site, !login_uri, !login_url, !mailto, !first_name, !last_name, !date, !username, !password, !message.',
   );
-  $form['mail']['ldapprov_mail_delete_subject'] = array(
+  $form['mail']['delete'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Account delete email'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Customize account deletion notification messages.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !username.',
+  );
+  $form['mail']['delete']['ldapprov_mail_delete_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject of deletion e-mail'),
     '#maxlength' => 180,
     '#default_value' => _ldapprov_mail_text('delete_subject'),
-    '#description' => t('Customize the subject of the account deletion notification e-mail message.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !username.',
   );
-  $form['mail']['ldapprov_mail_delete_body'] = array(
+  $form['mail']['delete']['ldapprov_mail_delete_body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body of deletion e-mail'),
     '#rows' => 15,
     '#default_value' => _ldapprov_mail_text('delete_body'),
-    '#description' => t('Customize the body of the account deletion notification e-mail message.') .' '. t('Available variables are:') .' !site, !mailto, !first_name, !last_name, !date, !username.',
   );
 
   $form['submit'] = array(
@@ -285,33 +350,68 @@ function ldapprov_admin_settings_validate($form, &$form_state) {
         form_set_error('ldapprov_pass_length', t('Password lenght should be numeric.'));
       }
 
-      // Check the profile first and last names
-      if (module_exists('profile') && !LDAPPROV_ALLOW_USERNAME) {
-        if (!empty($values['ldapprov_profile_first'])) {
-          $result = db_query("SELECT * FROM {profile_fields} WHERE name = '%s'", $values['ldapprov_profile_first']);
-          $row = db_fetch_object($result);
-          if (empty($row)) {
-            form_set_error('ldapprov_profile_first', t('Profile field %s is not found.', array('%s' => $values['ldapprov_profile_first'])));
+      if (!LDAPPROV_ALLOW_USERNAME) {
+
+        // Check the profile first and last names
+        if (module_exists('profile')) {
+          if (!empty($values['ldapprov_profile_first'])) {
+            $result = db_query("SELECT * FROM {profile_fields} WHERE name = '%s'", $values['ldapprov_profile_first']);
+            $row = db_fetch_object($result);
+            if (empty($row)) {
+              form_set_error('ldapprov_profile_first', t('Profile field %s is not found.', array('%s' => $values['ldapprov_profile_first'])));
+            }
+            elseif ($row->required == 0 || $row->register == 0) {
+              form_set_error('ldapprov_profile_first', t('Profile field %s should be configured as "', array('%s' => $values['ldapprov_profile_first'])) . t('Visible in user registration form') . t('" and "') . t('The user must enter a value') .'".');
+            }
           }
-          elseif ($row->required == 0 || $row->register == 0) {
-            form_set_error('ldapprov_profile_first', t('Profile field %s should be configured as "', array('%s' => $values['ldapprov_profile_first'])) . t('Visible in user registration form') . t('" and "') . t('The user must enter a value') .'".');
+          if (!empty($values['ldapprov_profile_last'])) {
+            $result = db_query("SELECT * FROM {profile_fields} WHERE name = '%s'", $values['ldapprov_profile_last']);
+            $row = db_fetch_object($result);
+            if (empty($row)) {
+              form_set_error('ldapprov_profile_last', t('Profile field %s is not found.', array('%s' => $values['ldapprov_profile_last'])));
+            }
+            elseif ($row->required == 0 || $row->register == 0) {
+              form_set_error('ldapprov_profile_last', t('Profile field %s should be configured as "', array('%s' => $values['ldapprov_profile_last'])) . t('Visible in user registration form') . t('" and "') . t('The user must enter a value') .'".');
+            }
+          }
+          if (!empty($values['ldapprov_profile_first']) && empty($values['ldapprov_profile_last'])) {
+            form_set_error('ldapprov_profile_last', t('If profile first name is set, the last name should be set as well.'));
+          }
+          if (!empty($values['ldapprov_profile_last']) && empty($values['ldapprov_profile_first'])) {
+            form_set_error('ldapprov_profile_first', t('If profile last name is set, the first name should be set as well.'));
           }
         }
-        if (!empty($values['ldapprov_profile_last'])) {
-          $result = db_query("SELECT * FROM {profile_fields} WHERE name = '%s'", $values['ldapprov_profile_last']);
-          $row = db_fetch_object($result);
-          if (empty($row)) {
-            form_set_error('ldapprov_profile_last', t('Profile field %s is not found.', array('%s' => $values['ldapprov_profile_last'])));
+
+        // Check the content profile first and last names
+        if (module_exists('content_profile_registration')) {
+          $profile_types = content_profile_get_types('names', 'registration_use');
+          $profile_fields = array();
+          foreach (array_keys($profile_types) as $type) {
+            $typeinfo = content_types($type);
+            $profile_fields += $typeinfo['fields'];
           }
-          elseif ($row->required == 0 || $row->register == 0) {
-            form_set_error('ldapprov_profile_last', t('Profile field %s should be configured as "', array('%s' => $values['ldapprov_profile_last'])) . t('Visible in user registration form') . t('" and "') . t('The user must enter a value') .'".');
+          if (!empty($values['ldapprov_content_profile_first'])) {
+            if (!array_key_exists($values['ldapprov_content_profile_first'], $profile_fields)) {
+              form_set_error('ldapprov_content_profile_first', t('Content profile field %s is not found.', array('%s' => $values['ldapprov_content_profile_first'])));
+            }
+            elseif (!$profile_fields[$values['ldapprov_content_profile_first']]['required']) {
+              form_set_error('ldapprov_content_profile_first', t('Content profile field %s should be configured as required', array('%s' => $values['ldapprov_content_profile_first'])));
+            }
           }
-        }
-        if (!empty($values['ldapprov_profile_first']) && empty($values['ldapprov_profile_last'])) {
-          form_set_error('ldapprov_profile_last', t('If profile first name is set, the last name should be set as well.'));
-        }
-        if (!empty($values['ldapprov_profile_last']) && empty($values['ldapprov_profile_first'])) {
-          form_set_error('ldapprov_profile_first', t('If profile last name is set, the first name should be set as well.'));
+          if (!empty($values['ldapprov_content_profile_last'])) {
+            if (!array_key_exists($values['ldapprov_content_profile_last'], $profile_fields)) {
+              form_set_error('ldapprov_content_profile_last', t('Content profile field %s is not found.', array('%s' => $values['ldapprov_content_profile_last'])));
+            }
+            elseif (!$profile_fields[$values['ldapprov_content_profile_last']]['required']) {
+              form_set_error('ldapprov_content_profile_last', t('Content profile field %s should be configured as required', array('%s' => $values['ldapprov_content_profile_last'])));
+            }
+          }
+          if (!empty($values['ldapprov_content_profile_first']) && empty($values['ldapprov_content_profile_last'])) {
+            form_set_error('ldapprov_content_profile_last', t('If content profile first name is set, the last name should be set as well.'));
+          }
+          if (!empty($values['ldapprov_content_profile_last']) && empty($values['ldapprov_content_profile_first'])) {
+            form_set_error('ldapprov_content_profile_first', t('If content profile last name is set, the first name should be set as well.'));
+          }
         }
       }
       break;
@@ -357,6 +457,13 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
         variable_set('ldapprov_profile', $values['ldapprov_profile']);
         variable_set('ldapprov_profile_first', $values['ldapprov_profile_first']);
         variable_set('ldapprov_profile_last', $values['ldapprov_profile_last']);
+      }
+
+      // Content profiles.
+      if (module_exists('content_profile_registration')) {
+        variable_set('ldapprov_content_profile', $values['ldapprov_content_profile']);
+        variable_set('ldapprov_content_profile_first', $values['ldapprov_content_profile_first']);
+        variable_set('ldapprov_content_profile_last', $values['ldapprov_content_profile_last']);
       }
 
       // Registration form.
@@ -424,6 +531,10 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       variable_del('ldapprov_profile');
       variable_del('ldapprov_profile_first');
       variable_del('ldapprov_profile_last');
+
+      variable_del('ldapprov_content_profile');
+      variable_del('ldapprov_content_profile_first');
+      variable_del('ldapprov_content_profile_last');
 
       // Registration form.
       variable_del('ldapprov_custom'. $key);
