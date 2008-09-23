@@ -3,6 +3,7 @@ name = Provisioning OG invites
 description = Implements OG invites for LDAP users provisioning.
 package = LDAP integration
 dependencies[] = ldapprov_invite
+dependencies[] = og
 core = 6.x
 php = 5.2
 

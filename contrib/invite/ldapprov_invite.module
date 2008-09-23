@@ -28,8 +28,8 @@ function ldapprov_invite_perm() {
  */
 function ldapprov_invite_menu() {
   return array(
-    'admin/settings/ldapprov_invite' => array(
-      'title' => 'LDAP Invites',
+    'admin/settings/ldap/ldapprov/invite' => array(
+      'title' => 'Invites',
       'description' => 'Configure invites for LDAP provisioning settings.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_invite_admin_settings'),
@@ -129,8 +129,6 @@ function ldapprov_invite_form() {
   $form['invite']['mail'] = array(
     '#type' => 'textfield',
     '#title' => t('To'),
-    '#size' => '50',
-    '#maxlength' => '64',
     '#required' => TRUE,
   );
   $form['invite']['mail']['#description'] = t('Type the comma separated list of e-mails of the people you would like to invite to the site.');
@@ -154,27 +152,19 @@ function ldapprov_invite_form() {
 function ldapprov_invite_form_validate($form, &$form_state) {
   global $user;
 
-  $values = $form_state['values'];
-
-  foreach (explode(',', $values['mail']) as $mail) {
-    $mail = trim($mail);
-    if (empty($mail))
-      continue;
-
-    if (!valid_email_address($mail)) {
+  foreach (array_filter(array_map(create_function('$a', 'return trim($a);'), explode(',', $form_state['values']['mail']))) as $mail) {
+    if (!valid_email_address($mail))
       form_set_error('mail', t('The e-mail address %mail is not valid.', array('%mail' => $mail)));
-    }
 
     $result = db_query("SELECT rid FROM {ldapprov_invite} WHERE uid = %d AND mail = '%s'", $user->uid, $mail);
-    if ($row = db_fetch_object($result)) {
+    if ($row = db_fetch_object($result))
       form_set_error('mail', t('The invitation already was sent to user with e-mail address %mail.', array('%mail' => $mail)));
-    }
 
     // The user with this e-mails address already exist.
-    $result = db_query("SELECT * FROM {users} WHERE mail = '%s'", $mail);
-    if ($row = db_fetch_object($result)) {
+    if (user_load(array('mail' => $mail)))
       form_set_error('mail', t('The user with e-mail address %mail is already registered with the system.', array('%mail' => $mail)));
-    }
+
+    $form_state['mails'][] = $mail;
   }
 }
 
@@ -187,11 +177,7 @@ function ldapprov_invite_form_submit($form, &$form_state, $data = array()) {
   $values = $form_state['values'];
   $time = time();
 
-  foreach (explode(',', $values['mail']) as $mail) {
-    $mail = trim($mail);
-    if (empty($mail))
-      continue;
-
+  foreach ($form_state['mails'] as $mail) {
     // Sending invite.
     $hash = _ldapprov_hash($mail, $time);
 

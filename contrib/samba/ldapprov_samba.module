@@ -35,8 +35,8 @@ function ldapprov_samba_init() {
  */
 function ldapprov_samba_menu() {
   return array(
-    'admin/settings/ldapprov_samba' => array(
-      'title' => 'LDAP Samba',
+    'admin/settings/ldap/ldapprov/samba' => array(
+      'title' => 'Samba',
       'description' => 'Configure LDAP provisioning Samba settings.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_samba_admin_settings'),

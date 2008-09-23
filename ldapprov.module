@@ -87,8 +87,8 @@ function ldapprov_theme() {
  */
 function ldapprov_menu() {
   return array(
-    'admin/settings/ldapprov' => array(
-      'title' => 'LDAP Provisioning',
+    'admin/settings/ldap/ldapprov' => array(
+      'title' => 'Provisioning',
       'description' => 'Configure LDAP provisioning settings.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_admin_settings'),

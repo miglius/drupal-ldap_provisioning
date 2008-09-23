@@ -22,8 +22,8 @@ define(LDAPPROV_SIP_OBJECTCLASS, 'astSipUser');
  */
 function ldapprov_sip_menu() {
   return array(
-    'admin/settings/ldapprov_sip' => array(
-      'title' => 'LDAP SIP',
+    'admin/settings/ldap/ldapprov/sip' => array(
+      'title' => 'SIP',
       'description' => 'Configure LDAP provisioning SIP settings.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_sip_admin_settings'),

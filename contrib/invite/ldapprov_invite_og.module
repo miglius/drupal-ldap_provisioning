@@ -18,8 +18,8 @@ define(LDAPPROV_INVITE_OG_TAB, variable_get('ldapprov_invite_og_tab', 1));
  */
 function ldapprov_invite_og_menu() {
   return array(
-    'admin/settings/ldapprov_invite_og' => array(
-      'title' => 'LDAP Invites OG',
+    'admin/settings/ldap/ldapprov/invite/og' => array(
+      'title' => 'OG',
       'description' => 'Configure OG invites for LDAP provisioning settings.',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_invite_og_admin_settings'),
@@ -35,6 +35,14 @@ function ldapprov_invite_og_menu() {
       'type' => variable_get('ldapprov_invite_og_tab', 1) ? MENU_LOCAL_TASK : MENU_CALLBACK,
       'weight' => 8,
     ),
+    'node/%node/invite/autocomplete' => array(
+      'title' => 'Invite autocomlete',
+      'page callback' => 'ldapprov_invite_og_autocomplete',
+      'page arguments' => array(1),
+      'access callback' => 'ldapprov_invite_og_can_invite',
+      'access arguments' => array(1),
+      'type' => MENU_CALLBACK,
+    ),
   );
 }
 
@@ -42,6 +50,9 @@ function ldapprov_invite_og_menu() {
  * Check if a user can invite other users to the group.
  */
 function ldapprov_invite_og_can_invite($node) {
+  if (!ldapprov_invite_access())
+    return FALSE;
+
   switch ($node->og_selective) {
     case OG_OPEN:
     case OG_MODERATED:
@@ -60,11 +71,12 @@ function ldapprov_invite_og_can_invite($node) {
 function ldapprov_invite_og_form(&$form_state, $node) {
   $form = ldapprov_invite_form();
 
-  $form['invite']['note'] = array(
-    '#value' => t('Upon registration the user will be subscribed to the group %group based on the group\'s membership settings.', array('%group' => check_plain($node->title))),
-    '#weight' => 0,
-  );
-  $form['invite']['og'] = array(
+  $form['invite']['#title'] = t('Invite a contact to the group');
+  $form['invite']['#description'] = t('If you invite a new user to the site, then upon registration the user will be subscribed to the group %group based on the group\'s membership settings. If you invite an existing user, the user will receive an e-mail message wit the invitation to join the group.', array('%group' => check_plain($node->title)));
+  $form['invite']['mail']['#description'] = t('Type the comma separated list of e-mails of the people you would like to invite to the group.');
+  $form['invite']['mail']['#autocomplete_path'] = 'node/'. $node->nid .'/invite/autocomplete';
+  $form['invite']['message']['#description'] = t('This message will be added to the e-mails sent to the people you are inviting to the group.');
+  $form['invite']['gid'] = array(
     '#type' => 'hidden',
     '#value' => $node->nid,
   );
@@ -76,14 +88,62 @@ function ldapprov_invite_og_form(&$form_state, $node) {
  * Invite form validation.
  */
 function ldapprov_invite_og_form_validate($form, &$form_state) {
-  ldapprov_invite_form_validate($form, $form_state);
+  global $user;
+  $values = $form_state['values'];
+
+  $mails = array_filter(array_map(create_function('$a', 'return trim($a);'), explode(',', $values['mail'])));
+  if (in_array($user->mail, $mails))
+    form_set_error('mail', t('You may not invite yourself - @self.', array('@self' => $user->mail)));
+
+  $bad_mails = array();
+  foreach ($mails as $mail) {
+    if (($account = user_load(array('mail' => $mail))) && og_is_group_member($values['gid'], FALSE, $account->uid))
+      form_set_error('mail', t('A user %name with the e-mail address %mail is already a member of the group.', array('%name' => $account->name, '%mail' => $account->mail)));
+    else if (valid_email_address($mail))
+      $form_state['valid_mails'][] = $mail;
+    else
+      $bad_mails[] = $mail;
+  }
+  if (count($bad_mails))
+    form_set_error('mail', t('Invalid email address: @value.', array('@value' => implode(', ', $bad_mails))));
 }
 
 /**
  * Invite form submission.
  */
 function ldapprov_invite_og_form_submit($form, &$form_state) {
-  $node = node_load($form_state['values']['og']);
+  global $user;
+  $values = $form_state['values'];
+  $node = node_load($values['gid']);
+
+  $local_mails = $form_state['mails'] = array();
+  foreach ($form_state['valid_mails'] as $mail) {
+    if (user_load(array('mail' => $mail)))
+      $local_mails[] = $mail;
+    else
+      $form_state['mails'][] = $mail;
+  }
+
+  $variables = array(
+    '@group' => $node->title,
+    '@description' => $node->og_description,
+    '@site' => variable_get('site_name', 'drupal'),
+    '!group_url' => url("og/subscribe/$node->nid", array('absolute' => TRUE)),
+    '@body' => $values['message'],
+  );
+
+  foreach ($local_mails as $mail) {
+    $message = drupal_mail('og', 'invite_user', $mail, $GLOBALS['language'], $variables, $user->mail);
+    if ($message['result']) {
+      watchdog('ldapprov_invitei_og', 'Invite e-mail was mailed from %name to %mail.', array('%name' => $user->name, '%mail' => $mail));
+      drupal_set_message(t('The invite has been mailed to e-mail address %mail.', array('%mail' => $mail)));
+    }
+    else {
+      watchdog('ldapprov_invite_og', 'Error mailing invite e-mail from %user to %mail.', array('%name' => $user->name, '%mail' => $mail), WATCHDOG_ERROR);
+      drupal_set_message(t('Unable to send mail. Please contact the site admin.'), 'error');
+    }
+  }
+
   $data = array(
     'type' => 'og',
     'gid' => $node->nid,
@@ -91,6 +151,23 @@ function ldapprov_invite_og_form_submit($form, &$form_state) {
   );
 
   ldapprov_invite_form_submit($form, $form_state, $data);
+}
+
+/**
+ * Invite form autocomplete function.
+ */
+function ldapprov_invite_og_autocomplete($node, $string = '') {
+  $matches = array();
+  if (!empty($string)) {
+    $mails = array_map(create_function('$a', 'return trim($a);'), explode(',', $string));
+    if ($string = array_pop($mails)) {
+      $result = db_query_range("SELECT name, mail FROM {users} WHERE LOWER(name) LIKE LOWER('%s%%') OR LOWER(mail) LIKE LOWER('%s%%')", $string, $string, 0, 10);
+      while ($user = db_fetch_object($result)) {
+        $matches[(!empty($mails) ? implode(', ', $mails) .', ' : '') . $user->mail] = check_plain($user->mail) .' ('. check_plain($user->name) .')';
+      }
+    }
+  }
+  drupal_json($matches);
 }
 
 //////////////////////////////////////////////////////////////////////////////
