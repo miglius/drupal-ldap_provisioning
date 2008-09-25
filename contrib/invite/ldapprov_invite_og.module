@@ -97,7 +97,9 @@ function ldapprov_invite_og_form_validate($form, &$form_state) {
 
   $bad_mails = array();
   foreach ($mails as $mail) {
-    if (($account = user_load(array('mail' => $mail))) && og_is_group_member($values['gid'], FALSE, $account->uid))
+    if (($account = user_load(array('mail' => $mail))) && $account->status == 0)
+      form_set_error('mail', t('A user %name with the e-mail address %mail is blocked.', array('%name' => $account->name, '%mail' => $account->mail)));
+    else if (($account = user_load(array('mail' => $mail))) && og_is_group_member($values['gid'], FALSE, $account->uid))
       form_set_error('mail', t('A user %name with the e-mail address %mail is already a member of the group.', array('%name' => $account->name, '%mail' => $account->mail)));
     else if (valid_email_address($mail))
       $form_state['valid_mails'][] = $mail;
@@ -161,7 +163,7 @@ function ldapprov_invite_og_autocomplete($node, $string = '') {
   if (!empty($string)) {
     $mails = array_map(create_function('$a', 'return trim($a);'), explode(',', $string));
     if ($string = array_pop($mails)) {
-      $result = db_query_range("SELECT name, mail FROM {users} WHERE LOWER(name) LIKE LOWER('%s%%') OR LOWER(mail) LIKE LOWER('%s%%')", $string, $string, 0, 10);
+      $result = db_query_range("SELECT name, mail FROM {users} WHERE status = '1' AND (LOWER(name) LIKE LOWER('%s%%') OR LOWER(mail) LIKE LOWER('%s%%'))", $string, $string, 0, 10);
       while ($user = db_fetch_object($result)) {
         $matches[(!empty($mails) ? implode(', ', $mails) .', ' : '') . $user->mail] = check_plain($user->mail) .' ('. check_plain($user->name) .')';
       }
