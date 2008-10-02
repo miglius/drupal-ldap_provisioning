@@ -159,13 +159,15 @@ function ldapprov_invite_og_form_submit($form, &$form_state) {
  * Invite form autocomplete function.
  */
 function ldapprov_invite_og_autocomplete($node, $string = '') {
+  global $user;
+
   $matches = array();
   if (!empty($string)) {
     $mails = array_map(create_function('$a', 'return trim($a);'), explode(',', $string));
     if ($string = array_pop($mails)) {
-      $result = db_query_range("SELECT name, mail FROM {users} WHERE status = '1' AND (LOWER(name) LIKE LOWER('%s%%') OR LOWER(mail) LIKE LOWER('%s%%'))", $string, $string, 0, 10);
-      while ($user = db_fetch_object($result)) {
-        $matches[(!empty($mails) ? implode(', ', $mails) .', ' : '') . $user->mail] = check_plain($user->mail) .' ('. check_plain($user->name) .')';
+      $result = db_query_range("SELECT u.name, u.mail FROM {users} u LEFT JOIN {og_uid} ou ON u.uid = ou.uid WHERE u.status = '1' AND (LOWER(u.name) LIKE LOWER('%s%%') OR LOWER(u.mail) LIKE LOWER('%s%%')) AND (ou.nid <> %d OR ou.nid IS NULL) AND u.uid <> %d ORDER BY u.mail", $string, $string, $node->nid, $user->uid, 0, 10);
+      while ($account = db_fetch_object($result)) {
+        $matches[(!empty($mails) ? implode(', ', $mails) .', ' : '') . $account->mail] = check_plain($account->mail) .' ('. check_plain($account->name) .')';
       }
     }
   }
