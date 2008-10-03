@@ -873,7 +873,7 @@ function ldapprov_register_submit($form, &$form_state) {
   $data = array();
   foreach ($values as $key => $value) {
     if (preg_match('/(^profile_|^ldap_|^og_register|^field_|^custom_)/', $key)) {
-      $data[$key] = preg_match('/^field_/', $key) && is_array($value[0]) ? $value[0]['value'] : $value;
+      $data[$key] = $value;
     }
   }
 
@@ -890,6 +890,8 @@ function ldapprov_register_submit($form, &$form_state) {
     $first_name = $values['first_name'];
     $last_name = $values['last_name'];
   }
+  $first_name = is_array($first_name) ? $first_name[0]['value'] : $first_name;
+  $last_name = is_array($last_name) ? $last_name[0]['value'] : $last_name;
 
   // Check if registering from an invite.
   if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && isset($values['code'])) {
@@ -1630,9 +1632,6 @@ function ldapprov_create_validate($form, &$form_state) {
  */
 function ldapprov_create_submit($form, &$form_state) {
   $values = $form_state['values'];
-  foreach ($values as $key => $value) {
-    $values[$key] = preg_match('/^field_/', $key) && is_array($value[0]) ? $value[0]['value'] : $values[$key];
-  }
 
   // Handle operations.
   if ($values['op'] == t('Reject account')) {
@@ -1687,6 +1686,8 @@ function _ldapprov_create_user($data) {
     $first_name = $data['first_name'];
     $last_name = $data['last_name'];
   }
+  $first_name = is_array($first_name) ? $first_name[0]['value'] : $first_name;
+  $last_name = is_array($last_name) ? $last_name[0]['value'] : $last_name;
 
   if (LDAPPROV_ALLOW_USERNAME) {
     $name = $data['name'];
@@ -1993,29 +1994,22 @@ function _ldapprov_content_profile_form($edit, $disabled = FALSE) {
   $form_state = array();
   foreach ($edit as $name => $value) {
     if (preg_match('/^field_/', $name)) {
-      $form_state['values'][$name][0]['value'] = $value;
+      $form_state['values'][$name] = $value;
     }
   }
   content_profile_registration_form_alter($form, $form_state, 'user_register');
-
-  // Unset field visibility options.
-  if (module_exists('user_relationship_field_perms')) {
-    foreach ($form as $name => $field) {
-      if (is_array($form[$name])) {
-        unset($form[$name]['ur_perms']);
-      }
-    }
-  }
   unset($form['#validate']);
   unset($form['#submit']);
   if ($disabled) {
     unset($form['#field_info']);
     foreach ($form as $name => $field) {
-      if (preg_match('/^field_/', $name) and is_array($form[$name][0])) {
-        // #disable does not work with the cck defined form types.
-        //$form[$name][0]['#disabled'] = TRUE;
-        $form[$name][0]['#suffix'] = '<script type=\'text/javascript\'>$(document).ready(function() { $("#edit-field-'. drupal_substr($name, 6) .'-0-value").attr("disabled", true); });</script>';
-        $form[$name][0]['#required'] = FALSE;
+      if (preg_match('/^field_/', $name) and is_array($form[$name])) {
+        foreach ($form[$name] as $key => $val) {
+          // #disable does not work with the cck defined form types.
+          //$form[$name][$key]['#disabled'] = TRUE;
+          $form[$name][$key]['#suffix'] = '<script type=\'text/javascript\'>$(document).ready(function() { $("#edit-field-'. drupal_substr($name, 6) .'-'. $key .'-value").attr("disabled", true); });</script>';
+          $form[$name][$key]['#required'] = FALSE;
+        }
       }
     }
   }
@@ -2041,7 +2035,7 @@ function _ldapprov_content_profile_create($account, $data = array(), $form = arr
   if (!empty($data)) {
     foreach ($data as $name => $value) {
       if (preg_match('/^field_/', $name)) {
-        $form_state['values'][$name][0]['value'] = $value;
+        $form_state['values'][$name] = $value;
       }
     }
     content_profile_registration_form_alter($form, $form_state, 'user_register');
@@ -2135,6 +2129,8 @@ function _ldapprov_attach_file($file) {
           $account['first_name'] = $account[LDAPPROV_CONTENT_PROFILE_FIRST];
           $account['last_name'] = $account[LDAPPROV_CONTENT_PROFILE_LAST];
         }
+        $account['first_name'] = is_array($account['first_name']) ? $account['first_name'][0]['value'] : $account['first_name'];
+        $account['last_name'] = is_array($account['last_name']) ? $account['last_name'][0]['value'] : $account['last_name'];
 
         db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, status, registered, data, cuid) VALUES ('%s', '%s', '%s', '%s', '1', %d, '%s', %d)", $account['name'], $account['mail'], $account['first_name'], $account['last_name'], $time, serialize($account), $user->uid);
       }
