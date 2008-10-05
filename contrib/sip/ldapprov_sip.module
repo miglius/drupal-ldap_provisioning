@@ -8,11 +8,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define(LDAPPROV_SIP_ENABLED, variable_get('ldapprov_sip_enabled', FALSE));
-define(LDAPPROV_SIP_NAME,    variable_get('ldapprov_sip_name', '!name_!ldap_ou'));
-define(LDAPPROV_SIP_ENTRY,   variable_get('ldapprov_sip_entry', "objectClass: astSipGeneric\nobjectClass: astSipUser\nobjectClass: astSipPeer\nobjectClass: astVoicemail\nastname: !sip_name\nastMd5Secret: !sip_pass\nastHost: dynamic\nastContext: default\nastNat: yes\nastCanReinvite: yes\nastVoicemailContext: default\nastVoicemailVoiceboxNr: !sip_name\nastVoicemailPassword: !sip_voicemail_pass\nastipaddr: 0.0.0.0\nastPort: 5060\nastRegseconds: 3600\nastUsername: !sip_name"));
+define('LDAPPROV_SIP_ENABLED', variable_get('ldapprov_sip_enabled', FALSE));
+define('LDAPPROV_SIP_NAME',    variable_get('ldapprov_sip_name', '!name_!ldap_ou'));
+define('LDAPPROV_SIP_ENTRY',   variable_get('ldapprov_sip_entry', "objectClass: astSipGeneric\nobjectClass: astSipUser\nobjectClass: astSipPeer\nobjectClass: astVoicemail\nastname: !sip_name\nastMd5Secret: !sip_pass\nastHost: dynamic\nastContext: default\nastNat: yes\nastCanReinvite: yes\nastVoicemailContext: default\nastVoicemailVoiceboxNr: !sip_name\nastVoicemailPassword: !sip_voicemail_pass\nastipaddr: 0.0.0.0\nastPort: 5060\nastRegseconds: 3600\nastUsername: !sip_name"));
 
-define(LDAPPROV_SIP_OBJECTCLASS, 'astSipUser');
+define('LDAPPROV_SIP_OBJECTCLASS', 'astSipUser');
 
 //////////////////////////////////////////////////////////////////////////////
 // Core API hooks
@@ -40,12 +40,12 @@ function ldapprov_sip_user($op, &$edit, &$account, $category = NULL) {
   if (LDAPPROV_ENABLED && LDAPPROV_SIP_ENABLED) {
     switch ($op) {
       case 'view':
-        if ($account->ldap_authentified && _ldapprov_sip_check($account)) {
+        if (isset($account->ldap_authentified) && _ldapprov_sip_check($account)) {
           return _ldapprov_sip_user_view($account);
         }
         break;
       case 'form':
-        if ($account->ldap_authentified && _ldapprov_sip_check($account) && $category == 'account') {
+        if (isset($account->ldap_authentified) && _ldapprov_sip_check($account) && $category == 'account') {
           $form['sip'] = array(
             '#type' => 'fieldset',
             '#title' => t('SIP settings'),
@@ -66,14 +66,14 @@ function ldapprov_sip_user($op, &$edit, &$account, $category = NULL) {
         }
         break;
       case 'validate':
-        if ($account->ldap_authentified && _ldapprov_sip_check($account) && $category == 'account') {
+        if (isset($account->ldap_authentified) && _ldapprov_sip_check($account) && $category == 'account') {
           if (!preg_match('/\d\d\d\d/', $edit['voice_mail_pass'])) {
             form_set_error('voice_mail_pass', t('The voice mail password should be four digits.'));
           }
         }
         break;
       case 'submit':
-        if ($account->ldap_authentified && $category == 'account') {
+        if (isset($account->ldap_authentified) && $category == 'account') {
           _ldapprov_sip_user_submit($account, $edit);
         }
         break;
@@ -91,7 +91,7 @@ function ldapprov_sip_ldapuser(&$account) {
   if (LDAPPROV_SIP_ENABLED) {
     global $_ldapprov_ldap;
 
-    $name_vars['!name'] = ($account->new_name) ? $account->new_name : $account->name;
+    $name_vars['!name'] = isset($account->new_name) ? $account->new_name : $account->name;
     $name_vars['!ou'] = preg_replace('/.*ou=([^,]+),.*/', '\1', $_ldapprov_ldap->getOption('basedn'));
     $sip_name = _ldapprov_sip_name($account);
     $sip_pass = _ldapprov_sip_password($sip_name, $account->clear_pass);
@@ -146,7 +146,7 @@ function ldapprov_sip_ldapuser(&$account) {
 function _ldapprov_sip_name(&$account) {
   global $_ldapprov_ldap;
 
-  $name_vars['!name'] = ($account->new_name) ? $account->new_name : $account->name;
+  $name_vars['!name'] = isset($account->new_name) ? $account->new_name : $account->name;
   $name_vars['!ldap_ou'] = preg_replace('/.*ou=([^,]+),.*/', '\1', $_ldapprov_ldap->getOption('basedn'));
   $sip_name = strtr(LDAPPROV_SIP_NAME, $name_vars);
 
@@ -232,8 +232,11 @@ function _ldapprov_sip_user_submit(&$account, &$edit) {
       return;
     }
 
-    $_ldapprov_ldap->writeAttributes($account->ldap_dn, array('astVoicemailPassword' => $edit['voice_mail_pass']));
+    if (isset($edit['voice_mail_pass'])) {
+      $_ldapprov_ldap->writeAttributes($account->ldap_dn, array('astVoicemailPassword' => $edit['voice_mail_pass']));
+    }
 
+    $sip_vars = array();
     if (isset($edit['name']) && $account->name != $edit['name']) {
       $account->new_name = $edit['name'];
       $sip_name = _ldapprov_sip_name($account);
@@ -243,11 +246,11 @@ function _ldapprov_sip_user_submit(&$account, &$edit) {
       $sip_name = $_ldapprov_ldap->retrieveAttribute($account->ldap_dn, 'astName');
     }
 
-    if ($edit['pass']) {
+    if (isset($edit['pass'])) {
       $sip_vars['!sip_pass'] = _ldapprov_sip_password($sip_name, $edit['pass']);
     }
 
-    if (is_array($sip_vars)) {
+    if (!empty($sip_vars)) {
       foreach (explode("\n", LDAPPROV_SIP_ENTRY) as $line) {
         $line = str_replace("\r", '', $line);
         if (preg_match('/^\s*$/', $line) || preg_match('/^#.*$/', $line)) {

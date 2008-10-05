@@ -26,7 +26,7 @@ function ldapprov_invite_admin_settings() {
   $form['invite']['ldapprov_invite_from'] = array(
     '#type' => 'radios',
     '#title' => t('"From" e-mail address'),
-    '#default_value' => variable_get('ldapprov_invite_from', 1),
+    '#default_value' => LDAPPROV_INVITE_FROM,
     '#options' => array(t('Inviter'), t('Site')),
     '#description' => t('Choose which e-mail address will be in the From: header for the invitation mails sent. %site will use the default e-mail address of the site, whereas %inviter will use the e-mail address of the person who is sending the invitation.', array('%site' => t('Site'), '%inviter' => t('Inviter'))),
   );

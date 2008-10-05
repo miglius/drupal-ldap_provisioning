@@ -498,7 +498,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
 
       // E-mail notification.
       variable_set('ldapprov_mail_code_subject', $values['ldapprov_mail_code_subject']);
-      variable_set('ldapprov_mail_code_body', $values['ldapprov_mail_codee_body']);
+      variable_set('ldapprov_mail_code_body', $values['ldapprov_mail_code_body']);
       variable_set('ldapprov_mail_notify_subject', $values['ldapprov_mail_notify_subject']);
       variable_set('ldapprov_mail_notify_body', $values['ldapprov_mail_notify_body']);
       variable_set('ldapprov_mail_reject_subject', $values['ldapprov_mail_reject_subject']);

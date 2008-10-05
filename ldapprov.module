@@ -8,36 +8,36 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define(LDAPPROV_ENABLED,                variable_get('ldapprov_enabled', 0));
-define(LDAPPROV_ALLOW_USERNAME,         variable_get('ldapprov_allow_username', 1));
-define(LDAPPROV_USERNAME,               variable_get('ldapprov_username', '%f.%l'));
-define(LDAPPROV_DISABLE_CREATE,         variable_get('ldapprov_disable_create', 0));
-define(LDAPPROV_PASS_LENGTH,            variable_get('ldapprov_pass_length', 6));
-define(LDAPPROV_DEBUG,                  variable_get('ldapprov_debug', 0));
-define(LDAPPROV_OG,                     variable_get('ldapprov_og', 0));
-define(LDAPPROV_PROFILE,                variable_get('ldapprov_profile', 0));
-define(LDAPPROV_PROFILE_FIRST,          variable_get('ldapprov_profile_first', ''));
-define(LDAPPROV_PROFILE_LAST,           variable_get('ldapprov_profile_last', ''));
-define(LDAPPROV_CONTENT_PROFILE,        variable_get('ldapprov_content_profile', 0));
-define(LDAPPROV_CONTENT_PROFILE_FIRST,  variable_get('ldapprov_content_profile_first', ''));
-define(LDAPPROV_CONTENT_PROFILE_LAST,   variable_get('ldapprov_content_profile_last', ''));
-define(LDAPPROV_SERVER,                 variable_get('ldapprov_server', ''));
-define(LDAPPROV_DN,                     variable_get('ldapprov_dn', ''));
-define(LDAPPROV_PASS,                   variable_get('ldapprov_pass', ''));
-define(LDAPPROV_PASS_CLEAR,             variable_get('ldapprov_pass_clear', 0));
-define(LDAPPROV_USER_ENTRY,             variable_get('ldapprov_user_entry', "objectClass: top\nobjectClass: person\nobjectClass: inetOrgPerson\nuid: !uid\nmail: !mail\ngivenName: !first_name\nsn: !last_name\ncn: !first_name !last_name\nuserPassword: !pass"));
+define('LDAPPROV_ENABLED',                variable_get('ldapprov_enabled', 0));
+define('LDAPPROV_ALLOW_USERNAME',         variable_get('ldapprov_allow_username', 1));
+define('LDAPPROV_USERNAME',               variable_get('ldapprov_username', '%f.%l'));
+define('LDAPPROV_DISABLE_CREATE',         variable_get('ldapprov_disable_create', 0));
+define('LDAPPROV_PASS_LENGTH',            variable_get('ldapprov_pass_length', 6));
+define('LDAPPROV_DEBUG',                  variable_get('ldapprov_debug', 0));
+define('LDAPPROV_OG',                     variable_get('ldapprov_og', 0));
+define('LDAPPROV_PROFILE',                variable_get('ldapprov_profile', 0));
+define('LDAPPROV_PROFILE_FIRST',          variable_get('ldapprov_profile_first', ''));
+define('LDAPPROV_PROFILE_LAST',           variable_get('ldapprov_profile_last', ''));
+define('LDAPPROV_CONTENT_PROFILE',        variable_get('ldapprov_content_profile', 0));
+define('LDAPPROV_CONTENT_PROFILE_FIRST',  variable_get('ldapprov_content_profile_first', ''));
+define('LDAPPROV_CONTENT_PROFILE_LAST',   variable_get('ldapprov_content_profile_last', ''));
+define('LDAPPROV_SERVER',                 variable_get('ldapprov_server', ''));
+define('LDAPPROV_DN',                     variable_get('ldapprov_dn', ''));
+define('LDAPPROV_PASS',                   variable_get('ldapprov_pass', ''));
+define('LDAPPROV_PASS_CLEAR',             variable_get('ldapprov_pass_clear', 0));
+define('LDAPPROV_USER_ENTRY',             variable_get('ldapprov_user_entry', "objectClass: top\nobjectClass: person\nobjectClass: inetOrgPerson\nuid: !uid\nmail: !mail\ngivenName: !first_name\nsn: !last_name\ncn: !first_name !last_name\nuserPassword: !pass"));
 
-define(LDAPPROV_LDAP_FIRST_NAME,      'givenName');
-define(LDAPPROV_LDAP_LAST_NAME,       'sn');
-define(LDAPPROV_PERMISSION,           'create accounts');
-define(LDAPPROV_ROLE_PERMISSION,      'choose roles for new accounts');
-define(LDAPPROV_DATE_FORMAT,          'medium');
-define(LDAPPROV_CSV_DELIMITER,        ',');
-define(LDAPPROV_CSV_ENCLOSURE,        '"');
-define(LDAPPROV_PROFILE_FIRSTNAME,    'profile_firstname');
-define(LDAPPROV_PROFILE_LASTNAME,     'profile_lastname');
-define(LDAPPROV_MAX_LIST_ENTRIES,     20);
-//define(LDAPPROV_UID_FORBIDDEN_CHAR, '!@#$%^&*()_+_+[]\{}|;\':",./<>?`~');
+define('LDAPPROV_LDAP_FIRST_NAME',      'givenName');
+define('LDAPPROV_LDAP_LAST_NAME',       'sn');
+define('LDAPPROV_PERMISSION',           'create accounts');
+define('LDAPPROV_ROLE_PERMISSION',      'choose roles for new accounts');
+define('LDAPPROV_DATE_FORMAT',          'medium');
+define('LDAPPROV_CSV_DELIMITER',        ',');
+define('LDAPPROV_CSV_ENCLOSURE',        '"');
+define('LDAPPROV_PROFILE_FIRSTNAME',    'profile_firstname');
+define('LDAPPROV_PROFILE_LASTNAME',     'profile_lastname');
+define('LDAPPROV_MAX_LIST_ENTRIES',     20);
+//define('LDAPPROV_UID_FORBIDDEN_CHAR', '!@#$%^&*()_+_+[]\{}|;\':",./<>?`~');
 
 //////////////////////////////////////////////////////////////////////////////
 // Core API hooks
@@ -266,7 +266,7 @@ function ldapprov_form_alter(&$form, $form_state, $form_id) {
  */
 function ldapprov_mail($key, &$message, $params) {
   $language = $message['language'];
-  $account = $params['account'] ? $params['account'] : (object)array();
+  $account = isset($params['account']) ? $params['account'] : (object)array();
   $variables = array_merge(user_mail_tokens($account, $language), $params['variables'] ? $params['variables'] : array());
   $message['subject'] .= _ldapprov_mail_text($key .'_subject', $language, $variables);
   $message['body'][] = _ldapprov_mail_text($key .'_body', $language, $variables);
@@ -321,25 +321,25 @@ function _ldapprov_mail_text($key, $language = NULL, $variables = array()) {
     // No override, return default string.
     switch ($key) {
       case 'code_subject':
-        return t('Validate your e-mail at !site', $variables, $language->language);
+        return t('Validate your e-mail at !site', $variables, $langcode);
       case 'code_body':
-        return t("!first_name !last_name,\n\nThank you for registering at !site. You may now validate your e-mail address by entering the code\n\n!code\n\nat !validate_uri (by copying and pasting).\n\nYou may also validate the e-mail by clicking on this link or copying and pasting it in your browser:\n\n!validate_url\n\n--  !site team", $variables, $language->language);
+        return t("!first_name !last_name,\n\nThank you for registering at !site. You may now validate your e-mail address by entering the code\n\n!code\n\nat !validate_uri (by copying and pasting).\n\nYou may also validate the e-mail by clicking on this link or copying and pasting it in your browser:\n\n!validate_url\n\n--  !site team", $variables, $langcode);
       case 'reject_subject':
-        return t('Your request at !site has been rejected', $variables, $language->language);
+        return t('Your request at !site has been rejected', $variables, $langcode);
       case 'reject_body':
-        return t("!first_name !last_name,\n\nSorry, but your account request at !site has been rejected. Please resubmit the registration form with more information.\n\n-----\n\n!message\n\n--  !site team", $variables, $language->language);
+        return t("!first_name !last_name,\n\nSorry, but your account request at !site has been rejected. Please resubmit the registration form with more information.\n\n-----\n\n!message\n\n--  !site team", $variables, $langcode);
       case 'notify_subject':
-        return t('New account request at !site', $variables, $language->language);
+        return t('New account request at !site', $variables, $langcode);
       case 'notify_body':
-        return t("!first_name !last_name (!mailto) has requested the account at !site.\n\nClick this link !create_url to process the request.", $variables, $language->language);
+        return t("!first_name !last_name (!mailto) has requested the account at !site.\n\nClick this link !create_url to process the request.", $variables, $langcode);
       case 'create_subject':
-        return t('The account has been created for you at !site', $variables, $language->language);
+        return t('The account has been created for you at !site', $variables, $langcode);
       case 'create_body':
-        return t("!first_name !last_name,\n\nThe account at !site has been created for you. You may now log in to !login_uri using the following username and password:\n\nusername: !username\npassword: !password\n\nYou may also log in by clicking on this link or copying and pasting it in your browser:\n\n!login_url\n\nThis is a one-time login, so it can be used only once.\n\n-----\n\n!message\n\n--  !site team", $variables, $language->language);
+        return t("!first_name !last_name,\n\nThe account at !site has been created for you. You may now log in to !login_uri using the following username and password:\n\nusername: !username\npassword: !password\n\nYou may also log in by clicking on this link or copying and pasting it in your browser:\n\n!login_url\n\nThis is a one-time login, so it can be used only once.\n\n-----\n\n!message\n\n--  !site team", $variables, $langcode);
       case 'delete_subject':
-        return t('Your account has been deleted at !site', $variables, $language->language);
+        return t('Your account has been deleted at !site', $variables, $langcode);
       case 'delete_body':
-        return t("!first_name !last_name,\n\nYour account !username has been deleted at !site.\n\n--  !site team", $variables, $language->language);
+        return t("!first_name !last_name,\n\nYour account !username has been deleted at !site.\n\n--  !site team", $variables, $langcode);
     }
   }
 }
@@ -623,7 +623,7 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
     '#description' => t('A password and instructions will be sent to this e-mail address, so make sure it is accurate.'),
     '#size' => 30,
     '#maxlength' => 100,
-    '#default_value' => $data['mail'],
+    '#default_value' => isset($data['mail']) ? $data['mail'] : NULL,
     '#required' => !$disabled ? TRUE : FALSE,
     '#disabled' => $disabled,
     '#weight' => 2,
@@ -641,7 +641,7 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
             '#description' => $val['description'],
             '#size' => $val['size'],
             '#maxlength' => $val['maxlength'],
-            '#default_value' => $data['custom_'. $key],
+            '#default_value' => isset($data['custom_'. $key]) ? $data['custom_'. $key] : NULL,
             '#disabled' => $disabled,
             '#weight' => $val['weigth'],
           );
@@ -652,7 +652,7 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
             '#title' => $val['title'],
             '#description' => $val['description'],
             '#rows' => $val['rows'],
-            '#default_value' => $data['custom_'. $key],
+            '#default_value' => isset($data['custom_'. $key]) ? $data['custom_'. $key] : NULL,
             '#disabled' => $disabled,
             '#weight' => $val['weigth'],
           );
@@ -675,13 +675,13 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
       foreach ($rwattrs as $attribute) {
         if ($attr_info = $ldapdata_attributes[$attribute]) {
           // if this attribute should be shown ir registration.
-          if ($ldapdata_options[$attribute] > 0) {
+          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0) {
             array_shift($attr_info);
             $form['account']['ldap_'. $attribute] = _ldapdata_attribute_form($attribute, $data['ldap_'. $attribute], $attr_info);
             $form['account']['ldap_'. $attribute]['#disabled'] = $disabled;
           }
           // If this attribute is required.
-          if ($ldapdata_options[$attribute] > 1) {
+          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 1) {
             $form['account']['ldap_'. $attribute]['#required'] = !$disabled ? TRUE : FALSE;
           }
         }
@@ -702,7 +702,7 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
   // OG integration.
   if (module_exists('og') && LDAPPROV_OG) {
     $form_groups = module_invoke('og', 'user', 'register', NULL, NULL);
-    if (is_array($form_groups['og_register']['og_register']) && is_array($data['og_register'])) {
+    if (isset($form_groups['og_register']['og_register']) && isset($data['og_register'])) {
       $form_groups['og_register']['og_register']['#default_value'] = $data['og_register'];
       $form_groups['og_register']['og_register']['#disabled'] = $disabled;
     }
@@ -810,13 +810,13 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
   if (!LDAPPROV_ALLOW_USERNAME) {
 
     // Username is constructed for the user.
-    if (preg_match('/^\s+/', $values['first_name'])) {
+    if (isset($values['first_name']) && preg_match('/^\s+/', $values['first_name'])) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name cannot begin with a space.')) : $errors + 1;
     }
-    if (preg_match('/\s+$/', $values['first_name'])) {
+    if (isset($values['first_name']) && preg_match('/\s+$/', $values['first_name'])) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name cannot end with a space.')) : $errors + 1;
     }
-    if (preg_match('/[^a-zA-Z\'-\s]+/', $values['first_name'])) {
+    if (isset($values['first_name']) && preg_match('/[^a-zA-Z\'-\s]+/', $values['first_name'])) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name should contain only latin letters, apostrophe, dash or space.')) : $errors + 1;
     }
     /*
@@ -825,13 +825,13 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
     }
     */
 
-    if (preg_match('/^\s+/', $values['last_name'])) {
+    if (isset($values['last_name']) && preg_match('/^\s+/', $values['last_name'])) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name cannot begin with a space.')) : $errors + 1;
     }
-    if (preg_match('/\s+$/', $values['last_name'])) {
+    if (isset($values['last_name']) && preg_match('/\s+$/', $values['last_name'])) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name cannot end with a space.')) : $errors + 1;
     }
-    if (preg_match('/[^a-zA-Z\'-\s]+/', $values['last_name'])) {
+    if (isset($values['last_name']) && preg_match('/[^a-zA-Z\'-\s]+/', $values['last_name'])) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name should contain only latin letters, apostrophe, dash or space.')) : $errors + 1;
     }
     /*
@@ -852,7 +852,7 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
   }
 
   // Validating password length.
-  if ($values['password'] && drupal_strlen(trim($values['password'])) < LDAPPROV_PASS_LENGTH) {
+  if (isset($values['password']) && !empty($values['password']) && drupal_strlen(trim($values['password'])) < LDAPPROV_PASS_LENGTH) {
     form_set_error('password', t('Password should be at least %length characters in length.', array('%length' => LDAPPROV_PASS_LENGTH)));
   }
 
@@ -900,7 +900,7 @@ function ldapprov_register_submit($form, &$form_state) {
     $result = db_query("SELECT * FROM {ldapprov} WHERE code = '%s' AND status = '0'", $values['code']);
     if ($row = db_fetch_object($result)) {
       $data_initial = unserialize($row->data);
-      db_query("UPDATE {ldapprov} SET name = '%s', first_name = '%s', last_name = '%s', registered = %d, data = '%s', status = '1' WHERE rid = %d", $values['name'], $first_name, $last_name, $time, serialize($data), $row->rid);
+      db_query("UPDATE {ldapprov} SET name = '%s', first_name = '%s', last_name = '%s', registered = %d, data = '%s', status = '1' WHERE rid = %d", isset($values['name']) ? $values['name'] : NULL, $first_name, $last_name, $time, serialize($data), $row->rid);
 
       drupal_set_message(t('Please wait until your account is approved. You will receive login information to your e-mail account.', array('%mail' => $row->mail)));
       $form_state['redirect'] = 'user';
@@ -914,9 +914,9 @@ function ldapprov_register_submit($form, &$form_state) {
 
     // Ordinary registration.
     // Create a secret code.
-    $hash = _ldapprov_hash($values['name'] . $first_name . $last_name, $time);
+    $hash = _ldapprov_hash((isset($values['name']) ? $values['name'] : NULL) . $first_name . $last_name, $time);
 
-    db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, code, registered, data, status) VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '0')", $values['name'], $values['mail'], $first_name, $last_name, $hash, $time, serialize($data));
+    db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, code, registered, data, status) VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '0')", isset($values['name']) ? $values['name'] : NULL, $values['mail'], $first_name, $last_name, $hash, $time, serialize($data));
 
     // Mail one time login URL and instructions.
     $variables = array('!validate_url' => url('user/validate/'. $hash, array('absolute' => TRUE)), '!validate_uri' => url('user/validate', array('absolute' => TRUE)), '!mailto' => $values['mail'], '!first_name' => $first_name, '!last_name' => $last_name, '!code' => $hash);
@@ -1189,7 +1189,7 @@ function ldapprov_list_form(&$form_state, $tab) {
   $header[] = array('data' => t('First Name'), 'field' => 'first_name');
   $header[] = array('data' => t('Last Name'), 'field' => 'last_name');
   $header[] = array('data' => t('E-Mail'), 'field' => 'mail');
-  if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENEBLAED) {
+  if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED) {
     $header[] = array('data' => t('Inviter'));
   }
   if ($status > 1) {
@@ -1218,6 +1218,7 @@ function ldapprov_list_form(&$form_state, $tab) {
   }
   $result = pager_query($sql . tablesort_sql($header), LDAPPROV_MAX_LIST_ENTRIES, 0, $query_count, $status);
 
+  $requests = array();
   while ($row = db_fetch_object($result)) {
     $requests[$row->rid] = '';
     $data = unserialize($row->data);
@@ -1228,7 +1229,7 @@ function ldapprov_list_form(&$form_state, $tab) {
     $form['first_name'][$row->rid] = array('#value' => check_plain($row->first_name));
     $form['last_name'][$row->rid] = array('#value' => check_plain($row->last_name));
     $form['mail'][$row->rid] = array('#value' => check_plain($row->mail));
-    if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLAED) {
+    if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED) {
       $inviters = array();
       $result2 = db_query("SELECT * FROM {ldapprov_invite} WHERE rid = %d", $row->rid);
       while ($row2 = db_fetch_object($result2)) {
@@ -1421,7 +1422,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
       $data = array_merge(is_array($data['data']) ? $data['data'] : array(), $data);
     }
   }
-  $data = is_array($data) ? $data : array();
+  $data = isset($data) ? $data : array();
 
   $form = array();
 
@@ -1503,7 +1504,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     $form['ldapprov_roles']['roles'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Roles'),
-      '#default_value' => array_keys((array)$data['roles']),
+      '#default_value' => isset($data['roles']) ? array_keys((array)$data['roles']) : array(),
       '#options' => $roles_available,
       '#description' => t('The user receives the combined permissions of the %au role, and all roles selected here.', array('%au' => t('authenticated user')))
     );
@@ -1517,7 +1518,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
       '#title' => t('Message'),
       '#rows' => 5,
       '#description' => t('This message will be added to the notification e-mail sent out.'),
-      '#default_value' => $data['message'],
+      '#default_value' => isset($data['message']) ? $data['message'] : NULL,
     );
   }
 
@@ -1527,7 +1528,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     '#title' => t('Notes'),
     '#rows' => 5,
     '#description' => t('Internal notes shared between account managers.'),
-    '#default_value' => $data['notes'],
+    '#default_value' => isset($data['notes']) ? $data['notes'] : NULL,
   );
 
   $form['rid'] = array(
@@ -1573,7 +1574,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     }
 
     // Prints a message if a user with this username already exists in the system when the form is rendered.
-    if ($status != 3 && !LDAPPROV_ALLOW_USERNAME) {
+    if ($status != 3 && !LDAPPROV_ALLOW_USERNAME && isset($data['first_name']) && isset($data['last_name'])) {
       $name = _ldapprov_make_username($data['first_name'], $data['last_name']);
       $result = db_query("SELECT mail FROM {users} WHERE name = '%s'", $name);
       if ($row = db_fetch_object($result)) {
@@ -1714,7 +1715,7 @@ function _ldapprov_create_user($data) {
   }
 
   // ldapauth defines if we use md5 for ldap passwords.
-  $pass = $data['password'] ? $data['password'] : user_password(LDAPPROV_PASS_LENGTH);
+  $pass = isset($data['password']) ? $data['password'] : user_password(LDAPPROV_PASS_LENGTH);
   $pass_ldap = $_ldapprov_ldap->getOption('encrypted') ? '{md5}'. base64_encode(pack('H*', md5($pass))) : $pass;
 
   $ldap_vars['!uid'] = $name;
@@ -1751,7 +1752,7 @@ function _ldapprov_create_user($data) {
       foreach ($rwattrs as $attribute) {
         if ($attr_info = $ldapdata_attributes[$attribute]) {
           // if this attribute should be shown ir registration.
-          if ($ldapdata_options[$attribute] > 0 && $data['ldap_'. $attribute]) {
+          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0 && isset($data['ldap_'. $attribute])) {
             $ldif[$attribute][] = strtr($data['ldap_'. $attribute], $ldap_vars);
           }
         }
@@ -1799,7 +1800,7 @@ function _ldapprov_create_user($data) {
 
     // Proceed with a Drupal user only if LDAP user is created successfully.
     // Set user roles.
-    $roles = $data['roles'];
+    $roles = isset($data['roles']) ? $data['roles'] : NULL;
     if ((user_access(LDAPPROV_ROLE_PERMISSION) || user_access('assign roles')) && isset($roles)) {
       foreach ($roles as $key => $value) {
         if ($value == 0) {
@@ -1809,7 +1810,7 @@ function _ldapprov_create_user($data) {
     }
 
     // Create a drupal user.
-    $account = user_save('', array_merge(array('name' => $name, 'pass' => $pass, 'mail' => $data['mail'], 'init' => $data['mail'], 'status' => 1, 'authname_ldapauth' => $name, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, ldap_config => LDAPPROV_SERVER), $account_profile));
+    $account = user_save('', array_merge(array('name' => $name, 'pass' => $pass, 'mail' => $data['mail'], 'init' => $data['mail'], 'status' => 1, 'authname_ldapauth' => $name, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, 'ldap_config' => LDAPPROV_SERVER), $account_profile));
     watchdog('ldapprov', 'A new external user %name was created using module %module.', array('%name' => $name, '%module' => 'ldapprov'), WATCHDOG_NOTICE, l(t('edit'), 'user/'. $account->uid .'/edit'));
 
     $time = time();
@@ -1821,16 +1822,16 @@ function _ldapprov_create_user($data) {
     elseif ($data['rid']) {
 
       // Manager is approving request.
-      db_query("UPDATE {ldapprov} SET status = '3', cuid = %d, approved = %d, uid = %d, notes = '%s' WHERE rid = %d", $user->uid, $time, $account->uid, $data['notes'], $data['rid']);
+      db_query("UPDATE {ldapprov} SET status = '3', cuid = %d, approved = %d, uid = %d, notes = '%s' WHERE rid = %d", $user->uid, $time, $account->uid, isset($data['notes']) ? $data['notes'] : NULL, $data['rid']);
     }
     else {
 
       // User is created from the account manager interface.
-      db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, status, registered, data, approved, cuid, uid, notes) VALUES ('%s', '%s', '%s', '%s', '3', %d, '%s', %d, %d, %d, '%s')", $data['name'], $data['mail'], $first_name, $last_name, $time, serialize($data), $time, $user->uid, $account->uid, $data['notes']);
+      db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, status, registered, data, approved, cuid, uid, notes) VALUES ('%s', '%s', '%s', '%s', '3', %d, '%s', %d, %d, %d, '%s')", isset($data['name']) ? $data['name'] : NULL, $data['mail'], $first_name, $last_name, $time, serialize($data), $time, $user->uid, $account->uid, $data['notes']);
     }
 
     // Mail one time login URL and instructions.
-    $variables = array('!mailto' => $data['mail'], '!first_name' => $first_name, '!last_name' => $last_name, '!username' => $name, '!password' => $pass, '!message' => $data['message']);
+    $variables = array('!mailto' => $data['mail'], '!first_name' => $first_name, '!last_name' => $last_name, '!username' => $name, '!password' => $pass, '!message' => isset($data['message']) ? $data['message'] : NULL);
     $params = array('account' => $account, 'variables' => $variables);
     $message = drupal_mail('ldapprov', 'create', $account->mail, user_preferred_language($account), $params);
     if ($message['result']) {
@@ -1843,7 +1844,7 @@ function _ldapprov_create_user($data) {
     // OG integration.
     if (module_exists('og')) {
       $og_register = is_array($data['og_register']) ? array_filter($data['og_register']) : array();
-      $og_groups = is_array($data['og_groups']) ? array_filter($data['og_groups']) : array();
+      $og_groups = isset($data['og_groups']) ? array_filter($data['og_groups']) : array();
       foreach (array_merge($og_register, $og_groups) as $gid) {
         $return = og_subscribe_user($gid, $account);
       }
@@ -1935,7 +1936,7 @@ function _ldapprov_reject_user($data) {
   drupal_set_message(t('The account request for %first %last (%mail) has been rejected.', array('%first' => $row->first_name, '%last' => $row->last_name, '%mail' => $row->mail)));
 
   // Mail the user about rejection.
-  $variables = array('!mailto' => $row->mail, '!first_name' => $row->first_name, '!last_name' => $row->last_name, '!message' => $data['message']);
+  $variables = array('!mailto' => $row->mail, '!first_name' => $row->first_name, '!last_name' => $row->last_name, '!message' => isset($data['message']) ? $data['message'] : NULL);
   $params = array('variables' => $variables);
   $message = drupal_mail('ldapprov', 'reject', $row->mail, language_default(), $params);
   if ($message['result']) {
@@ -2132,7 +2133,7 @@ function _ldapprov_attach_file($file) {
         $account['first_name'] = is_array($account['first_name']) ? $account['first_name'][0]['value'] : $account['first_name'];
         $account['last_name'] = is_array($account['last_name']) ? $account['last_name'][0]['value'] : $account['last_name'];
 
-        db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, status, registered, data, cuid) VALUES ('%s', '%s', '%s', '%s', '1', %d, '%s', %d)", $account['name'], $account['mail'], $account['first_name'], $account['last_name'], $time, serialize($account), $user->uid);
+        db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, status, registered, data, cuid) VALUES ('%s', '%s', '%s', '%s', '1', %d, '%s', %d)", isset($account['name']) ? $account['name'] : NULL, $account['mail'], $account['first_name'], $account['last_name'], $time, serialize($account), $user->uid);
       }
       drupal_set_message(t("The users data from the file %file has been uploaded.", array('%file' => $file->filename)));
     }
@@ -2180,7 +2181,7 @@ function _ldapprov_template($type) {
       foreach ($rwattrs as $attribute) {
         if ($attr_info = $ldapdata_attributes[$attribute]) {
           // If this attribute should be shown ir registration.
-          if ($ldapdata_options[$attribute] > 0) {
+          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0) {
             $data['ldap_'. $attribute] = $attr_info['2'];
           }
         }
@@ -2208,6 +2209,7 @@ function _ldapprov_template($type) {
     $hidden = content_profile_get_settings($profile_type, 'registration_hide');
     $data += array_diff_key($profile_fields, is_array($hidden) ? $hidden : array());
     foreach ($profile_required as $key => $val) {
+      $data[$key] = isset($data[$key]) ? $data[$key] : '';
       $data[$key] .= ' ('. t('required') .')';
     }
   }

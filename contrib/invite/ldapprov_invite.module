@@ -8,10 +8,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define(LDAPPROV_INVITE_ENABLED, variable_get('ldapprov_invite_enabled', 0));
+define('LDAPPROV_INVITE_ENABLED', variable_get('ldapprov_invite_enabled', 0));
+define('LDAPPROV_INVITE_FROM',    variable_get('ldapprov_invite_from', 0));
 
-define(LDAPPROV_INVITE_PERMISSION,  'invite friends');
-define(LDAPPROV_INVITE_MAX_ENTRIES, 10);
+define('LDAPPROV_INVITE_PERMISSION',  'invite friends');
+define('LDAPPROV_INVITE_MAX_ENTRIES', 10);
 
 //////////////////////////////////////////////////////////////////////////////
 // Core API hooks
@@ -328,7 +329,7 @@ function ldapprov_invite_delete($iid) {
  * Implementation of hook_ldapuser().
  */
 function ldapprov_invite_ldapuser(&$account) {
-  if (!$account->rid)
+  if (!isset($account->rid))
     return;
 
   $result = db_query("SELECT li.* FROM {ldapprov_invite} li WHERE li.rid = %d", $account->rid);

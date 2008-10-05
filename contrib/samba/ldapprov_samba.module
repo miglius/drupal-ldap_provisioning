@@ -8,14 +8,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define(LDAPPROV_SAMBA_ENABLED,       variable_get('ldapprov_samba_enabled', false));
-define(LDAPPROV_SAMBA_ENTRY,         variable_get('ldapprov_samba_entry', "objectClass: organizationalPerson\nobjectClass: posixAccount\nobjectClass: shadowAccount\nobjectClass: sambaSamAccount\nuidNumber: !uid_number\ngidNumber: !gid_number\nhomeDirectory: /home/!name\nloginShell: /bin/bash\nsambaSID: !samba_sid\nsambaPrimaryGroupSID: !primary_group_id\nsambaPwdCanChange: !pwd_next_timestamp\nsambaPwdLastSet: !pwd_timestamp\nsambaAcctFlags: \nsambaLMPassword: !lm_pass\nsambaNTPAssword: !nt_pass"));
-define(LDAPPROV_SAMBA_DOMAIN_SID,    variable_get('ldapprov_samba_domain_sid', ''));
-define(LDAPPROV_SAMBA_DEFAULT_GROUP, variable_get('ldapprov_samba_default_group', 'samba'));
-define(LDAPPROV_SAMBA_GROUP_BASE_DN, variable_get('ldapprov_samba_group_base_dn', ''));
-define(LDAPPROV_SAMBA_PASS_EXPIRE,   variable_get('ldapprov_samba_pass_expire', '365'));
+define('LDAPPROV_SAMBA_ENABLED',       variable_get('ldapprov_samba_enabled', false));
+define('LDAPPROV_SAMBA_ENTRY',         variable_get('ldapprov_samba_entry', "objectClass: organizationalPerson\nobjectClass: posixAccount\nobjectClass: shadowAccount\nobjectClass: sambaSamAccount\nuidNumber: !uid_number\ngidNumber: !gid_number\nhomeDirectory: /home/!name\nloginShell: /bin/bash\nsambaSID: !samba_sid\nsambaPrimaryGroupSID: !primary_group_id\nsambaPwdCanChange: !pwd_next_timestamp\nsambaPwdLastSet: !pwd_timestamp\nsambaAcctFlags: \nsambaLMPassword: !lm_pass\nsambaNTPAssword: !nt_pass"));
+define('LDAPPROV_SAMBA_DOMAIN_SID',    variable_get('ldapprov_samba_domain_sid', ''));
+define('LDAPPROV_SAMBA_DEFAULT_GROUP', variable_get('ldapprov_samba_default_group', 'samba'));
+define('LDAPPROV_SAMBA_GROUP_BASE_DN', variable_get('ldapprov_samba_group_base_dn', ''));
+define('LDAPPROV_SAMBA_PASS_EXPIRE',   variable_get('ldapprov_samba_pass_expire', '365'));
 
-define(LDAPPROV_SAMBA_OBJECTCLASS, 'sambaSamAccount');
+define('LDAPPROV_SAMBA_OBJECTCLASS', 'sambaSamAccount');
 
 //////////////////////////////////////////////////////////////////////////////
 // Core API hooks
@@ -53,12 +53,12 @@ function ldapprov_samba_user($op, &$edit, &$account, $category = NULL) {
   if (LDAPPROV_ENABLED && LDAPPROV_SAMBA_ENABLED) {
     switch ($op) {
       case 'submit':
-        if ($account->ldap_authentified && $category == 'account') {
+        if (isset($account->ldap_authentified) && $category == 'account') {
           _ldapprov_samba_user_submit($account, $edit);
         }
         break;
       case 'delete':
-        if ($account->ldap_authentified) {
+        if (isset($account->ldap_authentified)) {
           global $_ldapprov_ldap;
 
           if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
@@ -90,7 +90,7 @@ function ldapprov_samba_ldapuser(&$account) {
       return;
     }
 
-    $samba_vars['!name'] = ($account->new_name) ? $account->new_name : $account->name;
+    $samba_vars['!name'] = isset($account->new_name) ? $account->new_name : $account->name;
 
     // Calculate nt and lm passwords for samba.
     $hash = new smbHash();
@@ -245,11 +245,12 @@ function _ldapprov_samba_user_submit(&$account, &$edit) {
       return;
     }
 
+    $samba_vars = array();
     if (isset($edit['name']) && $account->name != $edit['name']) {
       $samba_vars['!name'] = $edit['name'];
     }
 
-    if ($edit['pass']) {
+    if (isset($edit['pass'])) {
       // Calculate nt and lm passwords for samba.
       $hash = new smbHash();
       $samba_vars['!lm_pass'] = $hash->lmhash($edit['pass']);
@@ -260,7 +261,7 @@ function _ldapprov_samba_user_submit(&$account, &$edit) {
       $samba_vars['!pwd_next_timestamp'] = $time + 60*60*24*LDAPPROV_SAMBA_PASS_EXPIRE;
     }
 
-    if (is_array($samba_vars)) {
+    if (!empty($samba_vars)) {
       foreach (explode("\n", LDAPPROV_SAMBA_ENTRY) as $line) {
         $line = str_replace("\r", '', $line);
         if (preg_match('/^\s*$/', $line) || preg_match('/^#.*$/', $line)) {
@@ -303,7 +304,9 @@ function _ldapprov_samba_user_submit(&$account, &$edit) {
     if (isset($edit['name']) && $account->name != $edit['name']) {
       $account->new_name = $edit['name'];
     }
-    $account->clear_pass = $edit['pass'];
+    if (isset($edit['pass'])) {
+      $account->clear_pass = $edit['pass'];
+    }
     if (isset($edit['ldap_dn']) && $account->ldap_dn != $edit['ldap_dn']) {
       $account->new_ldap_dn = $edit['ldap_dn'];
     }
