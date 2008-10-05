@@ -50,7 +50,7 @@ function ldapprov_invite_og_menu() {
  * Check if a user can invite other users to the group.
  */
 function ldapprov_invite_og_can_invite($node) {
-  if (!ldapprov_invite_access())
+  if (!ldapprov_invite_access() || !isset($node->og_selective))
     return FALSE;
 
   switch ($node->og_selective) {
