@@ -138,6 +138,7 @@ function ldapprov_samba_ldapuser(&$account) {
 
     // Print ldif if debugging is enabled.
     if (LDAPPROV_DEBUG) {
+      $ldif_out = '';
       foreach ($ldif as $key => $val) {
         foreach ($val as $k => $v) {
           $ldif_out .= "$key: $v<br />";

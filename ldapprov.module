@@ -1865,7 +1865,7 @@ function _ldapprov_create_user($data) {
 
   $_ldapprov_ldap->disconnect();
 
-  return $account;
+  return isset($account) ? $account : NULL;
 }
 
 /**
@@ -2133,6 +2133,13 @@ function _ldapprov_attach_file($file) {
         $account['first_name'] = is_array($account['first_name']) ? $account['first_name'][0]['value'] : $account['first_name'];
         $account['last_name'] = is_array($account['last_name']) ? $account['last_name'][0]['value'] : $account['last_name'];
 
+        // Content profile data adjustment.
+        foreach ($account as $k => $v) {
+          if (preg_match('/^field_/', $k)) {
+            $account[$k] = array(array('value' => $v, '_error_element' => $k .'][0][value'));
+          }
+        }
+
         db_query("INSERT INTO {ldapprov} (name, mail, first_name, last_name, status, registered, data, cuid) VALUES ('%s', '%s', '%s', '%s', '1', %d, '%s', %d)", isset($account['name']) ? $account['name'] : NULL, $account['mail'], $account['first_name'], $account['last_name'], $time, serialize($account), $user->uid);
       }
       drupal_set_message(t("The users data from the file %file has been uploaded.", array('%file' => $file->filename)));
@@ -2207,6 +2214,13 @@ function _ldapprov_template($type) {
     $profile_fields = _content_profile_registration_get_field_select($profile_type);
     $profile_required = _content_profile_registration_get_field_select($profile_type, TRUE);
     $hidden = content_profile_get_settings($profile_type, 'registration_hide');
+    $hidden = array_filter(isset($hidden) && is_array($hidden) ? $hidden : array());
+    foreach ($profile_fields as $k => $v) {
+      if (preg_match('/^group_/', $k)) {
+        unset($profile_fields[$k]);
+        unset($profile_required[$k]);
+      }
+    }
     $data += array_diff_key($profile_fields, is_array($hidden) ? $hidden : array());
     foreach ($profile_required as $key => $val) {
       $data[$key] = isset($data[$key]) ? $data[$key] : '';
