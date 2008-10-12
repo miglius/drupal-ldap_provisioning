@@ -171,7 +171,7 @@ function ldapprov_admin_settings() {
   }
 
   // LDAP authentication.
-  $form['ldap'] = array('#type' => 'fieldset', '#title' => ('LDAP authentication'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+  $form['ldap'] = array('#type' => 'fieldset', '#title' => ('LDAP authentication'), '#collapsible' => TRUE, '#collapsed' => TRUE, '#description' => t('<p>Choose LDAP server new accounts will be created in.</p><p>"Test" tries authentication with the saved DN and password and prints the result.</p>'));
   $ldap_servers = array();
   $result = db_query("SELECT sid, name, status FROM {ldapauth} WHERE status = '1' ORDER BY sid");
   while ($row = db_fetch_object($result)) {
@@ -192,7 +192,6 @@ function ldapprov_admin_settings() {
     '#default_value' => LDAPPROV_DN,
     '#description' => t('Bind DN should have the rights to create new LDAP entries.'),
   );
-
   if (LDAPPROV_PASS_CLEAR || !LDAPPROV_PASS) {
     variable_del('ldapprov_pass');
     $form['ldap']['ldapprov_pass'] = array(
@@ -211,6 +210,10 @@ function ldapprov_admin_settings() {
       '#default_value' => FALSE,
     );
   }
+  $form['ldap']['test'] = array(
+    '#type'  => 'submit',
+    '#value' => t('Test'),
+  );
 
   // LDAP fields.
   $form['ldap_attributes'] = array('#type' => 'fieldset', '#title' => t('LDAP attributes'), '#collapsible' => TRUE, '#collapsed' => TRUE);
@@ -563,6 +566,21 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
 
       drupal_set_message(t('The configuration options have been reset to their default values.'));
       break;
+    case t('Test'):
+      global $_ldapprov_ldap;
+      if (_ldapprov_init()) {
+        // Try to authenticate.
+        if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+          drupal_set_message(t('Authentication with the LDAP server for the dn %dn and password %pass failed.', array('%dn' => LDAPPROV_DN, '%pass' => LDAPPROV_PASS)), 'error');
+        }
+        else {
+          drupal_set_message(t('Authentication with the LDAP server for the dn %dn and password %pass succeeded.', array('%dn' => LDAPPROV_DN, '%pass' => LDAPPROV_PASS)));
+        }
+      }
+      else {
+        drupal_set_message(t('Cannot load server settings. Please save configuration first.'), 'error');
+      }
+      return;
   }
 
   // Rebuild the menu router.

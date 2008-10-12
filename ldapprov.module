@@ -460,18 +460,21 @@ function _ldapprov_user_delete(&$edit, &$account) {
  */
 function _ldapprov_init() {
   global $_ldapprov_ldap;
-  $server = _ldapprov_get_server();
-
-  $_ldapprov_ldap = new LDAPInterface();
-  $_ldapprov_ldap->setOption('sid', $server->sid);
-  $_ldapprov_ldap->setOption('name', $server->name);
-  $_ldapprov_ldap->setOption('server', $server->server);
-  $_ldapprov_ldap->setOption('port', $server->port);
-  $_ldapprov_ldap->setOption('tls', $server->tls);
-  $_ldapprov_ldap->setOption('encrypted', $server->encrypted);
-  $_ldapprov_ldap->setOption('basedn', $server->basedn);
-  $_ldapprov_ldap->setOption('user_attr', $server->user_attr);
-  $_ldapprov_ldap->setOption('mail_attr', $server->mail_attr);
+  
+  if ($server = _ldapprov_get_server()) {
+    $_ldapprov_ldap = new LDAPInterface();
+    $_ldapprov_ldap->setOption('sid', $server->sid);
+    $_ldapprov_ldap->setOption('name', $server->name);
+    $_ldapprov_ldap->setOption('server', $server->server);
+    $_ldapprov_ldap->setOption('port', $server->port);
+    $_ldapprov_ldap->setOption('tls', $server->tls);
+    $_ldapprov_ldap->setOption('encrypted', $server->encrypted);
+    $_ldapprov_ldap->setOption('basedn', $server->basedn);
+    $_ldapprov_ldap->setOption('user_attr', $server->user_attr);
+    $_ldapprov_ldap->setOption('mail_attr', $server->mail_attr);
+    return $_ldapprov_ldap;
+  }
+  return FALSE;
 }
 
 /**
