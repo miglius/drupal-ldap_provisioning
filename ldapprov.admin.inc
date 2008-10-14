@@ -571,10 +571,10 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       if (_ldapprov_init()) {
         // Try to authenticate.
         if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
-          drupal_set_message(t('Authentication with the LDAP server for the dn %dn and password %pass failed.', array('%dn' => LDAPPROV_DN, '%pass' => LDAPPROV_PASS)), 'error');
+          drupal_set_message(t('Authentication with the LDAP server for the dn %dn and saved password failed.', array('%dn' => LDAPPROV_DN)), 'error');
         }
         else {
-          drupal_set_message(t('Authentication with the LDAP server for the dn %dn and password %pass succeeded.', array('%dn' => LDAPPROV_DN, '%pass' => LDAPPROV_PASS)));
+          drupal_set_message(t('Authentication with the LDAP server for the dn %dn and saved password succeeded.', array('%dn' => LDAPPROV_DN)));
         }
       }
       else {
