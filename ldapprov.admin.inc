@@ -127,6 +127,14 @@ function ldapprov_admin_settings() {
       '#default_value' => LDAPPROV_CONTENT_PROFILE_LAST,
       '#description' => t('Content profile field associated with the user\'s last name. When the field is set and custom usernames are not allowed, this field will be used to construct a username.'),
     );
+    if (module_exists('notifications')) {
+      $form['registration']['content_profile']['ldapprov_notifications_unsubscribe'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Unsubscribe account creator from the created profile'),
+        '#default_value' => LDAPPROV_NOTIFICATIONS_UNSUBSCRIBE,
+        '#description' => t('If autosubscribe is configured, this setting unsubscribes the account manager from the user profiles he creates.'),
+      );
+    }
   }
   if (module_exists('ldapdata')) {
     $server = _ldapprov_get_server();
@@ -467,6 +475,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
         variable_set('ldapprov_content_profile', $values['ldapprov_content_profile']);
         variable_set('ldapprov_content_profile_first', $values['ldapprov_content_profile_first']);
         variable_set('ldapprov_content_profile_last', $values['ldapprov_content_profile_last']);
+        variable_set('ldapprov_notifications_unsubscribe', $values['ldapprov_notifications_unsubscribe']);
       }
 
       // Registration form.
@@ -538,6 +547,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       variable_del('ldapprov_content_profile');
       variable_del('ldapprov_content_profile_first');
       variable_del('ldapprov_content_profile_last');
+      variable_del('ldapprov_notifications_unsubscribe');
 
       // Registration form.
       variable_del('ldapprov_custom'. $key);

@@ -27,5 +27,7 @@ function ldapprov_invite_install_og() {
  */
 function ldapprov_invite_og_uninstall() {
   variable_del('ldapprov_invite_og_tab');
+  variable_del('ldapprov_invite_og_mail_invite_subject');
+  variable_del('ldapprov_invite_og_mail_invite_body');
 }
 

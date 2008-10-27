@@ -17,19 +17,20 @@
  */
 function ldapprov_invite_admin_settings() {
   // Invites
-  $form['invite'] = array('#type' => 'fieldset', '#title' => t('Invites'), '#collapsible' => TRUE, '#collapsed' => FALSE);
-  $form['invite']['ldapprov_invite_enabled'] = array(
+  $form['settings'] = array('#type' => 'fieldset', '#title' => t('Settings'), '#collapsible' => TRUE, '#collapsed' => FALSE);
+  $form['settings']['ldapprov_invite_enabled'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable LDAP invites'),
     '#default_value' => LDAPPROV_INVITE_ENABLED,
   );
-  $form['invite']['ldapprov_invite_from'] = array(
+  $form['settings']['ldapprov_invite_from'] = array(
     '#type' => 'radios',
     '#title' => t('"From" e-mail address'),
     '#default_value' => LDAPPROV_INVITE_FROM,
     '#options' => array(t('Inviter'), t('Site')),
     '#description' => t('Choose which e-mail address will be in the From: header for the invitation mails sent. %site will use the default e-mail address of the site, whereas %inviter will use the e-mail address of the person who is sending the invitation.', array('%site' => t('Site'), '%inviter' => t('Inviter'))),
   );
+  $form['invite'] = array('#type' => 'fieldset', '#title' => t('Invite email'), '#collapsible' => TRUE, '#collapsed' => FALSE);
   $form['invite']['ldapprov_invite_mail_invite_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject of invite e-mail'),

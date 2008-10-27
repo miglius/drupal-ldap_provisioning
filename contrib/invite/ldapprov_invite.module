@@ -85,8 +85,9 @@ function ldapprov_invite_mail($key, &$message, $params) {
   $language = $message['language'];
   $account = $params['account'] ? $params['account'] : (object)array();
   $variables = array_merge(user_mail_tokens($account, $language), $params['variables'] ? $params['variables'] : array());
-  $message['subject'] .= _ldapprov_invite_mail_text($key .'_subject', $language, $variables);
-  $message['body'][] = _ldapprov_invite_mail_text($key .'_body', $language, $variables);
+  $function = isset($params['type']) ? '_ldapprov_invite_'. $params['type'] .'_mail_text' : '_ldapprov_invite_mail_text';
+  $message['subject'] .= $function($key .'_subject', $language, $variables);
+  $message['body'][] = $function($key .'_body', $language, $variables);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ function ldapprov_invite_mail($key, &$message, $params) {
 /**
  * Returns a mail string for a variable name.
  *
- * Used by ldapprov_mail() and the settings forms to retrieve strings.
+ * Used by ldapprov_invite_mail() and the settings forms to retrieve strings.
  */
 function _ldapprov_invite_mail_text($key, $language = NULL, $variables = array()) {
   $langcode = isset($language) ? $language->language : NULL;
@@ -108,9 +109,9 @@ function _ldapprov_invite_mail_text($key, $language = NULL, $variables = array()
     // No override, return default string.
     switch ($key) {
       case 'invite_subject':
-        return t('You have been invited to the !site', $variables, $language->language);
+        return t('You have been invited to the !site', $variables, $langcode);
       case 'invite_body':
-        return t("Your friend, !name has invited you to join !site site. You may now register to the site at \n\n!register_uri\n\n----------\n\n!message\n\n--  !site team", $variables, $language->language);
+        return t("Your friend, !name has invited you to join !site site. You may now register to the site at \n\n!register_uri\n\n----------\n\n!message\n\n--  !site team", $variables, $langcode);
     }
   }
 }
@@ -195,19 +196,19 @@ function ldapprov_invite_form_submit($form, &$form_state, $data = array()) {
     db_query("INSERT INTO {ldapprov_invite} (uid, mail, message, data, rid, sent) VALUES (%d, '%s', '%s', '%s', %d, %d)", $user->uid, $mail, $values['message'], serialize($data), $rid, $time);
 
     // Mail one time login URL and instructions.
-    _ldapprov_invite_mail($mail, $hash, $values['message']);
+    _ldapprov_invite_mail($mail, $hash, $values['message'], $data);
   }
 }
 
 /**
  * Mail invite.
  */
-function _ldapprov_invite_mail($mail, $hash, $message) {
+function _ldapprov_invite_mail($mail, $hash, $message, $data = array()) {
   global $user;
 
   // Mail one time login URL and instructions.
   $variables = array('!name' => $user->name, '!register_uri' => url('user/register/'. $hash, array('absolute' => TRUE)), '!mail' => $mail, '!message' => $message);
-  $params = array('account' => $user, 'variables' => $variables);
+  $params = array('account' => $user, 'variables' => array_merge($variables, isset($data['variables']) ? $data['variables'] : array()), 'type' => isset($data['type']) ? $data['type'] : NULL);
   $message = drupal_mail('ldapprov_invite', 'invite', $mail, user_preferred_language($user), $params, !LDAPPROV_INVITE_FROM ? $user->mail : NULL);
   if ($message['result']) {
     watchdog('ldapprov_invite', 'Invite e-mail was mailed from %name to %mail.', array('%name' => $user->name, '%mail' => $mail));
@@ -280,7 +281,7 @@ function _ldapprov_invite_list_entry($result) {
   }
 
   if (!isset($entry)) {
-    $entries[] = array(array('data' => t('No invites'), 'colspan' => 4));
+    $entries[] = array(array('data' => t('No invites'), 'colspan' => 5));
   }
 
   return $entries;
@@ -292,9 +293,10 @@ function _ldapprov_invite_list_entry($result) {
 function ldapprov_invite_resend($iid) {
   global $user;
 
-  $result = db_query("SELECT li.mail, li.message, l.code FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid WHERE li.iid = %d AND li.uid = %d", $iid, $user->uid);
+  $result = db_query("SELECT li.mail, li.message, li.data, l.code FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid WHERE li.iid = %d AND li.uid = %d", $iid, $user->uid);
   if ($row = db_fetch_object($result)) {
-    _ldapprov_invite_mail($row->mail, $row->code, $row->message);
+    $data = unserialize($row->data);
+    _ldapprov_invite_mail($row->mail, $row->code, $row->message, $data);
     db_query("UPDATE {ldapprov_invite} SET sent = %d WHERE iid = %d", time(), $iid);
   }
 
@@ -328,7 +330,7 @@ function ldapprov_invite_delete($iid) {
 /**
  * Implementation of hook_ldapuser().
  */
-function ldapprov_invite_ldapuser(&$account) {
+function ldapprov_invite_ldapuser($account) {
   if (!isset($account->rid))
     return;
 
@@ -339,5 +341,18 @@ function ldapprov_invite_ldapuser(&$account) {
       module_invoke_all('ldapinvite', $row->uid, $account, $data);
     }
   }
+}
+
+/**
+ * Implementation of hook_ldapinvites().
+ */
+function ldapprov_invite_ldapinvites($rid) {
+  $rows = array();
+  $result = db_query("SELECT li.* FROM {ldapprov_invite} li WHERE li.rid = %d", $rid);
+  while ($row = db_fetch_object($result)) {
+    $row->data = unserialize($row->data);
+    $rows[] = $row;
+  }
+  return $rows;
 }
 

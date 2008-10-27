@@ -8,24 +8,25 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define('LDAPPROV_ENABLED',                variable_get('ldapprov_enabled', 0));
-define('LDAPPROV_ALLOW_USERNAME',         variable_get('ldapprov_allow_username', 1));
-define('LDAPPROV_USERNAME',               variable_get('ldapprov_username', '%f.%l'));
-define('LDAPPROV_DISABLE_CREATE',         variable_get('ldapprov_disable_create', 0));
-define('LDAPPROV_PASS_LENGTH',            variable_get('ldapprov_pass_length', 6));
-define('LDAPPROV_DEBUG',                  variable_get('ldapprov_debug', 0));
-define('LDAPPROV_OG',                     variable_get('ldapprov_og', 0));
-define('LDAPPROV_PROFILE',                variable_get('ldapprov_profile', 0));
-define('LDAPPROV_PROFILE_FIRST',          variable_get('ldapprov_profile_first', ''));
-define('LDAPPROV_PROFILE_LAST',           variable_get('ldapprov_profile_last', ''));
-define('LDAPPROV_CONTENT_PROFILE',        variable_get('ldapprov_content_profile', 0));
-define('LDAPPROV_CONTENT_PROFILE_FIRST',  variable_get('ldapprov_content_profile_first', ''));
-define('LDAPPROV_CONTENT_PROFILE_LAST',   variable_get('ldapprov_content_profile_last', ''));
-define('LDAPPROV_SERVER',                 variable_get('ldapprov_server', ''));
-define('LDAPPROV_DN',                     variable_get('ldapprov_dn', ''));
-define('LDAPPROV_PASS',                   variable_get('ldapprov_pass', ''));
-define('LDAPPROV_PASS_CLEAR',             variable_get('ldapprov_pass_clear', 0));
-define('LDAPPROV_USER_ENTRY',             variable_get('ldapprov_user_entry', "objectClass: top\nobjectClass: person\nobjectClass: inetOrgPerson\nuid: !uid\nmail: !mail\ngivenName: !first_name\nsn: !last_name\ncn: !first_name !last_name\nuserPassword: !pass"));
+define('LDAPPROV_ENABLED',                   variable_get('ldapprov_enabled', 0));
+define('LDAPPROV_ALLOW_USERNAME',            variable_get('ldapprov_allow_username', 1));
+define('LDAPPROV_USERNAME',                  variable_get('ldapprov_username', '%f.%l'));
+define('LDAPPROV_DISABLE_CREATE',            variable_get('ldapprov_disable_create', 0));
+define('LDAPPROV_PASS_LENGTH',               variable_get('ldapprov_pass_length', 6));
+define('LDAPPROV_DEBUG',                     variable_get('ldapprov_debug', 0));
+define('LDAPPROV_OG',                        variable_get('ldapprov_og', 0));
+define('LDAPPROV_PROFILE',                   variable_get('ldapprov_profile', 0));
+define('LDAPPROV_PROFILE_FIRST',             variable_get('ldapprov_profile_first', ''));
+define('LDAPPROV_PROFILE_LAST',              variable_get('ldapprov_profile_last', ''));
+define('LDAPPROV_CONTENT_PROFILE',           variable_get('ldapprov_content_profile', 0));
+define('LDAPPROV_CONTENT_PROFILE_FIRST',     variable_get('ldapprov_content_profile_first', ''));
+define('LDAPPROV_CONTENT_PROFILE_LAST',      variable_get('ldapprov_content_profile_last', ''));
+define('LDAPPROV_NOTIFICATIONS_UNSUBSCRIBE', variable_get('ldapprov_notifications_unsubscribe', 0));
+define('LDAPPROV_SERVER',                    variable_get('ldapprov_server', ''));
+define('LDAPPROV_DN',                        variable_get('ldapprov_dn', ''));
+define('LDAPPROV_PASS',                      variable_get('ldapprov_pass', ''));
+define('LDAPPROV_PASS_CLEAR',                variable_get('ldapprov_pass_clear', 0));
+define('LDAPPROV_USER_ENTRY',                variable_get('ldapprov_user_entry', "objectClass: top\nobjectClass: person\nobjectClass: inetOrgPerson\nuid: !uid\nmail: !mail\ngivenName: !first_name\nsn: !last_name\ncn: !first_name !last_name\nuserPassword: !pass"));
 
 define('LDAPPROV_LDAP_FIRST_NAME',      'givenName');
 define('LDAPPROV_LDAP_LAST_NAME',       'sn');
@@ -436,7 +437,7 @@ function _ldapprov_user_delete(&$edit, &$account) {
   }
 
   // Mail one time deletion notification.
-  $variables = array('!first_name' => $row->first_name, '!last_name' => $row->last_name);
+  $variables = array('!first_name' => isset($row->first_name) ? $row->first_name : NULL, '!last_name' => isset($row->last_name) ? $row->last_name : NULL);
   $params = array('account' => $account, 'variables' => $variables);
   $message = drupal_mail('ldapprov', 'delete', $account->mail, user_preferred_language($account), $params);
   if ($message['result']) {
@@ -460,7 +461,7 @@ function _ldapprov_user_delete(&$edit, &$account) {
  */
 function _ldapprov_init() {
   global $_ldapprov_ldap;
-  
+
   if ($server = _ldapprov_get_server()) {
     $_ldapprov_ldap = new LDAPInterface();
     $_ldapprov_ldap->setOption('sid', $server->sid);
@@ -1154,7 +1155,7 @@ function ldapprov_list_form(&$form_state, $tab) {
       $placeholders = implode(', ', array_fill(0, sizeof($og_types), '%d'));
       $result = db_query("SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ($placeholders) ORDER BY n.title", $og_types);
       while ($row = db_fetch_object($result)) {
-        $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => check_plain($row->title))) .'</span>';
+        $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => $row->title)) .'</span>';
       }
       if (!empty($groups)) {
         $form['options']['og'] = array('#type' => 'fieldset', '#title' => t('Groups'), '#collapsible' => TRUE, '#collapsed' => TRUE);
@@ -1234,9 +1235,8 @@ function ldapprov_list_form(&$form_state, $tab) {
     $form['mail'][$row->rid] = array('#value' => check_plain($row->mail));
     if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED) {
       $inviters = array();
-      $result2 = db_query("SELECT * FROM {ldapprov_invite} WHERE rid = %d", $row->rid);
-      while ($row2 = db_fetch_object($result2)) {
-        $inviters[] = theme('username', user_load($row2->uid));
+      foreach (module_invoke('ldapprov_invite', 'ldapinvites', $row->rid) as $entry) {
+        $inviters[] = theme('username', user_load($entry->uid));
       }
       $form['inviter'][$row->rid] = array('#value' => !empty($inviters) ? implode(', ', $inviters) : '');
     }
@@ -1431,11 +1431,9 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
 
   // Invite information.
   if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && $rid) {
-    $result = db_query("SELECT li.*, u.name FROM {ldapprov_invite} li LEFT JOIN {users} u ON li.uid = u.uid WHERE li.rid = %d", $rid);
-    while ($row = db_fetch_object($result)) {
-      $invite_data = unserialize($row->data);
-      $invites[$row->iid] = array(
-       '#value' => '<div>'. t('Invited by !name', array('!name' => theme('username', user_load($row->uid)))) . (!empty($invite_data) ? t(', context: !context.', array('!context' => $invite_data['string'])) : '.') .'</div>',
+    foreach (module_invoke('ldapprov_invite', 'ldapinvites', $rid) as $entry) {
+      $invites[$entry->iid] = array(
+       '#value' => '<div>'. t('Invited by !name', array('!name' => theme('username', user_load($entry->uid)))) . (!empty($entry->data) ? t(', context: !context.', array('!context' => $entry->data['string'])) : '.') .'</div>',
       );
     }
     if (!empty($invites)) {
@@ -1462,16 +1460,26 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     $placeholders = implode(', ', array_fill(0, sizeof($og_types), '%d'));
     $result = db_query("SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ($placeholders) ORDER BY n.title", $og_types);
     while ($row = db_fetch_object($result)) {
-      $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => check_plain($row->title))) .'</span>';
+      $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join2 %group.', array('%group' => $row->title)) .'</span>';
     }
     if (!empty($groups)) {
-      if ($form['og_register']) {
+      $script = '';
+      $groups_disabled = array();
+      foreach (module_invoke('ldapprov_invite', 'ldapinvites', $rid) as $entry) {
+        if ($entry->data['type'] == 'og' && !in_array($entry->data['gid'], $groups_disabled)) {
+          $groups_disabled[] = $entry->data['gid'];
+          $script .= '$("#edit-!name-'. $entry->data['gid'] .'").attr("checked", true).attr("disabled", true);';
+        }
+      }
+      $script = empty($script) ? '' : '<script type=\'text/javascript\'>$(document).ready(function() { '. $script .' });</script>';
+      if (isset($form['og_register'])) {
         foreach (array_keys($form['og_register']['og_register']['#options']) as $key) {
           if (!in_array($key, array_keys($groups))) {
             $groups[$key] = $form['og_register']['og_register']['#options'][$key];
           }
         }
         $form['og_register']['og_register']['#options'] = $groups;
+        $form['og_register']['og_register']['#suffix'] = strtr($script, array('!name' => 'og-register'));
       }
       else {
         $form['options']['og'] = array('#type' => 'fieldset', '#title' => t('Groups'));
@@ -1481,6 +1489,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
           '#options' => $groups,
           '#description' => t('Join users to these groups on account creation.'),
         );
+        $form['options']['og']['og_groups']['#suffix'] = strtr($script, array('!name' => 'og-groups'));
       }
     }
   }
@@ -1718,7 +1727,7 @@ function _ldapprov_create_user($data) {
   }
 
   // ldapauth defines if we use md5 for ldap passwords.
-  $pass = isset($data['password']) ? $data['password'] : user_password(LDAPPROV_PASS_LENGTH);
+  $pass = !empty($data['password']) ? $data['password'] : user_password(LDAPPROV_PASS_LENGTH);
   $pass_ldap = $_ldapprov_ldap->getOption('encrypted') ? '{md5}'. base64_encode(pack('H*', md5($pass))) : $pass;
 
   $ldap_vars['!uid'] = $name;
@@ -1846,7 +1855,7 @@ function _ldapprov_create_user($data) {
 
     // OG integration.
     if (module_exists('og')) {
-      $og_register = is_array($data['og_register']) ? array_filter($data['og_register']) : array();
+      $og_register = isset($data['og_register']) ? array_filter($data['og_register']) : array();
       $og_groups = isset($data['og_groups']) ? array_filter($data['og_groups']) : array();
       foreach (array_merge($og_register, $og_groups) as $gid) {
         $return = og_subscribe_user($gid, $account);
@@ -2047,6 +2056,14 @@ function _ldapprov_content_profile_create($account, $data = array(), $form = arr
   }
   $form_state['user'] = $account;
   content_profile_registration_user_register_submit($form, $form_state);
+
+  if (LDAPPROV_NOTIFICATIONS_UNSUBSCRIBE && module_exists('notifications')) {
+    global $user;
+    $node = node_load(db_result(db_query('SELECT nid FROM {node} WHERE uid = %d', $account->uid)));
+    if ($subscriptions = notifications_user_get_subscriptions($user->uid, 'node', $node->nid, $node)) {
+      notifications_delete_subscription(reset($subscriptions)->sid);
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -65,6 +65,35 @@ function ldapprov_invite_og_can_invite($node) {
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// Mail strings
+
+/**
+ * Returns a mail string for a variable name.
+ *
+ * Used by ldapprov_invite_og_mail() and the settings forms to retrieve strings.
+ */
+function _ldapprov_invite_og_mail_text($key, $language = NULL, $variables = array()) {
+  $langcode = isset($language) ? $language->language : NULL;
+
+  if ($admin_setting = variable_get('ldapprov_invite_og_mail_'. $key, FALSE)) {
+    // An admin setting overrides the default string.
+    return strtr($admin_setting, $variables);
+  }
+  else {
+    // No override, return default string.
+    switch ($key) {
+      case 'invite_subject':
+        return t('You have been invited to the !site', $variables, $langcode);
+      case 'invite_body':
+        return t("Your friend, !name has invited you to join a group \"!group\" at !site site. You may now register to the site at \n\n!register_uri\n\n----------\n\n!message\n\n--  !site team", $variables, $langcode);
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Invites
+
 /**
  * Invites form.
  */
@@ -72,7 +101,7 @@ function ldapprov_invite_og_form(&$form_state, $node) {
   $form = ldapprov_invite_form();
 
   $form['invite']['#title'] = t('Invite a contact to the group');
-  $form['invite']['#description'] = t('If you invite a new user to the site, then upon registration the user will be subscribed to the group %group based on the group\'s membership settings. If you invite an existing user, the user will receive an e-mail message wit the invitation to join the group.', array('%group' => check_plain($node->title)));
+  $form['invite']['#description'] = t('If you invite a new user to the site, then upon registration the user will be subscribed to the group %group based on the group membership settings. If you invite an existing user, the user will receive an e-mail message with the invitation to join the group.', array('%group' => $node->title));
   $form['invite']['mail']['#description'] = t('Type the comma separated list of e-mails of the people you would like to invite to the group.');
   $form['invite']['mail']['#autocomplete_path'] = 'node/'. $node->nid .'/invite/autocomplete';
   $form['invite']['message']['#description'] = t('This message will be added to the e-mails sent to the people you are inviting to the group.');
@@ -101,6 +130,8 @@ function ldapprov_invite_og_form_validate($form, &$form_state) {
       form_set_error('mail', t('A user %name with the e-mail address %mail is blocked.', array('%name' => $account->name, '%mail' => $account->mail)));
     else if (($account = user_load(array('mail' => $mail))) && og_is_group_member($values['gid'], FALSE, $account->uid))
       form_set_error('mail', t('A user %name with the e-mail address %mail is already a member of the group.', array('%name' => $account->name, '%mail' => $account->mail)));
+    else if (!$account && db_result(db_query_range("SELECT rid FROM {ldapprov_invite} WHERE uid = %d AND mail = '%s'", $user->uid, $mail, 0, 1)))
+      form_set_error('mail', t('The invitation already was sent to user with e-mail address %mail.', array('%mail' => $mail)));
     else if (valid_email_address($mail))
       $form_state['valid_mails'][] = $mail;
     else
@@ -150,6 +181,7 @@ function ldapprov_invite_og_form_submit($form, &$form_state) {
     'type' => 'og',
     'gid' => $node->nid,
     'string' => t('Group !group', array('!group' => l($node->title, 'node/'. $node->nid))),
+    'variables' => array('!group' => $node->title),
   );
 
   ldapprov_invite_form_submit($form, $form_state, $data);

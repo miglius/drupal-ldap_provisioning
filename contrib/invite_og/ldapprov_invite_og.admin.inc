@@ -25,6 +25,22 @@ function ldapprov_invite_og_admin_settings() {
     '#description' => t('If enabled, the tab will be shown on the group\'s homepage. Otherwise this functionality will be available from the menu.'),
   );
 
+  $form['invite'] = array('#type' => 'fieldset', '#title' => t('Invite email'), '#collapsible' => TRUE, '#collapsed' => FALSE);
+  $form['invite']['ldapprov_invite_og_mail_invite_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject of invite e-mail'),
+    '#maxlength' => 180,
+    '#default_value' => _ldapprov_invite_og_mail_text('invite_subject'),
+    '#description' => t('Customize the subject of your invite e-mail message.') .' '. t('Available variables are:') .' !site, !name, !register_uri, !mailto, !date, !group.',
+  );
+  $form['invite']['ldapprov_invite_og_mail_invite_body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Body of invite e-mail'),
+    '#rows' => 15,
+    '#default_value' => _ldapprov_invite_og_mail_text('invite_body'),
+    '#description' => t('Customize the body of your invite e-mail message.') .' '. t('Available variables are:') .' !site, !name, !register_uri, !mailto, !date, !group.',
+  );
+
   $form['submit'] = array(
     '#type'  => 'submit',
     '#value' => t('Save configuration'),
@@ -58,12 +74,16 @@ function ldapprov_invite_og_admin_settings_submit($form, &$form_state) {
       $values = $form_state['values'];
 
       variable_set('ldapprov_invite_og_tab', $values['ldapprov_invite_og_tab']);
+      variable_set('ldapprov_invite_og_mail_invite_subject', $values['ldapprov_invite_og_mail_invite_subject']);
+      variable_set('ldapprov_invite_og_mail_invite_body', $values['ldapprov_invite_og_mail_invite_body']);
 
       drupal_set_message(t('The configuration options have been saved.'));
       break;
     case t('Reset to defaults'):
 
       variable_del('ldapprov_invite_og_tab');
+      variable_del('ldapprov_invite_og_mail_invite_subject');
+      variable_del('ldapprov_invite_og_mail_invite_body');
 
       drupal_set_message(t('The configuration options have been reset to their default values.'));
       break;
