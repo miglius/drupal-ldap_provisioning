@@ -1460,7 +1460,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     $placeholders = implode(', ', array_fill(0, sizeof($og_types), '%d'));
     $result = db_query("SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ($placeholders) ORDER BY n.title", $og_types);
     while ($row = db_fetch_object($result)) {
-      $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join2 %group.', array('%group' => $row->title)) .'</span>';
+      $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => $row->title)) .'</span>';
     }
     if (!empty($groups)) {
       $script = '';
