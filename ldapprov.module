@@ -1159,7 +1159,7 @@ function ldapprov_list_form(&$form_state, $tab) {
       }
       if (!empty($groups)) {
         $script = '';
-        if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, $groups)) {
+        if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, array_keys($groups))) {
           $script .= '$("#edit-og-groups-'. $mandatory_group .'").attr("checked", true).attr("disabled", true);';
         }
         $script = empty($script) ? '' : '<script type=\'text/javascript\'>$(document).ready(function() { '. $script .' });</script>';
@@ -1477,7 +1477,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
           $script .= '$("#edit-!name-'. $entry->data['gid'] .'").attr("checked", true).attr("disabled", true);';
         }
       }
-      if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, $groups) && !in_array($mandatory_group, $groups_disabled)) {
+      if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, array_keys($groups)) && !in_array($mandatory_group, $groups_disabled)) {
         $groups_disabled[] = $mandatory_group;
         $script .= '$("#edit-!name-'. $mandatory_group .'").attr("checked", true).attr("disabled", true);';
       }
