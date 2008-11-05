@@ -1158,12 +1158,18 @@ function ldapprov_list_form(&$form_state, $tab) {
         $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => $row->title)) .'</span>';
       }
       if (!empty($groups)) {
+        $script = '';
+        if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, $groups)) {
+          $script .= '$("#edit-og-groups-'. $mandatory_group .'").attr("checked", true).attr("disabled", true);';
+        }
+        $script = empty($script) ? '' : '<script type=\'text/javascript\'>$(document).ready(function() { '. $script .' });</script>';
         $form['options']['og'] = array('#type' => 'fieldset', '#title' => t('Groups'), '#collapsible' => TRUE, '#collapsed' => TRUE);
         $form['options']['og']['og_groups'] = array(
           '#type' => 'checkboxes',
           '#title' => t('Groups'),
           '#options' => $groups,
           '#description' => t('Join users to these groups on account creation.'),
+          '#suffix' => $script,
         );
       }
     }
@@ -1471,6 +1477,10 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
           $script .= '$("#edit-!name-'. $entry->data['gid'] .'").attr("checked", true).attr("disabled", true);';
         }
       }
+      if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, $groups) && !in_array($mandatory_group, $groups_disabled)) {
+        $groups_disabled[] = $mandatory_group;
+        $script .= '$("#edit-!name-'. $mandatory_group .'").attr("checked", true).attr("disabled", true);';
+      }
       $script = empty($script) ? '' : '<script type=\'text/javascript\'>$(document).ready(function() { '. $script .' });</script>';
       if (isset($form['og_register'])) {
         foreach (array_keys($form['og_register']['og_register']['#options']) as $key) {
@@ -1488,8 +1498,8 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
           '#title' => t('Groups'),
           '#options' => $groups,
           '#description' => t('Join users to these groups on account creation.'),
+          '#suffix' => strtr($script, array('!name' => 'og-groups')),
         );
-        $form['options']['og']['og_groups']['#suffix'] = strtr($script, array('!name' => 'og-groups'));
       }
     }
   }
