@@ -26,7 +26,7 @@ function ldapprov_invite_og_menu() {
       'access arguments' => array('administer site configuration'),
       'file' => 'ldapprov_invite_og.admin.inc',
     ),
-    'node/%node/invite' => array(
+    'node/%node/og-invite' => array(
       'title' => 'Invite',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_invite_og_form', 1),
@@ -35,7 +35,7 @@ function ldapprov_invite_og_menu() {
       'type' => variable_get('ldapprov_invite_og_tab', 1) ? MENU_LOCAL_TASK : MENU_CALLBACK,
       'weight' => 8,
     ),
-    'node/%node/invite/autocomplete' => array(
+    'node/%node/og-invite/autocomplete' => array(
       'title' => 'Invite autocomlete',
       'page callback' => 'ldapprov_invite_og_autocomplete',
       'page arguments' => array(1),
@@ -103,7 +103,7 @@ function ldapprov_invite_og_form(&$form_state, $node) {
   $form['invite']['#title'] = t('Invite a contact to the group');
   $form['invite']['#description'] = t('If you invite a new user to the site, then upon registration the user will be subscribed to the group %group based on the group membership settings. If you invite an existing user, the user will receive an e-mail message with the invitation to join the group.', array('%group' => $node->title));
   $form['invite']['mail']['#description'] = t('Type the comma separated list of e-mails of the people you would like to invite to the group.');
-  $form['invite']['mail']['#autocomplete_path'] = 'node/'. $node->nid .'/invite/autocomplete';
+  $form['invite']['mail']['#autocomplete_path'] = 'node/'. $node->nid .'/og-invite/autocomplete';
   $form['invite']['message']['#description'] = t('This message will be added to the e-mails sent to the people you are inviting to the group.');
   $form['invite']['gid'] = array(
     '#type' => 'hidden',
