@@ -800,12 +800,28 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
 
   $_ldapprov_ldap->disconnect();
 
+  // First and last names.
+  if (module_exists('profile') && LDAPPROV_PROFILE && LDAPPROV_PROFILE_FIRST != '' && LDAPPROV_PROFILE_LAST != '') {
+    $first_name = $values[LDAPPROV_PROFILE_FIRST];
+    $last_name = $values[LDAPPROV_PROFILE_LAST];
+  }
+  else if (module_exists('content_profile_registration') && LDAPPROV_CONTENT_PROFILE && LDAPPROV_CONTENT_PROFILE_FIRST != '' && LDAPPROV_CONTENT_PROFILE_LAST != '') {
+    $first_name = $values[LDAPPROV_CONTENT_PROFILE_FIRST];
+    $last_name = $values[LDAPPROV_CONTENT_PROFILE_LAST];
+  }
+  else {
+    $first_name = $values['first_name'];
+    $last_name = $values['last_name'];
+  }
+  $first_name = is_array($first_name) ? $first_name[0]['value'] : $first_name;
+  $last_name = is_array($last_name) ? $last_name[0]['value'] : $last_name;
+
   /*
   foreach (preg_split('//', LDAPPROV_UID_FORBIDDEN_CHAR) as $c) {
-    if (in_array($c, preg_split('//', $values['first_name']))) {
+    if (in_array($c, preg_split('//', $first_name))) {
       $first_bad .= $c;
     }
-    if (in_array($c, preg_split('//', $values['last_name']))) {
+    if (in_array($c, preg_split('//', $last_name))) {
       $last_bad .= $c;
     }
   }
@@ -814,13 +830,13 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
   if (!LDAPPROV_ALLOW_USERNAME) {
 
     // Username is constructed for the user.
-    if (isset($values['first_name']) && preg_match('/^\s+/', $values['first_name'])) {
+    if (isset($first_name) && preg_match('/^\s+/', $first_name)) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name cannot begin with a space.')) : $errors + 1;
     }
-    if (isset($values['first_name']) && preg_match('/\s+$/', $values['first_name'])) {
+    if (isset($first_name) && preg_match('/\s+$/', $first_name)) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name cannot end with a space.')) : $errors + 1;
     }
-    if (isset($values['first_name']) && preg_match('/[^a-zA-Z\'-\s]+/', $values['first_name'])) {
+    if (isset($first_name) && preg_match('/[^a-zA-Z\'-\s]+/', $first_name)) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name should contain only latin letters, apostrophe, dash or space.')) : $errors + 1;
     }
     /*
@@ -829,13 +845,13 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
     }
     */
 
-    if (isset($values['last_name']) && preg_match('/^\s+/', $values['last_name'])) {
+    if (isset($last_name) && preg_match('/^\s+/', $last_name)) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name cannot begin with a space.')) : $errors + 1;
     }
-    if (isset($values['last_name']) && preg_match('/\s+$/', $values['last_name'])) {
+    if (isset($last_name) && preg_match('/\s+$/', $last_name)) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name cannot end with a space.')) : $errors + 1;
     }
-    if (isset($values['last_name']) && preg_match('/[^a-zA-Z\'-\s]+/', $values['last_name'])) {
+    if (isset($last_name) && preg_match('/[^a-zA-Z\'-\s]+/', $last_name)) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name should contain only latin letters, apostrophe, dash or space.')) : $errors + 1;
     }
     /*
@@ -847,10 +863,10 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
   else {
 
     // Custom usernames are not allowed.
-    if (preg_match('/^\s+$/', $values['first_name'])) {
+    if (preg_match('/^\s+$/', $first_name)) {
       $errors = ($messages) ? form_set_error('first_name', t('First Name can not contain only whitespace characters.')) : $errors + 1;
     }
-    if (preg_match('/^\s+$/', $values['last_name'])) {
+    if (preg_match('/^\s+$/', $last_name)) {
       $errors = ($messages) ? form_set_error('last_name', t('Last Name can not contain only whitespace characters.')) : $errors + 1;
     }
   }
