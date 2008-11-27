@@ -1189,6 +1189,15 @@ function ldapprov_list_form(&$form_state, $tab) {
         );
       }
     }
+    if (module_exists('signup') && ($nids = _ldapprov_get_signup_nodes()) && !empty($nids)) {
+      $form['options']['signup'] = array('#type' => 'fieldset', '#title' => t('Signups'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+      $form['options']['signup']['signups'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Signups'),
+        '#options' => $nids,
+        '#description' => t('Signup users to these nodes on account creation.'),
+      );
+    }
     $options = array();
     $options['create'] = t('Create the selected users');
     if ($status < 2) {
@@ -1282,10 +1291,20 @@ function ldapprov_list_form(&$form_state, $tab) {
     '#type' => 'hidden',
     '#value' => $status
   );
+  $form['#validate'][] = 'ldapprov_list_validate';
   $form['#submit'][] = 'ldapprov_list_submit';
 
   $form['pager'] = array('#value' => theme('pager', NULL, LDAPPROV_MAX_LIST_ENTRIES, 0));
   return $form;
+}
+
+/**
+ * List account requests form validation.
+ */
+function ldapprov_list_validate($form, &$form_state) {
+  if (module_exists('signup')) {
+    _ldapprov_signup_validate($form, $form_state);
+  }
 }
 
 /**
@@ -1310,7 +1329,8 @@ function ldapprov_list_submit($form, &$form_state) {
           $data['first_name'] = $row->first_name;
           $data['last_name'] = $row->last_name;
           $data['mail'] = $row->mail;
-          $data['og_groups'] = $values['og_groups'];
+          $data['og_groups'] = isset($values['og_groups']) ? $values['og_groups'] : array();
+          $data['signups'] = isset($values['signups']) ? $values['signups'] : array();
 
           // Validate the data.
           // Validate using common validation function.
@@ -1520,6 +1540,17 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     }
   }
 
+  // Signup integration.
+  if (module_exists('signup') && ($nids = _ldapprov_get_signup_nodes()) && !empty($nids)) {
+    $form['options']['signup'] = array('#type' => 'fieldset', '#title' => t('Signups'), '#collapsible' => FALSE, '#collapsed' => FALSE);
+    $form['options']['signup']['signups'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Signups'),
+      '#options' => $nids,
+      '#description' => t('Signup users to these nodes on account creation.'),
+    );
+  }
+
   // Get all roles except authenticated user.
   $roles = user_roles(1);
   unset($roles[DRUPAL_AUTHENTICATED_RID]);
@@ -1662,6 +1693,10 @@ function ldapprov_create_validate($form, &$form_state) {
 
     if (module_exists('content_profile_registration') && LDAPPROV_CONTENT_PROFILE) {
       content_profile_registration_user_register_validate($form, $form_state);
+    }
+
+    if (module_exists('signup')) {
+      _ldapprov_signup_validate($form, $form_state);
     }
   }
 }
@@ -1885,6 +1920,13 @@ function _ldapprov_create_user($data) {
       $og_groups = isset($data['og_groups']) ? array_filter($data['og_groups']) : array();
       foreach (array_merge($og_register, $og_groups) as $gid) {
         $return = og_subscribe_user($gid, $account);
+      }
+    }
+
+    // Signup integration
+    if (module_exists('signup') && user_access('sign up for content', $account) && isset($data['signups'])) {
+      foreach (array_filter($data['signups']) as $nid) {
+        signup_sign_up_user(array('nid' => $nid, 'uid' => $account->uid));
       }
     }
 
@@ -2425,5 +2467,66 @@ function _ldapprov_csv_parse($file) {
   fclose($fh);
 
   return $rows;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Signup integration
+
+/**
+ * Get nodes with signups enabled.
+ *
+ * @return
+ *   An array of the signup node nids pointing to node titles.
+ */
+function _ldapprov_get_signup_nodes() {
+  global $user;
+
+  $nids = array();
+  $result = db_query("SELECT n.nid FROM {node} n JOIN {signup} s ON n.nid = s.nid WHERE s.status = 1 ORDER BY n.title");
+  while ($row = db_fetch_object($result)) {
+    $node = node_load($row->nid);
+    if (user_access('administer all signups') || (user_access('administer signups for own content') && $user->uid == $node->uid)) {
+      unset($og_access);
+      if (module_exists('og') && module_exists('og_access') && isset($node->og_public) && $node->og_public != 1 && isset($node->og_groups)) {
+        $og_access = FALSE;
+        foreach ($node->og_groups as $gid) {
+          $og_access = in_array(node_load($gid)->og_selective, array(OG_OPEN, OG_MODERATED)) ? TRUE : $og_access;
+        }
+      }
+      if (!isset($og_access) || $og_access) {
+        $nids[$row->nid] = check_plain($node->title);
+      }
+    }
+  }
+  return $nids;
+}
+
+/**
+ * Signup validation.
+ */
+function _ldapprov_signup_validate($form, &$form_state) {
+  $values = $form_state['values'];
+  if (module_exists('og') && module_exists('og_access')) {
+    $og_register = isset($values['og_register']) ? $values['og_register'] : array();
+    $og_groups = isset($values['og_groups']) ? $values['og_groups'] : array();
+    $og_groups_all = array_merge(array_keys($og_register), array_keys($og_groups));
+    $og_groups_checked = array_merge(array_filter($og_register), array_filter($og_groups));
+    if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && !in_array($mandatory_group, $og_groups_checked)) {
+      $og_groups_checked[] = $mandatory_group;
+    }
+    $signups = isset($values['signups']) ? array_filter($values['signups']) : array();
+    foreach ($signups as $nid) {
+      $node = node_load($nid);
+      if (isset($node->og_public) && $node->og_public != 1 && isset($node->og_groups) && count(array_intersect($node->og_groups, $og_groups_checked)) == 0) {
+        $og_nodes = array();
+        foreach ($node->og_groups as $gid) {
+          if (in_array($gid, $og_groups_all)) {
+            $og_nodes[] = node_load($gid)->title;
+          }
+        }
+        form_set_error('signups', t('The node %title would not be accessible to a created users. The users should also be added to one of the groups the node belongs to, therefore, select any of the following groups: %groups.', array('%title' => $node->title, '%groups' => implode(', ', $og_nodes))));
+      }
+    }
+  }
 }
 
