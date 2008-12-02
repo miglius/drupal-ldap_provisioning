@@ -2524,7 +2524,7 @@ function _ldapprov_signup_validate($form, &$form_state) {
             $og_nodes[] = node_load($gid)->title;
           }
         }
-        form_set_error('signups', t('The node %title would not be accessible to a created users. The users should also be added to one of the groups the node belongs to, therefore, select any of the following groups: %groups.', array('%title' => $node->title, '%groups' => implode(', ', $og_nodes))));
+        form_set_error('signups', t('The node %title would not be accessible to created users. The users should also be added to one of the groups the node belongs to, therefore, select any of the following groups: %groups.', array('%title' => $node->title, '%groups' => implode(', ', $og_nodes))));
       }
     }
   }
