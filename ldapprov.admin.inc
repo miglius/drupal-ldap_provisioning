@@ -53,6 +53,12 @@ function ldapprov_admin_settings() {
     '#description' => t('Whether the drupal user creation form for admin users should be disabled.'),
     '#default_value' => LDAPPROV_DISABLE_CREATE,
   );
+  $form['general']['ldapprov_pass_enable'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable custom initial password'),
+    '#description' => t('Allow to set an initial user password for the account manager. A random password will be generated if disabled.'),
+    '#default_value' => LDAPPROV_PASS_ENABLE,
+  );
   $form['general']['ldapprov_pass_length'] = array(
     '#type' => 'textfield',
     '#title' => t('Password length'),
@@ -455,6 +461,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       }
 
       variable_set('ldapprov_disable_create', $values['ldapprov_disable_create']);
+      variable_set('ldapprov_pass_enable', $values['ldapprov_pass_enable']);
       variable_set('ldapprov_pass_length', $values['ldapprov_pass_length']);
       variable_set('ldapprov_debug', $values['ldapprov_debug']);
 
@@ -535,6 +542,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       }
 
       variable_del('ldapprov_disable_create');
+      variable_del('ldapprov_pass_enable');
       variable_del('ldapprov_pass_length');
       variable_del('ldapprov_debug');
 
