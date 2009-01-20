@@ -70,7 +70,6 @@ function ldapprov_invite_menu() {
   );
 }
 
-
 /**
  * Access control.
  */
@@ -83,8 +82,8 @@ function ldapprov_invite_access() {
  */
 function ldapprov_invite_mail($key, &$message, $params) {
   $language = $message['language'];
-  $account = $params['account'] ? $params['account'] : (object)array();
-  $variables = array_merge(user_mail_tokens($account, $language), $params['variables'] ? $params['variables'] : array());
+  $account = isset($params['account']) ? $params['account'] : (object)array();
+  $variables = array_merge(user_mail_tokens($account, $language), isset($params['variables']) ? $params['variables'] : array());
   $function = isset($params['type']) ? '_ldapprov_invite_'. $params['type'] .'_mail_text' : '_ldapprov_invite_mail_text';
   $message['subject'] .= $function($key .'_subject', $language, $variables);
   $message['body'][] = $function($key .'_body', $language, $variables);

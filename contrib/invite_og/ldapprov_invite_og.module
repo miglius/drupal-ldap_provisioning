@@ -86,7 +86,7 @@ function _ldapprov_invite_og_mail_text($key, $language = NULL, $variables = arra
       case 'invite_subject':
         return t('You have been invited to the !site', $variables, $langcode);
       case 'invite_body':
-        return t("Your friend, !name has invited you to join a group \"!group\" at !site site. You may now register to the site at \n\n!register_uri\n\n----------\n\n!message\n\n--  !site team", $variables, $langcode);
+        return t("Your friend, !name has invited you to join a group \"!group\" at !site site. You may now register to the site at\n\n!register_uri\n\n----------\n\n!message\n\n--  !site team", $variables, $langcode);
     }
   }
 }
@@ -128,7 +128,7 @@ function ldapprov_invite_og_form_validate($form, &$form_state) {
   foreach ($mails as $mail) {
     if (($account = user_load(array('mail' => $mail))) && $account->status == 0)
       form_set_error('mail', t('A user %name with the e-mail address %mail is blocked.', array('%name' => $account->name, '%mail' => $account->mail)));
-    else if (($account = user_load(array('mail' => $mail))) && og_is_group_member($values['gid'], FALSE, $account->uid))
+    else if ($account && og_is_group_member($values['gid'], FALSE, $account->uid))
       form_set_error('mail', t('A user %name with the e-mail address %mail is already a member of the group.', array('%name' => $account->name, '%mail' => $account->mail)));
     else if (!$account && db_result(db_query_range("SELECT rid FROM {ldapprov_invite} WHERE uid = %d AND mail = '%s'", $user->uid, $mail, 0, 1)))
       form_set_error('mail', t('The invitation already was sent to user with e-mail address %mail.', array('%mail' => $mail)));
@@ -168,7 +168,7 @@ function ldapprov_invite_og_form_submit($form, &$form_state) {
   foreach ($local_mails as $mail) {
     $message = drupal_mail('og', 'invite_user', $mail, $GLOBALS['language'], $variables, $user->mail);
     if ($message['result']) {
-      watchdog('ldapprov_invitei_og', 'Invite e-mail was mailed from %name to %mail.', array('%name' => $user->name, '%mail' => $mail));
+      watchdog('ldapprov_invite_og', 'Invite e-mail was mailed from %name to %mail.', array('%name' => $user->name, '%mail' => $mail));
       drupal_set_message(t('The invite has been mailed to e-mail address %mail.', array('%mail' => $mail)));
     }
     else {

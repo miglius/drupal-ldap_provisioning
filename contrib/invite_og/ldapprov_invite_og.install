@@ -3,7 +3,7 @@
 
 /**
  * @file
- * ldapprov_install module installation and upgrade code.
+ * ldapprov_invite_og module installation and upgrade code.
  */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,13 +13,13 @@
  * Implementation of hook_enable().
  */
 function ldapprov_invite_og_enable() {
-  drupal_set_message(t('ldapprov_invite_og module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldapprov_invite_og'))));
+  drupal_set_message(t('ldapprov_invite_og module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldap/ldapprov/invite/og'))));
 }
 
 /**
  * Implementation of hook_install().
  */
-function ldapprov_invite_install_og() {
+function ldapprov_invite_og_install() {
 }
 
 /**
