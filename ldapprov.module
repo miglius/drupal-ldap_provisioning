@@ -1828,7 +1828,7 @@ function _ldapprov_create_user($data) {
       foreach ($rwattrs as $attribute) {
         if ($attr_info = $ldapdata_attributes[$attribute]) {
           // if this attribute should be shown ir registration.
-          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0 && isset($data['ldap_'. $attribute])) {
+          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0 && !empty($data['ldap_'. $attribute])) {
             $ldif[$attribute][] = strtr($data['ldap_'. $attribute], $ldap_vars);
           }
         }
