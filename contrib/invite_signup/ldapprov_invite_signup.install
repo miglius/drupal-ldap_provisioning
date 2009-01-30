@@ -1,0 +1,32 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * ldapprov_invite_signup module installation and upgrade code.
+ */
+
+//////////////////////////////////////////////////////////////////////////////
+// Core API hooks
+
+/**
+ * Implementation of hook_enable().
+ */
+function ldapprov_invite_signup_enable() {
+  drupal_set_message(t('ldapprov_invite_signup module successfully installed. Please review the available <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/ldap/ldapprov/invite/signup'))));
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function ldapprov_invite_signup_install() {
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ldapprov_invite_signup_uninstall() {
+  variable_del('ldapprov_invite_signup_mail_invite_subject');
+  variable_del('ldapprov_invite_signup_mail_invite_body');
+}
+

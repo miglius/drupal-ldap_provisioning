@@ -1,0 +1,9 @@
+; $Id$
+name = Provisioning signup invites
+description = Implements signup invites for LDAP users provisioning.
+package = LDAP integration
+dependencies[] = ldapprov_invite
+dependencies[] = signup_status_invite
+core = 6.x
+php = 5.2
+
