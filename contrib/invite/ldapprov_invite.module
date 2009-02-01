@@ -234,7 +234,7 @@ function ldapprov_invite_list() {
   );
 
   // Show the invites mailed out.
-  $sql = "SELECT li.iid, li.mail, li.sent, li.data, l.rid, l.uid, l.status, u.name, u.status u_status FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid LEFT JOIN {users} u ON l.uid = u.uid WHERE li.uid = %d";
+  $sql = "SELECT li.iid, li.mail, li.sent, li.data, l.rid, l.uid, l.status, u.name, u.status AS u_status FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid LEFT JOIN {users} u ON l.uid = u.uid WHERE li.uid = %d";
   $query_count = "SELECT COUNT(li.iid) FROM {ldapprov_invite} li INNER JOIN {ldapprov} l ON li.rid = l.rid WHERE li.uid = %d";
   $result = pager_query($sql . tablesort_sql($header), LDAPPROV_INVITE_MAX_ENTRIES, 0, $query_count, $user->uid);
   $entries = _ldapprov_invite_list_entry($result);

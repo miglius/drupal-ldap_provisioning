@@ -1239,12 +1239,12 @@ function ldapprov_list_form(&$form_state, $tab) {
 
   if (in_array($status, array(1, 2, 4))) {
     // Accounts are not created.
-    $sql = "SELECT l.*, u.name name_c FROM {ldapprov} l LEFT JOIN {users} u ON l.cuid = u.uid WHERE l.status = %d";
+    $sql = "SELECT l.*, u.name AS name_c FROM {ldapprov} l LEFT JOIN {users} u ON l.cuid = u.uid WHERE l.status = %d";
     $query_count = "SELECT COUNT(l.rid) FROM {ldapprov} l LEFT JOIN {users} u ON l.cuid = u.uid WHERE l.status = %d";
   }
   elseif ($status == 3) {
     // Accounts are created.
-    $sql = "SELECT l.*, u.name name_c, u2.name name_u FROM {ldapprov} l INNER JOIN {users} u2 ON l.uid = u2.uid LEFT JOIN {users} u ON l.cuid = u.uid WHERE l.status = %d";
+    $sql = "SELECT l.*, u.name AS name_c, u2.name AS name_u FROM {ldapprov} l INNER JOIN {users} u2 ON l.uid = u2.uid LEFT JOIN {users} u ON l.cuid = u.uid WHERE l.status = %d";
     $query_count = "SELECT COUNT(l.rid) FROM {ldapprov} l INNER JOIN {users} u2 ON l.uid = u2.uid LEFT JOIN {users} u ON l.cuid = u.uid WHERE l.status = %d";
   }
   else {
@@ -1457,7 +1457,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     }
     elseif ($status == 3) {
       // Account is created but we print out registration data.
-      $result = db_query("SELECT l.*, u.name AS cname, u2.name name_u FROM {ldapprov} l INNER JOIN {users} u ON l.cuid = u.uid INNER JOIN {users} u2 ON l.uid = u2.uid WHERE l.rid = %d", $rid);
+      $result = db_query("SELECT l.*, u.name AS cname, u2.name AS name_u FROM {ldapprov} l INNER JOIN {users} u ON l.cuid = u.uid INNER JOIN {users} u2 ON l.uid = u2.uid WHERE l.rid = %d", $rid);
     }
     else {
       // Account is pending.
