@@ -152,6 +152,7 @@ function ldapprov_invite_signup_ldapinvite($uid, &$account, $data) {
       '!title' => $node->title,
       '!site' => variable_get('site_name', 'drupal'),
       '!message' => $data['message'],
+      '!name' => $user->name,
     );
     db_query("INSERT INTO {signup_log} (uid, nid, signup_time, form_data, status) VALUES (%d, %d, %d, '%s', %d)", $account->uid, $data['nid'], time(), serialize(array()), SIGNUP_STATUS_INVITE_STATUS);
     $sid = db_last_insert_id('signup_log', 'sid');
