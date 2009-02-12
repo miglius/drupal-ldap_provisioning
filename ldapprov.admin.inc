@@ -144,7 +144,7 @@ function ldapprov_admin_settings() {
   }
   if (module_exists('ldapdata')) {
     $server = _ldapprov_get_server();
-    $rwattrs = unserialize($server->ldapdata_rwattrs);
+    $rwattrs = $server ? unserialize($server->ldapdata_rwattrs) : array();
     if (!empty($rwattrs)) {
       $options = array('not shown', 'optional', 'required');
       $ldapdata_defaults = variable_get('ldapprov_ldapdata', array());
@@ -156,7 +156,7 @@ function ldapprov_admin_settings() {
             '#type' => 'select',
             '#title' => t($attr_info[2]),
             '#options' => $options,
-            '#default_value' => $ldapdata_defaults[$attribute],
+            '#default_value' => isset($ldapdata_defaults[$attribute]) ? $ldapdata_defaults[$attribute] : NULL,
             '#description' => t('LDAP attribute %attr.', array('%attr' => $attribute)),
           );
         }
@@ -176,7 +176,7 @@ function ldapprov_admin_settings() {
       '#title' => t($val['title']),
       '#options' => $options,
       '#description' => t($val['title'] .' field on the registration form.'),
-      '#default_value' => $ldapprov_custom[$key],
+      '#default_value' => isset($ldapprov_custom[$key]) ? $ldapprov_custom[$key] : NULL,
     );
   }
   if (!empty($form_custom)) {
@@ -499,7 +499,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       if (!empty($values['ldapprov_pass'])) {
         variable_set('ldapprov_pass', $values['ldapprov_pass']);
       }
-      if ($values['ldapprov_pass_clear'] == 1) {
+      if (isset($values['ldapprov_pass_clear']) && $values['ldapprov_pass_clear'] == 1) {
         variable_set('ldapprov_pass', '');
       }
 
