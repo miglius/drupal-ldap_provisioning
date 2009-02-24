@@ -1564,7 +1564,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     // Get roles that are available for assignment.
     $assignable_roles = _roleassign_assignable_roles($roles);
   }
-  if (((user_access(LDAPPROV_ROLE_PERMISSION) && $roles) || user_access('assign roles') && $assignable_roles) && $status != 3) {
+  if (((user_access(LDAPPROV_ROLE_PERMISSION) && $roles) || user_access('assign roles') && isset($assignable_roles) && !empty($assignable_roles)) && $status != 3) {
     $form['ldapprov_roles'] = array(
       '#type' => 'fieldset',
       '#title' => t('Roles'),
