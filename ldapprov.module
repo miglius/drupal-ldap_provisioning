@@ -1852,7 +1852,7 @@ function _ldapprov_create_user($data) {
 
     // Enter profile data.
     $account_profile = array();
-    if (module_exists('profile')) {
+    if (module_exists('profile') && LDAPPROV_PROFILE) {
       $result = db_query("SELECT * FROM {profile_fields}");
       while ($row = db_fetch_object($result)) {
         $profile[$row->name] = $row->fid;
@@ -2288,7 +2288,7 @@ function _ldapprov_template($type) {
   }
 
   // Print profile fields.
-  if (module_exists('profile')) {
+  if (module_exists('profile') && LDAPPROV_PROFILE) {
     //$result = db_query('SELECT * FROM {profile_fields} WHERE visibility != %d AND register = 1 ORDER BY category, weight', PROFILE_HIDDEN);
     $result = _profile_get_fields('', 1);
     while ($field = db_fetch_object($result)) {
@@ -2300,7 +2300,7 @@ function _ldapprov_template($type) {
   }
 
   // Print content profile fields.
-  if (module_exists('content_profile_registration')) {
+  if (module_exists('content_profile_registration') && LDAPPROV_CONTENT_PROFILE) {
     $profile_type = reset(array_keys(content_profile_get_types('names', 'registration_use')));
     $profile_fields = _content_profile_registration_get_field_select($profile_type);
     $profile_required = _content_profile_registration_get_field_select($profile_type, TRUE);
