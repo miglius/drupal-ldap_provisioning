@@ -144,11 +144,11 @@ function ldapprov_admin_settings() {
   }
   if (module_exists('ldapdata')) {
     $server = _ldapprov_get_server();
-    $rwattrs = $server ? unserialize($server->ldapdata_rwattrs) : array();
+    $rwattrs = $server ? _ldapdata_ldap_info($server->sid, 'ldapdata_rwattrs') : array();
     if (!empty($rwattrs)) {
       $options = array('not shown', 'optional', 'required');
       $ldapdata_defaults = variable_get('ldapprov_ldapdata', array());
-      $ldapdata_attributes = ldapdata_attributes();
+      $ldapdata_attributes = _ldapdata_ldap_info($server->sid, 'ldapdata_attrs');
       foreach ($rwattrs as $attribute) {
         if ($attribute != LDAPPROV_LDAP_FIRST_NAME && $attribute != LDAPPROV_LDAP_LAST_NAME) {
           $attr_info = $ldapdata_attributes[$attribute];
@@ -187,7 +187,7 @@ function ldapprov_admin_settings() {
   // LDAP authentication.
   $form['ldap'] = array('#type' => 'fieldset', '#title' => ('LDAP authentication'), '#collapsible' => TRUE, '#collapsed' => TRUE, '#description' => t('<p>Choose LDAP server new accounts will be created in.</p><p>"Test" tries authentication with the saved DN and password and prints the result.</p>'));
   $ldap_servers = array();
-  $result = db_query("SELECT sid, name, status FROM {ldapauth} WHERE status = '1' ORDER BY sid");
+  $result = db_query("SELECT sid, name, status FROM {ldapauth} ORDER BY weight");
   while ($row = db_fetch_object($result)) {
     $ldap_servers[$row->sid] = $row->name;
   }

@@ -486,8 +486,12 @@ function _ldapprov_init() {
  *   An obgject with the server settings.
  */
 function _ldapprov_get_server() {
+  static $row = NULL;
+  if (is_object($row))
+    return $row;
+  
   $result = db_query("SELECT * FROM {ldapauth} WHERE sid = %d", LDAPPROV_SERVER);
-  return db_fetch_object($result);
+  return $row = db_fetch_object($result);
 }
 
 /**
@@ -672,23 +676,19 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
   // Print writable ldap fields.
   if (module_exists('ldapdata')) {
     $server = _ldapprov_get_server();
-    $rwattrs = unserialize($server->ldapdata_rwattrs);
-
-    if (!empty($rwattrs)) {
-      $ldapdata_attributes = ldapdata_attributes();
-      $ldapdata_options = variable_get('ldapprov_ldapdata', array());
-      foreach ($rwattrs as $attribute) {
-        if ($attr_info = $ldapdata_attributes[$attribute]) {
-          // if this attribute should be shown ir registration.
-          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0) {
-            array_shift($attr_info);
-            $form['account']['ldap_'. $attribute] = _ldapdata_attribute_form($attribute, $data['ldap_'. $attribute], $attr_info);
-            $form['account']['ldap_'. $attribute]['#disabled'] = $disabled;
-          }
-          // If this attribute is required.
-          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 1) {
-            $form['account']['ldap_'. $attribute]['#required'] = !$disabled ? TRUE : FALSE;
-          }
+    $ldapdata_attributes = _ldapdata_ldap_info($server->sid, 'ldapdata_attrs');
+    $ldapdata_options = variable_get('ldapprov_ldapdata', array());
+    foreach (_ldapdata_ldap_info($server->sid, 'ldapdata_rwattrs') as $attribute) {
+      if ($attr_info = $ldapdata_attributes[$attribute]) {
+        // if this attribute should be shown ir registration.
+        if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0) {
+          array_shift($attr_info);
+          $form['account']['ldap_'. $attribute] = _ldapdata_attribute_form($attribute, $data['ldap_'. $attribute], $attr_info);
+          $form['account']['ldap_'. $attribute]['#disabled'] = $disabled;
+        }
+        // If this attribute is required.
+        if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 1) {
+          $form['account']['ldap_'. $attribute]['#required'] = !$disabled ? TRUE : FALSE;
         }
       }
     }
@@ -1817,20 +1817,17 @@ function _ldapprov_create_user($data) {
     }
   }
 
-  // Create writable attributes from ldapdata.
   $server = _ldapprov_get_server();
-  if (module_exists('ldapdata')) {
-    $rwattrs = unserialize($server->ldapdata_rwattrs);
 
-    if (!empty($rwattrs)) {
-      $ldapdata_attributes = ldapdata_attributes();
-      $ldapdata_options = variable_get('ldapprov_ldapdata', array());
-      foreach ($rwattrs as $attribute) {
-        if ($attr_info = $ldapdata_attributes[$attribute]) {
-          // if this attribute should be shown ir registration.
-          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0 && !empty($data['ldap_'. $attribute])) {
-            $ldif[$attribute][] = strtr($data['ldap_'. $attribute], $ldap_vars);
-          }
+  // Create writable attributes from ldapdata.
+  if (module_exists('ldapdata')) {
+    $ldapdata_attributes = _ldapdata_ldap_info($server->sid, 'ldapdata_attrs');
+    $ldapdata_options = variable_get('ldapprov_ldapdata', array());
+    foreach (_ldapdata_ldap_info($server->sid, 'ldapdata_rwattrs') as $attribute) {
+      if ($attr_info = $ldapdata_attributes[$attribute]) {
+        // if this attribute should be shown ir registration.
+        if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0 && !empty($data['ldap_'. $attribute])) {
+          $ldif[$attribute][] = strtr($data['ldap_'. $attribute], $ldap_vars);
         }
       }
     }
@@ -1852,14 +1849,14 @@ function _ldapprov_create_user($data) {
 
     // Enter profile data.
     $account_profile = array();
-    if (module_exists('profile') && LDAPPROV_PROFILE) {
+    if (module_exists('profile') && LDAPPROV_PROFILE && module_exists('ldapdata')) {
       $result = db_query("SELECT * FROM {profile_fields}");
       while ($row = db_fetch_object($result)) {
         $profile[$row->name] = $row->fid;
       }
-      $ldapdata_mappings = !empty($server->ldapdata_mappings) ? unserialize($server->ldapdata_mappings) : array();
+      $ldapdata_mappings = _ldapdata_ldap_info($server->sid, 'ldapdata_mappings');
       foreach ($data as $key => $value) {
-        if (preg_match('/^profile_/', $key) && $profile[$key] && $data[$key]) {
+        if (preg_match('/^profile_/', $key) && isset($profile[$key]) && isset($data[$key])) {
           if ($ldap_profile = $ldapdata_mappings['ldap_amap-'. $profile[$key]]) {
             // drupal profile will be sync with ldap on the next load.
             $ldap_profile_ldif[$ldap_profile][] = $data[$key];
@@ -2271,17 +2268,13 @@ function _ldapprov_template($type) {
   // Print writable ldap fields.
   if (module_exists('ldapdata')) {
     $server = _ldapprov_get_server();
-    $rwattrs = unserialize($server->ldapdata_rwattrs);
-
-    if (!empty($rwattrs)) {
-      $ldapdata_attributes = ldapdata_attributes();
-      $ldapdata_options = variable_get('ldapprov_ldapdata', array());
-      foreach ($rwattrs as $attribute) {
-        if ($attr_info = $ldapdata_attributes[$attribute]) {
-          // If this attribute should be shown ir registration.
-          if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0) {
-            $data['ldap_'. $attribute] = $attr_info['2'];
-          }
+    $ldapdata_attributes = _ldapdata_ldap_info($server->sid, 'ldapdata_attrs');
+    $ldapdata_options = variable_get('ldapprov_ldapdata', array());
+    foreach (_ldapdata_ldap_info($server->sid, 'ldapdata_rwattrs') as $attribute) {
+      if ($attr_info = $ldapdata_attributes[$attribute]) {
+        // If this attribute should be shown ir registration.
+        if (isset($ldapdata_options[$attribute]) && $ldapdata_options[$attribute] > 0) {
+          $data['ldap_'. $attribute] = $attr_info['2'];
         }
       }
     }
