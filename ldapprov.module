@@ -256,7 +256,6 @@ function ldapprov_form_alter(&$form, $form_state, $form_id) {
         unset($form['email']['admin_created']);
         unset($form['email']['no_approval_required']);
         unset($form['email']['pending_approval']);
-        unset($form['email']['activated']);
         unset($form['email']['deleted']);
       }
       break;
