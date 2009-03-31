@@ -167,22 +167,19 @@ function ldapprov_admin_settings() {
       $form = array_merge_recursive($form, $form_ldapdata);
     }
   }
-  include_once(drupal_get_path('module', 'ldapprov') .'/ldapprov.conf.inc');
-  $ldapprov_custom = variable_get('ldapprov_custom', array());
-  $options = array('not shown', 'optional', 'required');
-  foreach (ldapprov_custom_elements() as $key => $val) {
-    $form_custom['registration']['custom']['ldapprov_custom_'. $key] = array(
-      '#type' => 'select',
-      '#title' => t($val['title']),
-      '#options' => $options,
-      '#description' => t($val['title'] .' field on the registration form.'),
-      '#default_value' => isset($ldapprov_custom[$key]) ? $ldapprov_custom[$key] : NULL,
-    );
+  $form['registration']['custom'] = array('#type' => 'fieldset', '#title' => ('Custom elements'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+  $ldapprov_custom = '';
+  foreach (variable_get('ldapprov_custom', array()) as $name => $data) {
+    array_walk($data, create_function('&$v, $k', '$v = drupal_substr($k, 1) .\'=>\'. $v;'));
+    $ldapprov_custom .= drupal_substr($name, 7) .'|'. implode('|', $data) ."\n";
   }
-  if (!empty($form_custom)) {
-    $form['registration']['custom'] = array('#type' => 'fieldset', '#title' => ('Custom elements'), '#collapsible' => TRUE, '#collapsed' => TRUE);
-    $form = array_merge_recursive($form, $form_custom);
-  }
+  $form['registration']['custom']['ldapprov_custom'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Additional registration attributes'),
+    '#default_value' => $ldapprov_custom,
+    '#rows' => 5,
+    '#description' => t('A list of the custom attributes and corresponding form data to be shown on the registration form. The element type may be \'textifield\' or \'textarea\'. Please look at the following examples:<br /><code>sponsor|type=>textfield|title=>Sponsor POC|weigth=>4|size=>64|maxlemgth=>64|required=>1|description=>Sponsor Point of Contact.</code><br /><code>remarks|type=>textarea|title=>Remarks|weigth=>3|rows=>6|description=>Additional registration remarks.</code>'),
+  );
 
   // LDAP authentication.
   $form['ldap'] = array('#type' => 'fieldset', '#title' => ('LDAP authentication'), '#collapsible' => TRUE, '#collapsed' => TRUE, '#description' => t('<p>Choose LDAP server new accounts will be created in.</p><p>"Test" tries authentication with the saved DN and password and prints the result.</p>'));
@@ -234,7 +231,6 @@ function ldapprov_admin_settings() {
   $form['ldap_attributes']['ldapprov_user_entry'] = array(
     '#type' => 'textarea',
     '#title' => t('Basic LDAP attributes'),
-    '#default_value' => variable_get('ldapprov_user_entry', "objectClass: top\nobjectClass: person\nobjectClass: inetOrgPerson\nuid: %uid\nmail: %mail\ngivenName: %first_name\nsn: %last_name\ncn: %first_name %last_name\nuserPassword: %pass"),
     '#rows' => 15,
     '#default_value' => LDAPPROV_USER_ENTRY,
     '#description' => t('Customize the rest LDAP attributes in LDIF style.') .' '. t('Available variables are:') .' %uid, %base_dn, %mail, %first_name, %last_name, %pass. '. t('Empty lines and lines starting with "#" will be ignored.'),
@@ -360,9 +356,9 @@ function ldapprov_admin_settings() {
  */
 function ldapprov_admin_settings_validate($form, &$form_state) {
   $op = $form_state['clicked_button']['#value'];
+  $values = $form_state['values'];
   switch ($op) {
     case t('Save configuration'):
-      $values = $form_state['values'];
       if (!is_numeric($values['ldapprov_pass_length'])) {
         form_set_error('ldapprov_pass_length', t('Password lenght should be numeric.'));
       }
@@ -431,6 +427,30 @@ function ldapprov_admin_settings_validate($form, &$form_state) {
           }
         }
       }
+
+      $form_state['ldapprov_custom'] = array();
+      $ldapprov_custom = TRUE;
+      foreach ((trim($values['ldapprov_custom']) ? explode("\n", trim($values['ldapprov_custom'])) : array()) as $line) {
+        if (count($data = explode('|', trim($line))) > 1) {
+          if ($name = trim(array_shift($data))) {
+            $field = array();
+            foreach ($data as $pair) {
+              list($k, $v) = explode('=>', $pair);
+              $field += array('#'. trim($k) => trim($v));
+            }
+            if (count(array_intersect(array_keys($field), array('#type', '#title'))) == 2)
+              $form_state['ldapprov_custom'] += array('custom_'. $name => $field);
+            else
+              form_set_error('ldapprov_custom', t('type and title are required.'));
+          }
+          else
+            $ldapprov_custom = FALSE;
+        }
+        else
+          $ldapprov_custom = FALSE;
+      }
+      if (!$ldapprov_custom)
+        form_set_error('ldapprov_custom', t('Bad attribute syntax.'));
       break;
   }
 }
@@ -486,12 +506,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       }
 
       // Registration form.
-      $ldapprov_custom = array();
-      include_once(drupal_get_path('module', 'ldapprov') .'/ldapprov.conf.inc');
-      foreach (ldapprov_custom_elements() as $key => $val) {
-        $ldapprov_custom[$key] = $values['ldapprov_custom_'. $key];
-      }
-      variable_set('ldapprov_custom', $ldapprov_custom);
+      variable_set('ldapprov_custom', $form_state['ldapprov_custom']);
 
       // LDAP authentication.
       variable_set('ldapprov_server', $values['ldapprov_server']);
@@ -558,7 +573,7 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
       variable_del('ldapprov_notifications_unsubscribe');
 
       // Registration form.
-      variable_del('ldapprov_custom'. $key);
+      variable_del('ldapprov_custom');
 
       // LDAP authentication.
       variable_del('ldapprov_server');

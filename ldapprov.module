@@ -59,7 +59,6 @@ function ldapprov_help($path, $arg) {
  */
 function ldapprov_init() {
   // Initiates LDAP object.
-  include_once(drupal_get_path('module', 'ldapprov') .'/ldapprov.conf.inc');
   if (LDAPPROV_ENABLED) {
     _ldapprov_init();
   }
@@ -488,7 +487,7 @@ function _ldapprov_get_server() {
   static $row = NULL;
   if (is_object($row))
     return $row;
-  
+
   $result = db_query("SELECT * FROM {ldapauth} WHERE sid = %d", LDAPPROV_SERVER);
   return $row = db_fetch_object($result);
 }
@@ -638,39 +637,12 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
   );
 
   // Custom fields.
-  $ldapprov_custom = variable_get('ldapprov_custom', array());
-  foreach (ldapprov_custom_elements() as $key => $val) {
-    if ($ldapprov_custom[$key] > 0) {
-      switch ($val['type']) {
-        case 'textfield':
-          $form['account']['custom_'. $key] = array(
-            '#type' => 'textfield',
-            '#title' => $val['title'],
-            '#description' => $val['description'],
-            '#size' => $val['size'],
-            '#maxlength' => $val['maxlength'],
-            '#default_value' => isset($data['custom_'. $key]) ? $data['custom_'. $key] : NULL,
-            '#disabled' => $disabled,
-            '#weight' => $val['weigth'],
-          );
-          break;
-        case 'textarea':
-          $form['account']['custom_'. $key] = array(
-            '#type' => 'textarea',
-            '#title' => $val['title'],
-            '#description' => $val['description'],
-            '#rows' => $val['rows'],
-            '#default_value' => isset($data['custom_'. $key]) ? $data['custom_'. $key] : NULL,
-            '#disabled' => $disabled,
-            '#weight' => $val['weigth'],
-          );
-          break;
-      }
-      if ($ldapprov_custom[$key] == 2) {
-        $form['account']['custom_'. $key]['#required'] = !$disabled ? TRUE : FALSE;
-      }
-    }
+  $form_custom = variable_get('ldapprov_custom', array());
+  foreach ($form_custom as $name => $field) {
+    $form_custom[$name]['#default_value'] = isset($data[$name]) ? $data[$name] : NULL;
+    $form_custom[$name]['#disabled'] = $disabled;
   }
+  $form['account'] = array_merge($form['account'], $form_custom);
 
   // Print writable ldap fields.
   if (module_exists('ldapdata')) {
@@ -2312,13 +2284,10 @@ function _ldapprov_template($type) {
   }
 
   // Print custom fields.
-  $ldapprov_custom = variable_get('ldapprov_custom', array());
-  foreach (ldapprov_custom_elements() as $key => $val ) {
-    if ($ldapprov_custom[$key] > 0) {
-      $data['custom_'. $key] = $val['title'];
-      if ($ldapprov_custom[$key] == 2) {
-        $data['custom_'. $key] .= ' ('. t('required') .')';
-      }
+  foreach (variable_get('ldapprov_custom', array()) as $key => $val) {
+    $data[$key] = $val['#title'];
+    if (isset($val['#required']) && $val['#required']) {
+      $data[$key] .= ' ('. t('required') .')';
     }
   }
 

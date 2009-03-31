@@ -55,7 +55,7 @@ function ldapprov_uninstall() {
   variable_del('ldapprov_notifications_unsubscribe');
 
   // Registration form.
-  variable_del('ldapprov_custom'. $key);
+  variable_del('ldapprov_custom');
 
   // LDAP authentication.
   variable_del('ldapprov_server');
