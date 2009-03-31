@@ -298,7 +298,7 @@ function ldapprov_account_submit($form, &$form_state) {
   // The user name in $form['_account']['#value'] is already changed.
   // Has to look for the old name in the authmap.
   $result = db_query("SELECT * FROM {authmap} WHERE uid = %d", $account->uid);
-  if (isset($values['name']) && ($row = db_fetch_object($result)) && $account->name != $row->authname) {
+  if (isset($values['name']) && ($row = db_fetch_object($result)) && $values['name'] != $row->authname) {
     _ldapprov_user_update($values['name'], $account);
   }
 }
