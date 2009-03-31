@@ -502,7 +502,8 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
         variable_set('ldapprov_content_profile', $values['ldapprov_content_profile']);
         variable_set('ldapprov_content_profile_first', $values['ldapprov_content_profile_first']);
         variable_set('ldapprov_content_profile_last', $values['ldapprov_content_profile_last']);
-        variable_set('ldapprov_notifications_unsubscribe', $values['ldapprov_notifications_unsubscribe']);
+        if (module_exists('notifications'))
+          variable_set('ldapprov_notifications_unsubscribe', $values['ldapprov_notifications_unsubscribe']);
       }
 
       // Registration form.
