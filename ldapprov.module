@@ -692,7 +692,6 @@ function _ldapprov_register_form($data = array(), $disabled = FALSE) {
  * User registration form validation.
  */
 function ldapprov_register_validate($form, &$form_state) {
-
   // Main registration form validation.
   _ldapprov_register_validate($form_state['values']);
 
@@ -858,11 +857,13 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
  * User registration form submission.
  */
 function ldapprov_register_submit($form, &$form_state) {
+  global $language;
+
   $time = time();
   $values = $form_state['values'];
 
   // Prepare data to enter into the database.
-  $data = array();
+  $data = array('language' => $language->language);
   foreach ($values as $key => $value) {
     if (preg_match('/(^profile_|^ldap_|^og_register|^field_|^custom_)/', $key)) {
       $data[$key] = $value;
@@ -913,7 +914,7 @@ function ldapprov_register_submit($form, &$form_state) {
     // Mail one time login URL and instructions.
     $variables = array('!validate_url' => url('user/validate/'. $hash, array('absolute' => TRUE)), '!validate_uri' => url('user/validate', array('absolute' => TRUE)), '!mailto' => $values['mail'], '!first_name' => $first_name, '!last_name' => $last_name, '!code' => $hash);
     $params = array('variables' => $variables);
-    $message = drupal_mail('ldapprov', 'code', $values['mail'], language_default(), $params);
+    $message = drupal_mail('ldapprov', 'code', $values['mail'], $language, $params);
     if ($message['result']) {
       watchdog('ldapprov', 'E-mail validation request mailed to %first_name %last_name at %mail.', array('%first_name' => $first_name, '%last_name' => $last_name, '%mail' => $values['mail']));
       drupal_set_message(t('An e-mail has been sent to the e-mail account %s to verify that you have entered a valid e-mail address.', array('%s' => $values['mail'])));
@@ -1441,7 +1442,10 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
   }
   $data = isset($data) ? $data : array();
 
-  $form = array();
+  $form['language'] = array(
+    '#type' => 'hidden',
+    '#value' => isset($data['language']) ? $data['language'] : '',
+  );
 
   // Invite information.
   if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && $rid) {
@@ -1854,7 +1858,7 @@ function _ldapprov_create_user($data) {
     }
 
     // Create a drupal user.
-    $account = user_save('', array_merge(array('name' => $name, 'pass' => $pass, 'mail' => $data['mail'], 'init' => $data['mail'], 'status' => 1, 'authname_ldapauth' => $name, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, 'ldap_config' => LDAPPROV_SERVER), $account_profile));
+    $account = user_save('', array_merge(array('name' => $name, 'pass' => $pass, 'mail' => $data['mail'], 'init' => $data['mail'], 'status' => 1, 'authname_ldapauth' => $name, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, 'ldap_config' => LDAPPROV_SERVER, 'language' => $data['language']), isset($data['language']) ? array('language' => $data['language']) : array(), $account_profile));
     watchdog('ldapprov', 'A new external user %name was created using module %module.', array('%name' => $name, '%module' => 'ldapprov'), WATCHDOG_NOTICE, l(t('edit'), 'user/'. $account->uid .'/edit'));
 
     $time = time();
@@ -2304,7 +2308,7 @@ function _ldapprov_template($type) {
       break;
     case 'csv':
       print implode(LDAPPROV_CSV_DELIMITER, array_keys($data)) ."\n";
-      print implode(LDAPPROV_CSV_DELIMITER, array_values($data));
+      print implode(LDAPPROV_CSV_DELIMITER, array_map(create_function('$a', 'return \'"\'. preg_replace(\'/"/\', \'\"\', $a) .\'"\';'), array_values($data)));
       break;
   }
 
