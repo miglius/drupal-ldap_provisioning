@@ -102,7 +102,7 @@ function _ldapprov_invite_mail_text($key, $language = NULL, $variables = array()
 
   if ($admin_setting = variable_get('ldapprov_invite_mail_'. $key, FALSE)) {
     // An admin setting overrides the default string.
-    return strtr($admin_setting, $variables);
+    return t($admin_setting, $variables, $langcode);
   }
   else {
     // No override, return default string.
