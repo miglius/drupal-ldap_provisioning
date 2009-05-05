@@ -243,7 +243,8 @@ function ldapprov_user($op, &$edit, &$account, $category = NULL) {
 function ldapprov_form_alter(&$form, $form_state, $form_id) {
   switch ($form_id) {
     case "user_profile_form":
-      if (LDAPPROV_ENABLED && user_access(LDAPPROV_PERMISSION)) {
+      global $user;
+      if (LDAPPROV_ENABLED && (user_access(LDAPPROV_PERMISSION) || user_access('change own username') && $form['_account']['#value']->uid == $user->uid)) {
         // Set a custom form validate and submit handlers.
         $form['#validate'][] = 'ldapprov_account_validate';
         $form['#submit'][] = 'ldapprov_account_submit';
