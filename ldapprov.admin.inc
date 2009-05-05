@@ -233,7 +233,7 @@ function ldapprov_admin_settings() {
     '#title' => t('Basic LDAP attributes'),
     '#rows' => 15,
     '#default_value' => LDAPPROV_USER_ENTRY,
-    '#description' => t('Customize the rest LDAP attributes in LDIF style.') .' '. t('Available variables are:') .' %uid, %base_dn, %mail, %first_name, %last_name, %pass. '. t('Empty lines and lines starting with "#" will be ignored.'),
+    '#description' => t('Customize the rest LDAP attributes in LDIF style.') .' '. t('Available variables are:') .' !uid, !base_dn, !mail, !first_name, !last_name, !pass. '. t('Empty lines and lines starting with "#" will be ignored.'),
   );
 
   // E-mail notification.
