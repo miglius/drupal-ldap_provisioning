@@ -1485,10 +1485,12 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     if (!empty($groups)) {
       $script = '';
       $groups_disabled = array();
-      foreach (module_invoke('ldapprov_invite', 'ldapinvites', $rid) as $entry) {
-        if ($entry->data['type'] == 'og' && !in_array($entry->data['gid'], $groups_disabled)) {
-          $groups_disabled[] = $entry->data['gid'];
-          $script .= '$("#edit-!name-'. $entry->data['gid'] .'").attr("checked", true).attr("disabled", true);';
+      if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED && $rid) {
+        foreach (module_invoke('ldapprov_invite', 'ldapinvites', $rid) as $entry) {
+          if ($entry->data['type'] == 'og' && !in_array($entry->data['gid'], $groups_disabled)) {
+            $groups_disabled[] = $entry->data['gid'];
+            $script .= '$("#edit-!name-'. $entry->data['gid'] .'").attr("checked", true).attr("disabled", true);';
+          }
         }
       }
       if (module_exists('og_mandatory_group') && ($mandatory_group = variable_get('og_mandatory_group', 0)) && $mandatory_group > 0 && in_array($mandatory_group, array_keys($groups)) && !in_array($mandatory_group, $groups_disabled)) {
