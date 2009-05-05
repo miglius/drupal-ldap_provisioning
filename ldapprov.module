@@ -1730,7 +1730,7 @@ function _ldapprov_create_user($data) {
   // First and last names.
   if (module_exists('profile') && LDAPPROV_PROFILE && LDAPPROV_PROFILE_FIRST != '' && LDAPPROV_PROFILE_LAST != '') {
     $first_name = $data[LDAPPROV_PROFILE_FIRST];
-    $last_name = $datas[LDAPPROV_PROFILE_LAST];
+    $last_name = $data[LDAPPROV_PROFILE_LAST];
   }
   else if (module_exists('content_profile_registration') && LDAPPROV_CONTENT_PROFILE && LDAPPROV_CONTENT_PROFILE_FIRST != '' && LDAPPROV_CONTENT_PROFILE_LAST != '') {
     $first_name = $data[LDAPPROV_CONTENT_PROFILE_FIRST];
@@ -1834,7 +1834,7 @@ function _ldapprov_create_user($data) {
       $ldapdata_mappings = _ldapdata_ldap_info($server->sid, 'ldapdata_mappings');
       foreach ($data as $key => $value) {
         if (preg_match('/^profile_/', $key) && isset($profile[$key]) && isset($data[$key])) {
-          if ($ldap_profile = $ldapdata_mappings['ldap_amap-'. $profile[$key]]) {
+          if (isset($ldapdata_mappings['ldap_amap-'. $profile[$key]]) && ($ldap_profile = $ldapdata_mappings['ldap_amap-'. $profile[$key]])) {
             // drupal profile will be sync with ldap on the next load.
             $ldap_profile_ldif[$ldap_profile][] = $data[$key];
           }
