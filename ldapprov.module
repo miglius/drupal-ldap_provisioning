@@ -51,6 +51,16 @@ function ldapprov_help($path, $arg) {
   switch ($path) {
     case 'user/validate':
       return '<p>'. t('Please check your e-mail and click the link in the message to confirm your address. If you are unable to click the link, you can copy the secret code from the e-mail and enter it below.') .'</p>';
+    case 'admin/user/accounts':
+      return t('This page displays user accounts which have been requested but have not yet been approved (are not yet usable by the persons who requested them).');
+    case 'admin/user/accounts/created':
+      return t('These accounts have been filled in by either a user or administrator and have been given administrator approval. An account here may be used to access this site.');
+    case 'admin/user/accounts/rejected':
+      return t('These accounts were created by users requesting access to the site, but have been rejected by an administrator. An account here cannot be used to access this site.');
+    case 'admin/user/accounts/deleted':
+      return t('These accounts have been removed from the system. ');
+    case 'admin/user/accounts/unverified':
+      return t('An unverified account has been requested by someone intending to access the site, but that person has not yet entered the code, emailed to them by the site, which verifies the validity of their email address and their status as a real person (and, therefore, not a spam program or virus).');
   }
 }
 
@@ -171,7 +181,7 @@ function ldapprov_menu() {
       'type' => MENU_LOCAL_TASK,
     ),
     'admin/user/accounts/new' => array(
-      'title' => 'New',
+      'title' => 'Create user',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('ldapprov_create', 3),
       'access arguments' => array(LDAPPROV_PERMISSION),
