@@ -53,6 +53,12 @@ function ldapprov_invite_og_can_invite($node) {
   if (!ldapprov_invite_access() || !isset($node->og_selective))
     return FALSE;
 
+  global $user;
+  if (module_exists('og') && !isset($user->og_groups) && $user->uid) {
+    // We have to perform a load in order to assure that the $user->og_groups bits are present.
+    // $user->og_groups bits are missing when the i18n module is enabled.
+    $user = user_load(array('uid' => $user->uid));
+  }
   switch ($node->og_selective) {
     case OG_OPEN:
     case OG_MODERATED:
