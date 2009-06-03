@@ -38,7 +38,7 @@ define('LDAPPROV_CSV_DELIMITER',        ',');
 define('LDAPPROV_CSV_ENCLOSURE',        '"');
 define('LDAPPROV_PROFILE_FIRSTNAME',    'profile_firstname');
 define('LDAPPROV_PROFILE_LASTNAME',     'profile_lastname');
-define('LDAPPROV_MAX_LIST_ENTRIES',     20);
+define('LDAPPROV_MAX_LIST_ENTRIES',     50);
 //define('LDAPPROV_UID_FORBIDDEN_CHAR', '!@#$%^&*()_+_+[]\{}|;\':",./<>?`~');
 
 //////////////////////////////////////////////////////////////////////////////
@@ -412,29 +412,31 @@ function _ldapprov_user_update($name, $account) {
 function _ldapprov_user_delete(&$edit, &$account) {
   global $user, $_ldapprov_ldap;
 
-  if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
-    watchdog('ldapprov', 'User deletion: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
-    drupal_set_message(t('The user !name has not been deleted from the LDAP directory.', array('!name' => theme('username', $account))), 'error');
-    return;
-  }
+  if (isset($account->ldap_dn)) {
+    if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+      watchdog('ldapprov', 'User deletion: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
+      drupal_set_message(t('The user !name has not been deleted from the LDAP directory.', array('!name' => theme('username', $account))), 'error');
+      return;
+    }
 
-  $basedn = $_ldapprov_ldap->getOption('basedn');
-  $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
-  $name = _ldapprov_get_name_from_dn($account->ldap_dn);
-  if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
-    if ($_ldapprov_ldap->delete_entry($account->ldap_dn)) {
-      watchdog('ldapprov', 'User deletion: user %name has been deleted from the LDAP directory.', array('%name' => $account->name), WATCHDOG_WARNING);
+    $basedn = $_ldapprov_ldap->getOption('basedn');
+    $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
+    $name = _ldapprov_get_name_from_dn($account->ldap_dn);
+    if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array($name_attr))) {
+      if ($_ldapprov_ldap->delete_entry($account->ldap_dn)) {
+        watchdog('ldapprov', 'User deletion: user %name has been deleted from the LDAP directory.', array('%name' => $account->name), WATCHDOG_WARNING);
+      }
+      else {
+        watchdog('ldapprov', 'User deletion: user %name has not been deleted from the LDAP directory.', array('%name' => $account->name), WATCHDOG_ERROR);
+        drupal_set_message(t('The user !name has not been deleted from the LDAP directory.', array('!name' => theme('username', $account))), 'error');
+      }
     }
     else {
-      watchdog('ldapprov', 'User deletion: user %name has not been deleted from the LDAP directory.', array('%name' => $account->name), WATCHDOG_ERROR);
-      drupal_set_message(t('The user !name has not been deleted from the LDAP directory.', array('!name' => theme('username', $account))), 'error');
+      watchdog('ldapprov', 'User deletion: user %name is not found in LDAP directory.', array('%name' => $account->name), WATCHDOG_WARNING, l(t('edit'), 'user/'. $account->uid .'/edit'), WATCHDOG_ERROR);
     }
-  }
-  else {
-    watchdog('ldapprov', 'User deletion: user %name is not found in LDAP directory.', array('%name' => $account->name), WATCHDOG_WARNING, l(t('edit'), 'user/'. $account->uid .'/edit'), WATCHDOG_ERROR);
-  }
 
-  $_ldapprov_ldap->disconnect();
+    $_ldapprov_ldap->disconnect();
+  }
 
   // Mark registration entry as deleted.
   $time = time();
@@ -1296,89 +1298,135 @@ function ldapprov_list_validate($form, &$form_state) {
  */
 function ldapprov_list_submit($form, &$form_state) {
   $values = $form_state['values'];
+  $values['requests'] = array_values(array_filter($values['requests']));
   $register_form_state = array();
   $register_form = drupal_retrieve_form('ldapprov_register', $register_form_state);
 
-  foreach ($values['requests'] as $rid => $v) {
-    if ($v > 0) {
-      switch ($values['operation']) {
-        case 'create':
-          unset($messages);
-          unset($data);
-          $result = db_query("SELECT * FROM {ldapprov} WHERE rid = %d", $rid);
-          $row = db_fetch_object($result);
-          $data = unserialize($row->data);
-          $data['rid'] = $row->rid;
-          $data['name'] = $row->name;
-          $data['first_name'] = $row->first_name;
-          $data['last_name'] = $row->last_name;
-          $data['mail'] = $row->mail;
-          $data['og_groups'] = isset($values['og_groups']) ? $values['og_groups'] : array();
-          $data['signups'] = isset($values['signups']) ? $values['signups'] : array();
+  switch ($values['operation']) {
+    case 'create':
+      $batch = array(
+        'operations' => array(
+          array('ldapprov_user_create_batch_process', array($values['requests'], $register_form)),
+        ),
+        'finished' => 'ldapprov_user_create_batch_finished',
+        'title' => t('Processing user creation'),
+        'init_message' => t('User creation is starting.'),
+        'progress_message' => t('Processing...'),
+        'error_message' => t('User creation has encountered an error.'),
+      );
+      batch_set($batch);
+      break;
+    case 'reject':
+      foreach ($values['requests'] as $rid) {
+        _ldapprov_reject_user(array('rid' => $rid));
+      }
+      break;
+  }
+}
 
-          // Validate the data.
-          // Validate using common validation function.
-          $errors = _ldapprov_register_validate($data, FALSE);
+/**
+ * Batch Operation Callback.
+ */
+function ldapprov_user_create_batch_process($requests, &$form, &$context) {
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['max'] = count($requests);
+  }
 
-          // Check required fields.
-          foreach ($data as $key => $val) {
-            if (!isset($val) || $val == '') {
-              $errors += _ldapprov_check_required($register_form, $key);
-            }
-          }
+  if ($context['sandbox']['max'] > 0) {
+    $result = db_query("SELECT * FROM {ldapprov} WHERE rid = %d", $requests[$context['sandbox']['progress']]);
+    $row = db_fetch_object($result);
+    $data = unserialize($row->data);
+    $data['rid'] = $row->rid;
+    $data['name'] = $row->name;
+    $data['first_name'] = $row->first_name;
+    $data['last_name'] = $row->last_name;
+    $data['mail'] = $row->mail;
+    $data['og_groups'] = isset($values['og_groups']) ? $values['og_groups'] : array();
+    $data['signups'] = isset($values['signups']) ? $values['signups'] : array();
 
-          // Check if the user with the same name already created in the system.
-          if (!LDAPPROV_ALLOW_USERNAME) {
-            $name = _ldapprov_make_username($data['first_name'], $data['last_name']);
-            $result = db_query("SELECT mail FROM {users} WHERE name = '%s'", $name);
-            if ($row = db_fetch_object($result)) {
-              $errors++;
-            }
-            else {
-              // When ldap users are in sync with drupal users, ldap search is not needed.
-              global $_ldapprov_ldap;
+    // Validate the data.
+    // Validate using common validation function.
+    $errors = _ldapprov_register_validate($data, FALSE);
 
-              $basedn = $_ldapprov_ldap->getOption('basedn');
-              $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
+    // Check required fields.
+    foreach ($data as $key => $val) {
+      if (!isset($val) || $val == '') {
+        $errors += _ldapprov_check_required($form, $key);
+      }
+    }
 
-              if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
-                watchdog('ldapprov', 'User creation: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
-                drupal_set_message(t('User creation: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
-              }
-              if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array('mail'))) {
-                $errors++;
-              }
-              $_ldapprov_ldap->disconnect();
-            }
-          }
+    // Check if the user with the same name already created in the system.
+    if (!LDAPPROV_ALLOW_USERNAME) {
+      $name = _ldapprov_make_username($data['first_name'], $data['last_name']);
+      $result = db_query("SELECT mail FROM {users} WHERE name = '%s'", $name);
+      if ($row = db_fetch_object($result)) {
+        $errors++;
+      }
+      else {
+        // When ldap users are in sync with drupal users, ldap search is not needed.
+        global $_ldapprov_ldap;
 
-          if ($errors > 0) {
-            drupal_set_message(t('User with an e-mail address %s was not created. Please, create it manually.', array('%s' => $data['mail'])), 'error');
-          }
-          else {
+        $basedn = $_ldapprov_ldap->getOption('basedn');
+        $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
 
-            // Create a new user.
-            $new_user = _ldapprov_create_user($data);
-            if (isset($new_user)) {
-              drupal_set_message(t('The new user !name has been created.', array('!name' => theme('username', $new_user))));
-              if (module_exists('content_profile_registration') && LDAPPROV_CONTENT_PROFILE) {
-                _ldapprov_content_profile_create($new_user, $data);
-              }
-            }
-            else {
-              drupal_set_message(t('The new user was not created. Please contact site administrator.'), 'error');
-            }
-          }
-          break;
-        case 'reject':
-          _ldapprov_reject_user(array('rid' => $rid));
-          break;
+        if (!$_ldapprov_ldap->connect(LDAPPROV_DN, LDAPPROV_PASS)) {
+          watchdog('ldapprov', 'User creation: user data could not be read in the LDAP directory. Could not bind as %dn.', array('%dn' => LDAPPROV_DN), WATCHDOG_ERROR);
+          drupal_set_message(t('User creation: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
+        }
+        if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array('mail'))) {
+          $errors++;
+        }
+        $_ldapprov_ldap->disconnect();
+      }
+    }
+
+    if ($errors > 0) {
+      $context['message'] = t('User with an e-mail address %mail was not created.', array('%mail' => $data['mail']));
+      $context['results'][1][] = $data['mail'];
+    }
+    else {
+
+      // Create a new user.
+      $new_user = _ldapprov_create_user($data);
+      if (isset($new_user)) {
+        $context['message'] = t('The new user !name has been created.', array('!name' => theme('username', $new_user)));
+        $context['results'][0][] = theme('username', $new_user);
+        if (module_exists('content_profile_registration') && LDAPPROV_CONTENT_PROFILE) {
+          _ldapprov_content_profile_create($new_user, $data);
+        }
+      }
+      else {
+        $context['message'] = t('User with an e-mail address %mail was not created.', array('%mail' => $data['mail']));
+        $context['results'][1][] = $data['mail'];
       }
     }
   }
 
-  $tabs = array('unverified', 'pending', 'rejected', 'created', 'deleted');
-  $form_state['redirect'] = 'admin/user/accounts/'. $tabs[$values['status']];
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = ++$context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+/**
+ * Batch 'finished' callback.
+ */
+function ldapprov_user_create_batch_finished($success, $results, $operations) {
+  if ($success) {
+    if (empty($results)) {
+      drupal_set_message(t('Please choose at least one request.'), 'warning');
+    }
+    if (isset($results[0]) && count($results[0]) > 0) {
+      drupal_set_message(t('Following users were created.') . theme('item_list', $results[0]));
+    }
+    if (isset($results[1]) && count($results[1]) > 0) {
+      drupal_set_message(t('Users with the following e-mails were not created. Please create them manually.') . theme('item_list', $results[1]), 'error');
+    }
+  }
+  else {
+    $error_operation = reset($operations);
+    drupal_set_message(t('An error occurred while processing %error. Please contact site administrator.', array('%error' => $error_operation[0])), 'error');
+  }
 }
 
 /**
@@ -1861,8 +1909,9 @@ function _ldapprov_create_user($data) {
 
     // Proceed with a Drupal user only if LDAP user is created successfully.
     // Set user roles.
-    $roles = isset($data['roles']) ? $data['roles'] : NULL;
-    if ((user_access(LDAPPROV_ROLE_PERMISSION) || user_access('assign roles')) && isset($roles)) {
+    $roles = array();
+    if ((user_access(LDAPPROV_ROLE_PERMISSION) || user_access('assign roles')) && isset($data['roles'])) {
+      $roles = $data['roles'];
       foreach ($roles as $key => $value) {
         if ($value == 0) {
           unset($roles[$key]);
@@ -1871,7 +1920,7 @@ function _ldapprov_create_user($data) {
     }
 
     // Create a drupal user.
-    $account = user_save('', array_merge(array('name' => $name, 'pass' => $pass, 'mail' => $data['mail'], 'init' => $data['mail'], 'status' => 1, 'authname_ldapauth' => $name, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, 'ldap_config' => LDAPPROV_SERVER, 'language' => $data['language']), isset($data['language']) ? array('language' => $data['language']) : array(), $account_profile));
+    $account = user_save('', array_merge(array('name' => $name, 'pass' => $pass, 'mail' => $data['mail'], 'init' => $data['mail'], 'status' => 1, 'authname_ldapauth' => $name, 'roles' => $roles, 'ldap_authentified' => TRUE, 'ldap_dn' => $dn, 'ldap_config' => LDAPPROV_SERVER), isset($data['language']) ? array('language' => $data['language']) : array(), $account_profile));
     watchdog('ldapprov', 'A new external user %name was created using module %module.', array('%name' => $name, '%module' => 'ldapprov'), WATCHDOG_NOTICE, l(t('edit'), 'user/'. $account->uid .'/edit'));
 
     $time = time();
@@ -2425,15 +2474,18 @@ function _ldapprov_character_data($parser, $data) {
  */
 function _ldapprov_csv_parse($file) {
   $row = 1;
-  //$rows = array();
   $columnheadings = TRUE;
 
   $fh = fopen($file->filepath, 'r');
   while (($data = fgetcsv($fh, 1000, LDAPPROV_CSV_DELIMITER, LDAPPROV_CSV_ENCLOSURE )) !== FALSE) {
-    if (!($columnheadings == FALSE) && ($row == 1)) {
+    foreach ($data as $key => $value) {
+      $data[$key] = preg_replace('/\\\"/', '"', $value);
+    }
+
+    if ($columnheadings && ($row == 1)) {
       $heading_texts = $data;
     }
-    elseif (!($columnheadings == FALSE)) {
+    elseif ($columnheadings) {
       foreach ($data as $key => $value) {
         unset($data[$key]);
         $data[$heading_texts[$key]] = $value;
