@@ -1015,15 +1015,16 @@ function ldapprov_code_validate($form, &$form_state) {
  *   TRUE or FALSE depending if validation was passed.
  */
 function _ldapprov_code_validate($values) {
-  $result = db_query("SELECT rid, status FROM {ldapprov} WHERE code = '%s'", $values['code']);
+  $code = trim($values['code']);
+  $result = db_query("SELECT rid, status FROM {ldapprov} WHERE code = '%s'", $code);
   if ($row = db_fetch_object($result)) {
     if ($row->status > 0) {
-      form_set_error('code', t('The code %s has already been validated.', array('%s' => $values['code'])));
+      form_set_error('code', t('The code %s has already been validated.', array('%s' => $code)));
       return TRUE;
     }
   }
   else {
-    form_set_error('code', t('The code %s is not valid.', array('%s' => $values['code'])));
+    form_set_error('code', t('The code %s is not valid.', array('%s' => $code)));
     return TRUE;
   }
   return FALSE;
