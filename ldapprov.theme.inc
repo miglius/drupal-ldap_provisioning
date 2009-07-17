@@ -32,7 +32,7 @@ function theme_ldapprov_list_form($form) {
       $row[] = drupal_render($form['first_name'][$key]);
       $row[] = drupal_render($form['last_name'][$key]);
       $row[] = drupal_render($form['mail'][$key]);
-      if (LDAPPROV_INVITE_ENABLED)
+      if (module_exists('ldapprov_invite') && LDAPPROV_INVITE_ENABLED)
         $row[] = drupal_render($form['inviter'][$key]);
       if (isset($form['approved']))
         $row[] = drupal_render($form['approved'][$key]);
