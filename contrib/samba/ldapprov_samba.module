@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-define('LDAPPROV_SAMBA_ENABLED',       variable_get('ldapprov_samba_enabled', false));
+define('LDAPPROV_SAMBA_ENABLED',       variable_get('ldapprov_samba_enabled', FALSE));
 define('LDAPPROV_SAMBA_ENTRY',         variable_get('ldapprov_samba_entry', "objectClass: organizationalPerson\nobjectClass: posixAccount\nobjectClass: shadowAccount\nobjectClass: sambaSamAccount\nuidNumber: !uid_number\ngidNumber: !gid_number\nhomeDirectory: /home/!name\nloginShell: /bin/bash\nsambaSID: !samba_sid\nsambaPrimaryGroupSID: !primary_group_id\nsambaPwdCanChange: !pwd_next_timestamp\nsambaPwdLastSet: !pwd_timestamp\nsambaAcctFlags: \nsambaLMPassword: !lm_pass\nsambaNTPAssword: !nt_pass"));
 define('LDAPPROV_SAMBA_DOMAIN_SID',    variable_get('ldapprov_samba_domain_sid', ''));
 define('LDAPPROV_SAMBA_DEFAULT_GROUP', variable_get('ldapprov_samba_default_group', 'samba'));

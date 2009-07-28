@@ -106,6 +106,13 @@ function ldapprov_menu() {
       'access arguments' => array('administer site configuration'),
       'file' => 'ldapprov.admin.inc',
     ),
+    'admin/settings/ldap/ldapprov/test' => array(
+      'title' => 'Test LDAP Server',
+      'page callback' => '_ldapprov_ajax_test',
+      'type' => MENU_CALLBACK,
+      'access arguments' => array('administer ldap modules'),
+      'file' => 'ldapprov.admin.inc',
+    ),
     'admin/user/accounts' => array(
       'title' => 'Account management',
       'description' => 'Configure LDAP provisioning accounts.',
@@ -469,12 +476,15 @@ function _ldapprov_user_delete(&$edit, &$account) {
 /**
  * Initiates LDAP object.
  *
+ * @param $sid
+ *   A server ID or NULL for a default server.
+ *
  * @return
  */
-function _ldapprov_init() {
+function _ldapprov_init($sid = NULL) {
   global $_ldapprov_ldap;
 
-  if ($server = _ldapprov_get_server()) {
+  if ($server = _ldapprov_get_server($sid)) {
     $_ldapprov_ldap = new LDAPInterface();
     $_ldapprov_ldap->setOption('sid', $server->sid);
     $_ldapprov_ldap->setOption('name', $server->name);
@@ -493,15 +503,18 @@ function _ldapprov_init() {
 /**
  * Load server settings.
  *
+ * @param $sid
+ *   A server ID or NULL for a default server.
+ *
  * @return
  *   An obgject with the server settings.
  */
-function _ldapprov_get_server() {
+function _ldapprov_get_server($sid = NULL) {
   static $row = NULL;
-  if (is_object($row))
+  if (!isset($sid) && is_object($row))
     return $row;
 
-  $result = db_query("SELECT * FROM {ldapauth} WHERE sid = %d", LDAPPROV_SERVER);
+  $result = db_query("SELECT * FROM {ldapauth} WHERE sid = %d", isset($sid) ? $sid : LDAPPROV_SERVER);
   return $row = db_fetch_object($result);
 }
 
@@ -1157,8 +1170,7 @@ function ldapprov_list_form(&$form_state, $tab) {
     $form['options'] = array('#type' => 'fieldset', '#title' => t('Update options'));
     if (module_exists('og')) {
       $og_types = array(OG_OPEN, OG_MODERATED);
-      $placeholders = implode(', ', array_fill(0, sizeof($og_types), '%d'));
-      $result = db_query("SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ($placeholders) ORDER BY n.title", $og_types);
+      $result = db_query('SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ('. db_placeholders($og_types) .') ORDER BY n.title', $og_types);
       while ($row = db_fetch_object($result)) {
         $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => $row->title)) .'</span>';
       }
@@ -1539,8 +1551,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
   // OG integration.
   if (module_exists('og')) {
     $og_types = array(OG_OPEN, OG_MODERATED);
-    $placeholders = implode(', ', array_fill(0, sizeof($og_types), '%d'));
-    $result = db_query("SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ($placeholders) ORDER BY n.title", $og_types);
+    $result = db_query('SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ('. db_placeholders($og_types) .') ORDER BY n.title', $og_types);
     while ($row = db_fetch_object($result)) {
       $groups[$row->nid] = '<span class="og-registration-'. $row->nid .'">'. t('Join %group.', array('%group' => $row->title)) .'</span>';
     }
@@ -1575,8 +1586,10 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
           '#type' => 'checkboxes',
           '#title' => t('Groups'),
           '#options' => $groups,
+          '#default_value' => isset($data['og_groups']) ? $data['og_groups'] : array(),
           '#description' => t('Join users to these groups on account creation.'),
           '#suffix' => strtr($script, array('!name' => 'og-groups')),
+          '#disabled' => $status == 3 ? TRUE : FALSE,
         );
       }
     }
@@ -1590,6 +1603,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
       '#title' => t('Signups'),
       '#options' => $nids,
       '#description' => t('Signup users to these nodes on account creation.'),
+      '#disabled' => $status == 3 ? TRUE : FALSE,
     );
   }
 
@@ -2122,19 +2136,39 @@ function _ldapprov_content_profile_form($edit, $disabled = FALSE) {
   unset($form['#validate']);
   unset($form['#submit']);
   if ($disabled) {
-    unset($form['#field_info']);
-    foreach ($form as $name => $field) {
-      if (preg_match('/^field_/', $name) and is_array($form[$name])) {
+    _ldapprov_content_profile_disable($form);
+  }
+  return $form;
+}
+
+/**
+ * Disables form elements so that they could not be altered.
+ *
+ * @param $form
+ *   A reference to a form array.
+ */
+function _ldapprov_content_profile_disable(&$form) {
+  foreach ($form as $name => $field) {
+    if (preg_match('/^group_/', $name) and is_array($form[$name])) {
+      _ldapprov_content_profile_disable($form[$name]);
+    }
+    if (preg_match('/^field_/', $name) and is_array($form[$name])) {
+      if (isset($form[$name][0])) {
         foreach ($form[$name] as $key => $val) {
-          // #disable does not work with the cck defined form types.
-          //$form[$name][$key]['#disabled'] = TRUE;
-          $form[$name][$key]['#suffix'] = '<script type=\'text/javascript\'>$(document).ready(function() { $("#edit-field-'. drupal_substr($name, 6) .'-'. $key .'-value").attr("disabled", true); });</script>';
-          $form[$name][$key]['#required'] = FALSE;
+          if (is_numeric($key) and is_array($form[$name][$key])) {
+            // #disable does not work with the cck defined form types.
+            //$form[$name][$key]['#disabled'] = TRUE;
+            $form[$name][$key]['#suffix'] = '<script type=\'text/javascript\'>$(document).ready(function() { $("#edit-field-'. preg_replace('/_/', '-', drupal_substr($name, 6)) .'-'. $key .'-value").attr("disabled", true); });</script>';
+            $form[$name][$key]['#required'] = FALSE;
+          }
         }
+      }
+      else {
+        $form[$name]['#suffix'] = '<script type=\'text/javascript\'>$(document).ready(function() { $("#edit-field-'. preg_replace('/_/', '-', drupal_substr($name, 6)) .'-value").attr("disabled", true); });</script>';
+        $form[$name]['#required'] = FALSE;
       }
     }
   }
-  return $form;
 }
 
 /**

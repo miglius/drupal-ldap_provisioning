@@ -16,6 +16,8 @@
  *   The form structure.
  */
 function ldapprov_admin_settings() {
+   drupal_add_js(drupal_get_path('module', 'ldapprov') .'/ldapprov.admin.js');
+
   // General settings
   $form['general'] = array('#type' => 'fieldset', '#title' => t('General settings'), '#collapsible' => TRUE, '#collapsed' => FALSE);
   $form['general']['ldapprov_enabled'] = array(
@@ -182,7 +184,7 @@ function ldapprov_admin_settings() {
   );
 
   // LDAP authentication.
-  $form['ldap'] = array('#type' => 'fieldset', '#title' => ('LDAP authentication'), '#collapsible' => TRUE, '#collapsed' => TRUE, '#description' => t('<p>Choose LDAP server new accounts will be created in.</p><p>"Test" tries authentication with the saved DN and password and prints the result.</p>'));
+  $form['ldap'] = array('#type' => 'fieldset', '#title' => ('LDAP authentication'), '#collapsible' => TRUE, '#collapsed' => FALSE, '#description' => t('<p>Choose LDAP server new accounts will be created in.</p>'));
   $ldap_servers = array();
   $result = db_query("SELECT sid, name, status FROM {ldapauth} ORDER BY weight");
   while ($row = db_fetch_object($result)) {
@@ -195,15 +197,15 @@ function ldapprov_admin_settings() {
     '#default_value' => LDAPPROV_SERVER,
     '#description' => t('Select LDAP server to create LDAP accounts in.'),
   );
-  $form['ldap']['ldapprov_dn'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Bind DN'),
-    '#size' => 50,
-    '#maxlength' => 255,
-    '#default_value' => LDAPPROV_DN,
-    '#description' => t('Bind DN should have the rights to create new LDAP entries.'),
-  );
   if (LDAPPROV_PASS_CLEAR || !LDAPPROV_PASS) {
+    $form['ldap']['ldapprov_dn'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Bind DN'),
+      '#size' => 50,
+      '#maxlength' => 255,
+      '#default_value' => LDAPPROV_DN,
+      '#description' => t('Bind DN should have the rights to create new LDAP entries.'),
+   );
     variable_del('ldapprov_pass');
     $form['ldap']['ldapprov_pass'] = array(
       '#type' => 'password',
@@ -215,15 +217,22 @@ function ldapprov_admin_settings() {
     variable_set('ldapprov_pass_clear', FALSE);
   }
   else {
+    $form['ldap']['ldapprov_dn'] =  array(
+      '#type' => 'item',
+      '#title' => t('Bind DN'),
+      '#value' => LDAPPROV_DN,
+    );
     $form['ldap']['ldapprov_pass_clear'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Clear current password'),
+      '#title' => t('Clear current password and change DN'),
       '#default_value' => FALSE,
     );
   }
   $form['ldap']['test'] = array(
     '#type'  => 'submit',
     '#value' => t('Test'),
+    '#suffix' => '<div id="test-spinner" style="display: none;">'. theme_image(drupal_get_path('module', 'ldapauth') .'/images/spinner.gif') .'</div><div id="test-message" class="messages" style="display: none;"></div>',
+
   );
 
   // LDAP fields.
@@ -511,8 +520,8 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
 
       // LDAP authentication.
       variable_set('ldapprov_server', $values['ldapprov_server']);
-      variable_set('ldapprov_dn', $values['ldapprov_dn']);
       if (!empty($values['ldapprov_pass'])) {
+        variable_set('ldapprov_dn', $values['ldapprov_dn']);
         variable_set('ldapprov_pass', $values['ldapprov_pass']);
       }
       if (isset($values['ldapprov_pass_clear']) && $values['ldapprov_pass_clear'] == 1) {
@@ -619,5 +628,34 @@ function ldapprov_admin_settings_submit($form, &$form_state) {
 
   // Rebuild the menu router.
   menu_rebuild();
+}
+
+/**
+ * Implements the AJAX server test.
+ *
+ * @return
+ *   The JSON data.
+ */
+function _ldapprov_ajax_test() {
+  global $_ldapprov_ldap;
+
+  $sid = $_POST['sid'];
+  if (!is_numeric($sid)) {
+    return;
+  }
+
+  _ldapprov_init($sid);
+
+  if ($_POST['bindpw_clear'] == 'undefined') {
+    $binddn = $_POST['binddn'];
+    $bindpw = $_POST['bindpw'];
+  }
+  else {
+    $binddn = LDAPPROV_DN;
+    $bindpw = LDAPPROV_PASS;
+  }
+
+  drupal_json($_ldapprov_ldap->connect($binddn, $bindpw) ? array('status' => 1, 'message' => t('Authentication with the LDAP server succeeded.')) : array('status' => 0, 'message' => t('Authentication with the LDAP server failed.')));
+  exit;
 }
 
