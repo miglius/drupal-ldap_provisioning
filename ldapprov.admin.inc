@@ -16,7 +16,7 @@
  *   The form structure.
  */
 function ldapprov_admin_settings() {
-   drupal_add_js(drupal_get_path('module', 'ldapprov') .'/ldapprov.admin.js');
+  drupal_add_js(drupal_get_path('module', 'ldapprov') .'/ldapprov.admin.js');
 
   // General settings
   $form['general'] = array('#type' => 'fieldset', '#title' => t('General settings'), '#collapsible' => TRUE, '#collapsed' => FALSE);
@@ -205,7 +205,7 @@ function ldapprov_admin_settings() {
       '#maxlength' => 255,
       '#default_value' => LDAPPROV_DN,
       '#description' => t('Bind DN should have the rights to create new LDAP entries.'),
-   );
+    );
     variable_del('ldapprov_pass');
     $form['ldap']['ldapprov_pass'] = array(
       '#type' => 'password',

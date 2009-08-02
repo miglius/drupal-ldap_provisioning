@@ -315,7 +315,7 @@ function ldapprov_account_submit($form, &$form_state) {
   // The user name in $form['_account']['#value'] is already changed.
   // Has to look for the old name in the authmap.
   $result = db_query("SELECT * FROM {authmap} WHERE uid = %d", $account->uid);
-  if (isset($values['name']) && ($row = db_fetch_object($result)) && $values['name'] != $row->authname) {
+  if (isset($values['name']) && ($row = db_fetch_object($result)) && $row->module == 'ldapauth' && $values['name'] != $row->authname) {
     _ldapprov_user_update($values['name'], $account);
   }
 }
@@ -1981,6 +1981,10 @@ function _ldapprov_create_user($data) {
     if (module_exists('signup') && user_access('sign up for content', $account) && isset($data['signups'])) {
       foreach (array_filter($data['signups']) as $nid) {
         signup_sign_up_user(array('nid' => $nid, 'uid' => $account->uid));
+        if (module_exists('signup_status')) {
+          $sid = db_last_insert_id('signup_log', 'sid');
+          _signup_status_change('insert', (object)array('sid' => $sid, 'uid' => $account->uid, 'nid' => $nid, 'anon_mail' => '', 'stat     us' => SIGNUP_STATUS_INVITE_STATUS));
+        }
       }
     }
 
