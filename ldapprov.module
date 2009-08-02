@@ -1983,7 +1983,7 @@ function _ldapprov_create_user($data) {
         signup_sign_up_user(array('nid' => $nid, 'uid' => $account->uid));
         if (module_exists('signup_status')) {
           $sid = db_last_insert_id('signup_log', 'sid');
-          _signup_status_change('insert', (object)array('sid' => $sid, 'uid' => $account->uid, 'nid' => $nid, 'anon_mail' => '', 'stat     us' => SIGNUP_STATUS_INVITE_STATUS));
+          _signup_status_change('insert', (object)array('sid' => $sid, 'uid' => $account->uid, 'nid' => $nid, 'anon_mail' => '', 'status' => SIGNUP_STATUS_INVITE_STATUS));
         }
       }
     }
