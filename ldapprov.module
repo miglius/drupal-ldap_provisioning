@@ -1581,7 +1581,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
         $form['og_register']['og_register']['#suffix'] = strtr($script, array('!name' => 'og-register'));
       }
       else {
-        $form['options']['og'] = array('#type' => 'fieldset', '#title' => t('Groups'));
+        $form['options']['og'] = array('#type' => 'fieldset', '#title' => t('Groups'), '#collapsible' => TRUE, '#collapsed' => TRUE);
         $form['options']['og']['og_groups'] = array(
           '#type' => 'checkboxes',
           '#title' => t('Groups'),
@@ -1597,7 +1597,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
 
   // Signup integration.
   if (module_exists('signup') && ($nids = _ldapprov_get_signup_nodes()) && !empty($nids)) {
-    $form['options']['signup'] = array('#type' => 'fieldset', '#title' => t('Signups'), '#collapsible' => FALSE, '#collapsed' => FALSE);
+    $form['options']['signup'] = array('#type' => 'fieldset', '#title' => t('Signups'), '#collapsible' => TRUE, '#collapsed' => TRUE);
     $form['options']['signup']['signups'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Signups'),
