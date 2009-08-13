@@ -1577,6 +1577,8 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
             $groups[$key] = $form['og_register']['og_register']['#options'][$key];
           }
         }
+        $form['og_register']['#collapsible'] = TRUE;
+        $form['og_register']['#collapsed'] = TRUE;
         $form['og_register']['og_register']['#options'] = $groups;
         $form['og_register']['og_register']['#suffix'] = strtr($script, array('!name' => 'og-register'));
       }
