@@ -1,0 +1,1819 @@
+# $Id$
+#
+# French translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  ldapprov.admin.inc,v 1.20 2009/08/02 13:09:59 miglius
+#  ldapprov_invite.admin.inc,v 1.9 2008/10/27 22:02:55 miglius
+#  ldapprov_invite_og.admin.inc,v 1.2 2008/10/27 22:02:55 miglius
+#  ldapprov_invite_signup.admin.inc,v 1.1 2009/01/30 18:50:10 miglius
+#  ldapprov.module,v 1.62 2009/08/12 10:03:59 miglius
+#  ldapprov_samba.admin.inc,v 1.3 2008/09/01 22:43:00 miglius
+#  ldapprov_sip.admin.inc,v 1.3 2008/09/01 22:43:00 miglius
+#  ldapprov.theme.inc,v 1.7 2009/07/17 12:10:23 miglius
+#  ldapprov_invite.module,v 1.15 2009/04/08 15:29:30 miglius
+#  ldapprov_invite_og.module,v 1.9 2009/05/20 09:56:44 miglius
+#  ldapprov.info,v 1.7 2008/09/01 22:43:00 miglius
+#  ldapprov.install,v 1.13 2009/03/31 14:00:09 miglius
+#  ldapprov_invite.info,v 1.6 2008/09/01 22:43:00 miglius
+#  ldapprov_invite_og.info,v 1.1 2008/09/25 09:58:18 miglius
+#  ldapprov_invite_signup.info,v 1.1 2009/01/30 18:50:10 miglius
+#  ldapprov_samba.info,v 1.3 2008/09/01 22:43:00 miglius
+#  ldapprov_sip.info,v 1.3 2008/09/01 22:43:00 miglius
+#  ldapprov_invite_signup.module,v 1.3 2009/04/08 15:29:30 miglius
+#  ldapprov_invite.install,v 1.6 2008/09/01 22:43:00 miglius
+#  ldapprov_invite_og.install,v 1.3 2009/01/20 09:56:43 miglius
+#  ldapprov_invite_signup.install,v 1.1 2009/01/30 18:50:10 miglius
+#  ldapprov_samba.module,v 1.9 2009/07/28 14:08:25 miglius
+#  ldapprov_sip.module,v 1.7 2008/10/09 08:04:07 miglius
+#  ldapprov_samba.install,v 1.2 2008/09/01 22:43:00 miglius
+#  ldapprov_sip.install,v 1.2 2008/09/01 22:43:00 miglius
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-08-27 14:18+0000\n"
+"PO-Revision-Date: 2009-08-27 18:29+0100\n"
+"Last-Translator: Landry Breuil <breuil@craig.fr>\n"
+"Language-Team: French <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: ldapprov.admin.inc:22
+msgid "General settings"
+msgstr "Paramètres généraux"
+
+#: ldapprov.admin.inc:25
+msgid "Enable LDAP user provisioning"
+msgstr "Activer la création d'utilisateurs dans le LDAP"
+
+#: ldapprov.admin.inc:30
+msgid "Custom username"
+msgstr "Nom d'utilisateur personalisé"
+
+#: ldapprov.admin.inc:31
+msgid "Yes"
+msgstr "Oui"
+
+#: ldapprov.admin.inc:31
+msgid "No"
+msgstr "Non"
+
+#: ldapprov.admin.inc:33
+msgid "Allow to choose custom username in the registration form."
+msgstr "Permettre de choisir un nom d'utilisateur personalisé dans le formulaire d'enregistrement"
+
+#: ldapprov.admin.inc:37
+msgid "Username template"
+msgstr "Patron de nom d'utilisateur"
+
+#: ldapprov.admin.inc:41
+msgid "Customize the username."
+msgstr "Personaliser le nom d'utilisateur"
+
+#: ldapprov.admin.inc:41;245;261;280;299;318;337
+#: contrib/invite/ldapprov_invite.admin.inc:39;46
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:34;41
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:25;32
+msgid "Available variables are:"
+msgstr "Les variables disponibles sont :"
+
+#: ldapprov.admin.inc:41
+msgid "first name"
+msgstr "prénom"
+
+#: ldapprov.admin.inc:41
+msgid "first letter of first name, etc"
+msgstr "première lettre du prénom, etc"
+
+#: ldapprov.admin.inc:41
+msgid "last name"
+msgstr "nom"
+
+#: ldapprov.admin.inc:41
+msgid "first two letters of last name, etc"
+msgstr "deux premières lettres du prénom, etc"
+
+#: ldapprov.admin.inc:48
+msgid "Use captcha in the registration form."
+msgstr "Utiliser un captcha dans le formulaire d'enregistrement"
+
+#: ldapprov.admin.inc:54
+msgid "Disable drupal user creation"
+msgstr "Désactiver la création d'utilisateur drupal"
+
+#: ldapprov.admin.inc:55
+msgid "Whether the drupal user creation form for admin users should be disabled."
+msgstr "Cocher si le formulaire de création d'utilisateur drupal pour les administrateurs doit être désactivé."
+
+#: ldapprov.admin.inc:60
+msgid "Enable custom initial password"
+msgstr "Autoriser un mot de passe initial personalisé"
+
+#: ldapprov.admin.inc:61
+msgid "Allow to set an initial user password for the account manager. A random password will be generated if disabled."
+msgstr "Autoriser un mot de passe utilisateur initial pour le gestionnaire de comptes. Un mot de passe aléatoire sera généré si désactivé."
+
+#: ldapprov.admin.inc:66
+msgid "Password length"
+msgstr "Longueur du mot de passe"
+
+#: ldapprov.admin.inc:70
+msgid "Minimum password length for the new users."
+msgstr "Longueur minimale du mot de passe pour les nouveaux utilisateurs."
+
+#: ldapprov.admin.inc:74
+msgid "Enable debugging"
+msgstr "Activer le débuggage"
+
+#: ldapprov.admin.inc:75
+msgid "The LDIF entry will be print on the screen for configuration debugging."
+msgstr "L'enregistrement LDIF sera affiché a l'écran pour débugger la configuration."
+
+#: ldapprov.admin.inc:80
+msgid "Registration form"
+msgstr "Formulaire d'enregistrement"
+
+#: ldapprov.admin.inc:84
+msgid "Show groups in the registration form"
+msgstr "Afficher les groupes dans le formulaire d'enregistrement."
+
+#: ldapprov.admin.inc:86
+msgid "Groups are shown on the registration form according to their setup."
+msgstr "Les groupes sont affichés sur le formulaire d'enregistrement en fonction de leur réglage."
+
+#: ldapprov.admin.inc:93;118
+msgid "Use profile fields in the registration form"
+msgstr "Utiliser les champs du profil dans le formulaire d'enregistrement"
+
+#: ldapprov.admin.inc:95;120
+msgid "Profile fields are shown on the registration form according to their setup in the profile."
+msgstr "Les champs du profil sont affichés sur le formulaire d'enregistrement en fonction de leur réglage."
+
+#: ldapprov.admin.inc:99
+msgid "Profile first name"
+msgstr "Prénom du profil"
+
+#: ldapprov.admin.inc:103
+msgid "Profile field associated with the user's first name. When the field is set and custom usernames are not allowed, this field will be used to construct a username."
+msgstr "Champ du profil associé avec le prénom de l'utilisateur. Quand le champ est rempli et que les noms d'utilisateurs personalisés ne sont pas autorisés, ce champ sera utilisé pour construire le nom d'utilisateur."
+
+#: ldapprov.admin.inc:107
+msgid "Profile last name"
+msgstr "Nom du profil"
+
+#: ldapprov.admin.inc:111
+msgid "Profile field associated with the user's last name. When the field is set and custom usernames are not allowed, this field will be used to construct a username."
+msgstr "Champ du profil associé avec le nom de l'utilisateur. Quand le champ est rempli et que les noms d'utilisateurs personalisés ne sont pas autorisés, ce champ sera utilisé pour construire le nom d'utilisateur."
+
+#: ldapprov.admin.inc:124
+msgid "Content profile first name"
+msgstr "Prénom du content profile"
+
+#: ldapprov.admin.inc:128
+msgid "Content profile field associated with the user's first name. When the field is set and custom usernames are not allowed, this field will be used to construct a username."
+msgstr "Champ du content profile associé avec le prénom de l'utilisateur. Quand le champ est rempli et que les noms d'utilisateurs personalisés ne sont pas autorisés, ce champ sera utilisé pour construire le nom d'utilisateur."
+
+#: ldapprov.admin.inc:132
+msgid "Content profile last name"
+msgstr "Nom du content profile"
+
+#: ldapprov.admin.inc:136
+msgid "Content profile field associated with the user's last name. When the field is set and custom usernames are not allowed, this field will be used to construct a username."
+msgstr "Champ du content profile associé avec le nom de l'utilisateur. Quand le champ est rempli et que les noms d'utilisateurs personalisés ne sont pas autorisés, ce champ sera utilisé pour construire le nom d'utilisateur."
+
+#: ldapprov.admin.inc:141
+msgid "Unsubscribe account creator from the created profile"
+msgstr "Désinscrire le créateur du compte du profil crée"
+
+#: ldapprov.admin.inc:143
+msgid "If autosubscribe is configured, this setting unsubscribes the account manager from the user profiles he creates."
+msgstr "Si l'auto-inscription est configurée, ce réglage désinscrit le gestionnaire de compte des profils utilisateurs qu'ils crée."
+
+#: ldapprov.admin.inc:162
+msgid "LDAP attribute %attr."
+msgstr "Attribut LDAP %attr."
+
+#: ldapprov.admin.inc:180
+msgid "Additional registration attributes"
+msgstr "Attributs d'enregistrement additionels"
+
+#: ldapprov.admin.inc:183
+msgid "A list of the custom attributes and corresponding form data to be shown on the registration form. The element type may be 'textifield' or 'textarea'. Please look at the following examples:<br /><code>sponsor|type=>textfield|title=>Sponsor POC|weigth=>4|size=>64|maxlemgth=>64|required=>1|description=>Sponsor Point of Contact.</code><br /><code>remarks|type=>textarea|title=>Remarks|weigth=>3|rows=>6|description=>Additional registration remarks.</code>"
+msgstr "Une liste d'attributs personalisé et les données de formulaires correspondantes a afficher dans le formulaire d'inscription. Le type d'élément peut être 'textfield' ou 'textarea'. Référez vous aux exemples suivants: <br /><code>sponsor|type=>textfield|title=>Sponsor POC|weigth=>4|size=>64|maxlemgth=>64|required=>1|description=>Sponsor Point of Contact.</code><br /><code>remarks|type=>textarea|title=>Remarks|weigth=>3|rows=>6|description=>Additional registration remarks.</code>"
+
+#: ldapprov.admin.inc:187
+msgid "<p>Choose LDAP server new accounts will be created in.</p>"
+msgstr "<p>Choisir le serveur LDAP dans lequel les nouveaux comptes seront crées.</p>"
+
+#: ldapprov.admin.inc:195
+msgid "LDAP server"
+msgstr "Serveur LDAP"
+
+#: ldapprov.admin.inc:198
+msgid "Select LDAP server to create LDAP accounts in."
+msgstr "Sélectionner le serveur LDAP où créer les comptes LDAP"
+
+#: ldapprov.admin.inc:203;222
+msgid "Bind DN"
+msgstr "Bind DN"
+
+#: ldapprov.admin.inc:207
+msgid "Bind DN should have the rights to create new LDAP entries."
+msgstr "Le Bind DN devrait avoir les droits pour créer de nouveaux enregistrements LDAP."
+
+#: ldapprov.admin.inc:212
+#: ldapprov.module:1543
+msgid "Password"
+msgstr "Mot de passe"
+
+#: ldapprov.admin.inc:227
+msgid "Clear current password and change DN"
+msgstr "Supprimer le mot de passe actuel et changer le DN"
+
+#: ldapprov.admin.inc:233;612
+msgid "Test"
+msgstr "Tester"
+
+#: ldapprov.admin.inc:239
+msgid "LDAP attributes"
+msgstr "Attributs LDAP"
+
+#: ldapprov.admin.inc:242
+msgid "Basic LDAP attributes"
+msgstr "Attributs LDAP basiques"
+
+#: ldapprov.admin.inc:245
+msgid "Customize the rest LDAP attributes in LDIF style."
+msgstr "Modifier le reste des attributs LDAP au format LDIF."
+
+#: ldapprov.admin.inc:245
+msgid "Empty lines and lines starting with \"#\" will be ignored."
+msgstr "Les lignes vides et les lignes commençant par \"#\" seront ignorées."
+
+#: ldapprov.admin.inc:251
+msgid "E-mail settings"
+msgstr "Paramêtres E-mail"
+
+#: ldapprov.admin.inc:254
+msgid "Drupal sends emails whenever new users register on your site, and optionally, may also notify users after other account actions. Using a simple set of content templates, notification e-mails can be customized to fit the specific needs of your site."
+msgstr "Drupal envoie des emails à chaque fois d'un nouvel utilisateur s'enregistre sur votre site, et peut également, de manière optionnelle, notifier les utilisateurs lors d'autres actions sur leur compte. En utilisant un ensemble simple de modèles, les emails de notifications peuvent être personnalisées pour s'adapter aux besoins spécifiques de votre site."
+
+#: ldapprov.admin.inc:258
+msgid "Email validate"
+msgstr "E-mail de confirmation"
+
+#: ldapprov.admin.inc:261
+msgid "Customize request validate messages sent to new members upon registering."
+msgstr "Modifier le message de demande de confirmation envoyé aux nouveaux membres lors d' une inscription."
+
+#: ldapprov.admin.inc:265
+msgid "Subject of validate e-mail"
+msgstr "Sujet de l'e-mail de confirmation"
+
+#: ldapprov.admin.inc:271
+msgid "Body of validate e-mail"
+msgstr "Corps de l'e-mail de confirmation"
+
+#: ldapprov.admin.inc:277
+msgid "Account manager notify email"
+msgstr "E-mail de notification du gestionnaire de comptes"
+
+#: ldapprov.admin.inc:280
+msgid "Customize account manager notification messages."
+msgstr "Modifier le message de notification envoyé au gestionnaire de comptes"
+
+#: ldapprov.admin.inc:284
+msgid "Subject of notify e-mail"
+msgstr "Sujet de l'e-mail de notification"
+
+#: ldapprov.admin.inc:290
+msgid "Body of notify e-mail"
+msgstr "Corps de l'e-mail de notification"
+
+#: ldapprov.admin.inc:296
+msgid "Account reject email"
+msgstr "E-mail de rejet"
+
+#: ldapprov.admin.inc:299
+msgid "Customize request reject messages."
+msgstr "Modifier le message de rejet."
+
+#: ldapprov.admin.inc:303
+msgid "Subject of reject e-mail"
+msgstr "Sujet de l'e-mail de rejet"
+
+#: ldapprov.admin.inc:309
+msgid "Body of reject e-mail"
+msgstr "Corps de l'e-mail de rejet"
+
+#: ldapprov.admin.inc:315
+msgid "Account create email"
+msgstr "E-mail de création de compte"
+
+#: ldapprov.admin.inc:318
+msgid "Customize account creation notification messages."
+msgstr "Modifier le message de notification de création de compte."
+
+#: ldapprov.admin.inc:322
+msgid "Subject of creation e-mail"
+msgstr "Sujet de l'e-mail de création"
+
+#: ldapprov.admin.inc:328
+msgid "Body of creation e-mail"
+msgstr "Coprs de l'e-mail de création"
+
+#: ldapprov.admin.inc:334
+msgid "Account delete email"
+msgstr "E-mail de suppression de compte"
+
+#: ldapprov.admin.inc:337
+msgid "Customize account deletion notification messages."
+msgstr "Modifier le message de notification de suppression de compte."
+
+#: ldapprov.admin.inc:341
+msgid "Subject of deletion e-mail"
+msgstr "Sujet de l'e-mail de suppression"
+
+#: ldapprov.admin.inc:347
+msgid "Body of deletion e-mail"
+msgstr "Corps de l'e-mail de suppression"
+
+#: ldapprov.admin.inc:354;370;473
+#: contrib/invite/ldapprov_invite.admin.inc:51;66;78
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:46;61;73
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:37;52;64
+#: contrib/samba/ldapprov_samba.admin.inc:68;83;95
+#: contrib/sip/ldapprov_sip.admin.inc:44;59;71
+msgid "Save configuration"
+msgstr "Enregistrer la configuration"
+
+#: ldapprov.admin.inc:358;557
+#: contrib/invite/ldapprov_invite.admin.inc:55;88
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:50;82
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:41;72
+#: contrib/samba/ldapprov_samba.admin.inc:72;107
+#: contrib/sip/ldapprov_sip.admin.inc:48;80
+msgid "Reset to defaults"
+msgstr "Rétablir par défaut"
+
+#: ldapprov.admin.inc:372
+msgid "Password lenght should be numeric."
+msgstr "La longueur du mot de passe devrait être numérique."
+
+#: ldapprov.admin.inc:383;393
+msgid "Profile field %s is not found."
+msgstr "Le champ de profil %s n'existe pas."
+
+#: ldapprov.admin.inc:386;396
+msgid "Profile field %s should be configured as \""
+msgstr "Le champ de profil %s devrait être configuré comme \""
+
+#: ldapprov.admin.inc:386;396
+msgid "Visible in user registration form"
+msgstr "Visible dans le formulaire d'enregistrement"
+
+#: ldapprov.admin.inc:386;396
+msgid "\" and \""
+msgstr "\" et \""
+
+#: ldapprov.admin.inc:386;396
+msgid "The user must enter a value"
+msgstr "L'utilisateur doit entrer une valeur"
+
+#: ldapprov.admin.inc:400
+msgid "If profile first name is set, the last name should be set as well."
+msgstr "Si le prénom de profil est renseigné, le nom devrait l'être aussi."
+
+#: ldapprov.admin.inc:403
+msgid "If profile last name is set, the first name should be set as well."
+msgstr "Si le nom de profil est renseigné, le prénom devrait l'être aussi."
+
+#: ldapprov.admin.inc:417;425
+msgid "Content profile field %s is not found."
+msgstr "Le champ de content profile %s n'existe pas."
+
+#: ldapprov.admin.inc:420;428
+msgid "Content profile field %s should be configured as required"
+msgstr "Le champ de content profile %s devrait être configuré comme \""
+
+#: ldapprov.admin.inc:432
+msgid "If content profile first name is set, the last name should be set as well."
+msgstr "Si le prénom de content profile est renseigné, le nom devrait l'être aussi."
+
+#: ldapprov.admin.inc:435
+msgid "If content profile last name is set, the first name should be set as well."
+msgstr "Si le nom de content profile est renseigné, le prénom devrait l'être aussi."
+
+#: ldapprov.admin.inc:453
+msgid "type and title are required."
+msgstr "un type et un titre sont requis."
+
+#: ldapprov.admin.inc:462
+msgid "Bad attribute syntax."
+msgstr "Mauvaise syntaxe d'attribut."
+
+#: ldapprov.admin.inc:555
+#: contrib/invite/ldapprov_invite.admin.inc:86
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:80
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:70
+#: contrib/samba/ldapprov_samba.admin.inc:105
+#: contrib/sip/ldapprov_sip.admin.inc:78
+msgid "The configuration options have been saved."
+msgstr "Les options de configuration ont été enregistrées."
+
+#: ldapprov.admin.inc:610
+#: contrib/invite/ldapprov_invite.admin.inc:95
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:88
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:77
+#: contrib/samba/ldapprov_samba.admin.inc:116
+#: contrib/sip/ldapprov_sip.admin.inc:86
+msgid "The configuration options have been reset to their default values."
+msgstr "Les options de configuration ont été réinitialisées à leurs valeurs par défaut."
+
+#: ldapprov.admin.inc:617
+msgid "Authentication with the LDAP server for the dn %dn and saved password failed."
+msgstr "L'authentification sur le serveur LDAP avec le DN %dn et le mot de passe enregistré a échoué."
+
+#: ldapprov.admin.inc:620
+msgid "Authentication with the LDAP server for the dn %dn and saved password succeeded."
+msgstr "L'authentification sur le serveur LDAP avec le DN %dn et le mot de passe enregistré a réussi."
+
+#: ldapprov.admin.inc:624
+msgid "Cannot load server settings. Please save configuration first."
+msgstr "Echec du chargement des paramêtres du serveur. Veuillez d'abord sauver la configuration."
+
+#: ldapprov.admin.inc:658
+msgid "Authentication with the LDAP server succeeded."
+msgstr "L'authentification sur le serveur LDAP a réussi."
+
+#: ldapprov.admin.inc:658
+msgid "Authentication with the LDAP server failed."
+msgstr "L'authentification sur le serveur LDAP a échoué."
+
+#: ldapprov.theme.inc:47
+msgid "No entries available."
+msgstr "Aucune entrée."
+
+#: ldapprov.module:53
+msgid "Please check your e-mail and click the link in the message to confirm your address. If you are unable to click the link, you can copy the secret code from the e-mail and enter it below."
+msgstr "Veuillez vérifiez vos e-mails et cliquer sur le lien dans le message pour confirmer votre adresse. If vous ne pouvez pas cliquer sur le lien, vous pouvez copier le code secret de l'e-mail et le coller ici."
+
+#: ldapprov.module:55
+msgid "This page displays user accounts which have been requested but have not yet been approved (are not yet usable by the persons who requested them)."
+msgstr "Cette page affiche les comptes utilisateurs ayant été demandés mais n'ayant pas encore été approuvés (ils ne sont pas encore utilisables par les personnes les ayant demandé)."
+
+#: ldapprov.module:57
+msgid "These accounts have been filled in by either a user or administrator and have been given administrator approval. An account here may be used to access this site."
+msgstr "Ces comptes ont été renseignés par un utilisateur ou un administrateur et ont été approuvés par l'administrateur. Ces comptes peuvent être utilisés pour accéder au site. "
+
+#: ldapprov.module:59
+msgid "These accounts were created by users requesting access to the site, but have been rejected by an administrator. An account here cannot be used to access this site."
+msgstr "Ces comptes ont été crées par des utilisateurs ayant demandé un accès au site, mais ont été rejetés par un administrateur. Ces comptes ne peuvent pas être utilisés pour accéder au site."
+
+#: ldapprov.module:61
+msgid "These accounts have been removed from the system. "
+msgstr "Ces comptes ont été supprimés du système."
+
+#: ldapprov.module:63
+msgid "An unverified account has been requested by someone intending to access the site, but that person has not yet entered the code, emailed to them by the site, which verifies the validity of their email address and their status as a real person (and, therefore, not a spam program or virus)."
+msgstr "Un compte non vérifié à été demandé par quelqu'un essayant d'accéder au site, mais cette personne n'a pas encore entré le code leur ayant été envoyé par le site, code vérifiant la validité de leur adresse email et leur status de personne physique (et donc non un virus)"
+
+#: ldapprov.module:342
+msgid "Validate your e-mail at !site"
+msgstr "Validez votre e-mail au !site"
+
+#: ldapprov.module:344
+msgid ""
+"!first_name !last_name,\n"
+"\n"
+"Thank you for registering at !site. You may now validate your e-mail address by entering the code\n"
+"\n"
+"!code\n"
+"\n"
+"at !validate_uri (by copying and pasting).\n"
+"\n"
+"You may also validate the e-mail by clicking on this link or copying and pasting it in your browser:\n"
+"\n"
+"!validate_url\n"
+"\n"
+"--  !site team"
+msgstr ""
+"!first_name !last_name,\n"
+"\n"
+"Merci de vous être enregistré au !site. Vous pouvez maintenant valider votre adresse e-mail en entrant le code\n"
+"\n"
+"!code\n"
+"\n"
+"a l'adresse !validate_uri (en copiant et collant).\n"
+"\n"
+"Vous pouvez aussi valider l-email en clickant sur ce lien, ou en le copiant-collant dans votre navigateur web:\n"
+"\n"
+"!validate_url\n"
+"\n"
+"--  l'équipe du !site"
+
+#: ldapprov.module:346
+msgid "Your request at !site has been rejected"
+msgstr "Votre demande au !site a été rejetée"
+
+#: ldapprov.module:348
+msgid ""
+"!first_name !last_name,\n"
+"\n"
+"Sorry, but your account request at !site has been rejected. Please resubmit the registration form with more information.\n"
+"\n"
+"-----\n"
+"\n"
+"!message\n"
+"\n"
+"--  !site team"
+msgstr ""
+"!first_name !last_name,\n"
+"\n"
+"Désolé, mais votre demande de compte au !site a été rejetée. Veuillez re-soumettre le formulaire d'enregistrement pour plus d'informations.\n"
+"\n"
+"-----\n"
+"\n"
+"!message\n"
+"\n"
+"--  l'équipe du !site"
+
+#: ldapprov.module:350
+msgid "New account request at !site"
+msgstr "Nouvelle demande de compte au !site"
+
+#: ldapprov.module:352
+msgid ""
+"!first_name !last_name (!mailto) has requested the account at !site.\n"
+"\n"
+"Click this link !create_url to process the request."
+msgstr ""
+"!first_name !last_name (!mailto) a demandé un compte au !site.\n"
+"\n"
+"Cliquer sur ce lien !create_url pour traiter la demande."
+
+#: ldapprov.module:354
+msgid "The account has been created for you at !site"
+msgstr "Votre compte au !site a été crée"
+
+#: ldapprov.module:356
+msgid ""
+"!first_name !last_name,\n"
+"\n"
+"The account at !site has been created for you. You may now log in to !login_uri using the following username and password:\n"
+"\n"
+"username: !username\n"
+"password: !password\n"
+"\n"
+"You may also log in by clicking on this link or copying and pasting it in your browser:\n"
+"\n"
+"!login_url\n"
+"\n"
+"This is a one-time login, so it can be used only once.\n"
+"\n"
+"-----\n"
+"\n"
+"!message\n"
+"\n"
+"--  !site team"
+msgstr ""
+"!first_name !last_name,\n"
+"\n"
+"Votre compte au !site a été crée. Vous pouvez maintenant vous authentifier sur !login_uri avec les nom d'utilisateur et mot de passe suivants:\n"
+"\n"
+"nom d'utilisateur: !username\n"
+"mot de passe: !password\n"
+"\n"
+"Vous pouvez aussi vous authentifier en cliquant sur ce lien ou en le copiant-collant dans votre navigateur web:\n"
+"\n"
+"!login_url\n"
+"\n"
+"C'est une authentification à usage unique, elle ne peut être utilisée qu'une fois.\n"
+"\n"
+"-----\n"
+"\n"
+"!message\n"
+"\n"
+"--  l'équipe du !site"
+
+#: ldapprov.module:358
+msgid "Your account has been deleted at !site"
+msgstr "Votre compte au !site a été supprimé"
+
+#: ldapprov.module:360
+msgid ""
+"!first_name !last_name,\n"
+"\n"
+"Your account !username has been deleted at !site.\n"
+"\n"
+"--  !site team"
+msgstr ""
+"!first_name !last_name,\n"
+"\n"
+"Votre compte !username au !site a été supprimé !site.\n"
+"\n"
+"--  l'équipe du !site"
+
+#: ldapprov.module:378
+msgid "User data could not be read in the LDAP directory. Please contact site administrator."
+msgstr "Les informations utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Veuillez consulter l'administrateur du site."
+
+#: ldapprov.module:385
+msgid "The DN %dn is already taken in LDAP."
+msgstr "Le DN %dn est déja utilisé dans le LDAP."
+
+#: ldapprov.module:400
+msgid "User update: user data could not be read in the LDAP directory. Please contact site administrator."
+msgstr "Mise à jour d'utilisateur : les informations utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Veuillez consulter l'administrateur du site."
+
+#: ldapprov.module:425;438
+msgid "The user !name has not been deleted from the LDAP directory."
+msgstr "L'utilisateur !name n'a pas été supprimé de l'annuaire LDAP."
+
+#: ldapprov.module:442;1941
+msgid "edit"
+msgstr "modifier"
+
+#: ldapprov.module:573
+msgid "Request new account"
+msgstr "Créer un nouveau compte"
+
+#: ldapprov.module:582
+msgid "The code %code has already been validated."
+msgstr "Le code %code a déja été validé."
+
+#: ldapprov.module:597;928;1124
+msgid "The code %code is not valid or has expired."
+msgstr "Le code %code n'est pas valide ou a expiré."
+
+#: ldapprov.module:617
+msgid "Account information"
+msgstr "Informations du compte"
+
+#: ldapprov.module:621;1223;2343
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: ldapprov.module:622
+msgid "Your full name or your preferred username; only letters, numbers and spaces are allowed."
+msgstr "Votre nom complet ou votre nom d'utilisateur préféré : uniquement les lettres, chiffres et espaces sont autorisés."
+
+#: ldapprov.module:634;1225
+msgid "First Name"
+msgstr "Prénom"
+
+#: ldapprov.module:644;1226
+msgid "Last Name"
+msgstr "Nom"
+
+#: ldapprov.module:655
+msgid "E-mail address"
+msgstr "Adresse électronique"
+
+#: ldapprov.module:656
+msgid "A password and instructions will be sent to this e-mail address, so make sure it is accurate."
+msgstr "Un mot de passe et des instructions seront envoyées à cette adresse, veillez bien à ce qu'elle soit valide."
+
+#: ldapprov.module:752
+msgid "Username cannot begin with a space."
+msgstr "Le nom d'utilisateur ne peut pas commencer par un espace."
+
+#: ldapprov.module:755
+msgid "Username cannot end with a space."
+msgstr "Le nom d'utilisateur ne peut pas finir par un espace."
+
+#: ldapprov.module:758
+msgid "Username should contain only letters, numbers and spaces."
+msgstr "Le nom d'utilisateur devrait contenir uniquement des lettres, des chiffres et des espaces."
+
+#: ldapprov.module:762;773
+msgid "The username %name is already taken. Please choose different one."
+msgstr "Le nom d'utilisateur %name est déja pris. Veuillez en choisir un autre."
+
+#: ldapprov.module:768;790
+msgid "User validate: user data could not be read in the LDAP directory. Please contact site administrator."
+msgstr "Validation d'utilisateur : les informations utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Veuillez consulter l'administrateur du site."
+
+#: ldapprov.module:780
+#: contrib/invite/ldapprov_invite.module:158
+msgid "The e-mail address %mail is not valid."
+msgstr "L'adresse e-mail %mail n'est pas valide."
+
+#: ldapprov.module:784;795
+msgid "The user with e-mail address %mail is already registered with the system. Click !request if you forgot your login information."
+msgstr "L'utilisateur avec l'adresse e-mail %mail est déja enregistré dans le système. Cliquez sur !request si vous avez oublié vos informations de connexion."
+
+#: ldapprov.module:784;795
+msgid "request new password"
+msgstr "Demander un nouveau mot de passe"
+
+#: ldapprov.module:831
+msgid "First Name cannot begin with a space."
+msgstr "Le prénom ne peut pas commencer par un espace."
+
+#: ldapprov.module:834
+msgid "First Name cannot end with a space."
+msgstr "Le prénom ne peut pas finir par un espace."
+
+#: ldapprov.module:837
+msgid "First Name should contain only latin letters, apostrophe, dash or space."
+msgstr "Le prénom devrait contenir uniquement des lettres, des apostrophes, des tirets ou des espaces."
+
+#: ldapprov.module:846
+msgid "Last Name cannot begin with a space."
+msgstr "Le nom ne peut pas commencer par un espace."
+
+#: ldapprov.module:849
+msgid "Last Name cannot end with a space."
+msgstr "Le nom ne peut pas finir par un espace."
+
+#: ldapprov.module:852
+msgid "Last Name should contain only latin letters, apostrophe, dash or space."
+msgstr "Le nom devrait contenir uniquement des lettres, des apostrophes, des tirets ou des espaces."
+
+#: ldapprov.module:864
+msgid "First Name can not contain only whitespace characters."
+msgstr "Le prénom ne peut pas contenir uniquement des caractères vides."
+
+#: ldapprov.module:867
+msgid "Last Name can not contain only whitespace characters."
+msgstr "Le nom ne peut pas contenir uniquement des caractères vides."
+
+#: ldapprov.module:873
+msgid "Password should be at least %length characters in length."
+msgstr "Le mot de passe devrait comporter au moins %length caractères."
+
+#: ldapprov.module:924
+msgid "Please wait until your account is approved. You will receive login information to your e-mail account."
+msgstr "Veuillez patienter en attendant que votre compte soit validé. Vous recevrez vos informations de connexion par e-mail."
+
+#: ldapprov.module:946
+msgid "An e-mail has been sent to the e-mail account %s to verify that you have entered a valid e-mail address."
+msgstr "Un e-mail a été envoyé a l'adresse %s pour vérifier que l'adresse e-mail que vous avez fourni est valide."
+
+#: ldapprov.module:950
+#: contrib/invite/ldapprov_invite.module:218
+#: contrib/invite_og/ldapprov_invite_og.module:182
+msgid "Unable to send mail. Please contact the site admin."
+msgstr "Impossible d'envoyer un e-mail. Veuillez contacter l'administrateur du site."
+
+#: ldapprov.module:1001
+msgid "Secret Code"
+msgstr "Code Secret"
+
+#: ldapprov.module:1007
+msgid "Validate"
+msgstr "Valider"
+
+#: ldapprov.module:1035
+msgid "The code %s has already been validated."
+msgstr "Le code %s a déja été validé."
+
+#: ldapprov.module:1040
+msgid "The code %s is not valid."
+msgstr "Le code %s n'est pas valide."
+
+#: ldapprov.module:1093
+msgid "Your e-mail account %mail has been validated. Please wait until your account is approved. You will receive login information to your e-mail account."
+msgstr "Votre adresse e-mail %mail a été validée. Veuillez patienter en attendant que votre compte soit approuvé. Vous recevrez vos informations de connexion par e-mail."
+
+#: ldapprov.module:1113
+msgid "Your password and further instructions have been sent to your e-mail address."
+msgstr "Votre mot de passe ainsi que des instructions détaillées ont été envoyés à votre adresse e-mail."
+
+#: ldapprov.module:1119;1784
+msgid "The new user was not created. Please contact site administrator."
+msgstr "Le nouvel utilisateur n'a pas été crée. Veuillez contacter l'administrateur du site."
+
+#: ldapprov.module:1170
+msgid "Update options"
+msgstr "Options de mise à jour"
+
+#: ldapprov.module:1175;1556
+msgid "Join %group."
+msgstr "Rejoindre %group."
+
+#: ldapprov.module:1183;1186;1584;1587
+msgid "Groups"
+msgstr "Groupes"
+
+#: ldapprov.module:1188;1590
+msgid "Join users to these groups on account creation."
+msgstr "Abonner les utilisateurs à ces groupes lors de la création de compte."
+
+#: ldapprov.module:1194;1197;1600;1603
+msgid "Signups"
+msgstr "Abonnements"
+
+#: ldapprov.module:1199;1605
+msgid "Signup users to these nodes on account creation."
+msgstr "Abonner les utilisateurs à ces noeuds lors de la création de compte."
+
+#: ldapprov.module:1203
+msgid "Create the selected users"
+msgstr "Créer les utilisateurs sélectionnés"
+
+#: ldapprov.module:1205
+msgid "Reject the selected users"
+msgstr "Rejeter les utilisateurs sélectionnés"
+
+#: ldapprov.module:1215
+msgid "Update"
+msgstr "Mise à jour"
+
+#: ldapprov.module:1221
+msgid "Submission Date"
+msgstr "Date de soumission"
+
+#: ldapprov.module:1227
+msgid "E-Mail"
+msgstr "E-Mail"
+
+#: ldapprov.module:1229
+#: contrib/invite/ldapprov_invite.admin.inc:30;31
+msgid "Inviter"
+msgstr "Inviter"
+
+#: ldapprov.module:1232
+msgid "Approval Date"
+msgstr "Date d'approbation"
+
+#: ldapprov.module:1233
+msgid "Approver"
+msgstr "Approuver"
+
+#: ldapprov.module:1236
+msgid "Account"
+msgstr "Compte utilisateur"
+
+#: ldapprov.module:1327
+msgid "Processing user creation"
+msgstr "Traitement de la création d'utilisateur"
+
+#: ldapprov.module:1328
+msgid "User creation is starting."
+msgstr "La création d'utilisateur commence."
+
+#: ldapprov.module:1329
+msgid "Processing..."
+msgstr "Traitement..."
+
+#: ldapprov.module:1330
+msgid "User creation has encountered an error."
+msgstr "La création d'utilisateur a échoué."
+
+#: ldapprov.module:1390
+msgid "User creation: user data could not be read in the LDAP directory. Please contact site administrator."
+msgstr "Création d'utilisateur : les informations utilisateur n'ont pu être lues dans l'annuaire LDAP. Veuillez contacter l'administrateur du site."
+
+#: ldapprov.module:1400;1415
+msgid "User with an e-mail address %mail was not created."
+msgstr "L'utilisateur avec l'adresse e-mail %mail n'a pas été crée."
+
+#: ldapprov.module:1408;1778
+msgid "The new user !name has been created."
+msgstr "Le nouvel utilisateur !name a été crée."
+
+#: ldapprov.module:1432
+msgid "Please choose at least one request."
+msgstr "Veuillez choisir au moins une demande."
+
+#: ldapprov.module:1435
+msgid "Following users were created."
+msgstr "Les utilisateurs suivants ont été crées."
+
+#: ldapprov.module:1438
+msgid "Users with the following e-mails were not created. Please create them manually."
+msgstr "Les utilisateurs avec les adresses suivantes n'ont pas été crées. Veuillez les créer manuellement."
+
+#: ldapprov.module:1443
+msgid "An error occurred while processing %error. Please contact site administrator."
+msgstr "Un erreur est survenue en traitant %error. Veuillez contacter l'administrateur du site."
+
+#: ldapprov.module:1528
+msgid "Invited by !name"
+msgstr "Invité par !name"
+
+#: ldapprov.module:1528
+msgid ", context: !context."
+msgstr ", contexte : !context."
+
+#: ldapprov.module:1532
+msgid "Invitations"
+msgstr "Invitations"
+
+#: ldapprov.module:1544
+msgid "Leave this field empty and the password will be autogenerated."
+msgstr "Laissez ce champ vide et le mot de passe sera généré."
+
+#: ldapprov.module:1623;1631
+msgid "Roles"
+msgstr "Rôles"
+
+#: ldapprov.module:1634
+msgid "The user receives the combined permissions of the %au role, and all roles selected here."
+msgstr "L'utilisateur se voit attribuer les permissions combinées du rôle %au, et de tout les rôles sélectionnés ici."
+
+#: ldapprov.module:1634
+msgid "authenticated user"
+msgstr "utilisateur identifié"
+
+#: ldapprov.module:1640
+msgid "Messages"
+msgstr "Messages"
+
+#: ldapprov.module:1643
+msgid "Message"
+msgstr "Message"
+
+#: ldapprov.module:1645
+msgid "This message will be added to the notification e-mail sent out."
+msgstr "Ce message sera ajouté a l'e-mail de notification envoyé."
+
+#: ldapprov.module:1650;1653
+msgid "Notes"
+msgstr "Notes"
+
+#: ldapprov.module:1655
+msgid "Internal notes shared between account managers."
+msgstr "Notes internes partagées entre les gestionnaires de comptes."
+
+#: ldapprov.module:1668;1747
+msgid "Create account"
+msgstr "Créer un compte"
+
+#: ldapprov.module:1676;1767
+msgid "Reject account"
+msgstr "Rejeter un compte"
+
+#: ldapprov.module:1684;1770
+msgid "Save notes"
+msgstr "Sauvegarder les notes"
+
+#: ldapprov.module:1692
+msgid "The request was rejected at %date by !name."
+msgstr "La demande a été rejetée le %date par !name."
+
+#: ldapprov.module:1695
+msgid "The user !name was created at %date by !cname."
+msgstr "L'utilisateur !name a été crée le %date par !cname."
+
+#: ldapprov.module:1698
+msgid "The account was deleted at %date by !name."
+msgstr "Le compte a été supprimé le %date par !name."
+
+#: ldapprov.module:1706;1720
+msgid "An account with a username %name and e-mail %mail is already created in the system. If you proceed, a new account will be created with a number appended to the username."
+msgstr "Un compte avec le nom d'utilisateur %name et l'e-mail %mail existe déja sur le système. Si vous continuez, un nouveau compte sera crée avec un numéro ajouté au nom d'utilisateur."
+
+#: ldapprov.module:1717
+msgid "User registration: user data could not be read in the LDAP directory. Please contact site administrator."
+msgstr "Enregistrement utilisateur :  les données utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Veuillez contacter l'administrateur du site."
+
+#: ldapprov.module:1772
+msgid "The notes have been saved."
+msgstr "Les notes ont été sauvegardées."
+
+#: ldapprov.module:1831
+msgid "Error! User data could not be read in the LDAP directory. Please contact site administrator."
+msgstr "Erreur! Les informations utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Veuillez contacter l'administrateur du site."
+
+#: ldapprov.module:2074
+msgid "The account request for %first %last (%mail) has been rejected."
+msgstr "La demande de comte pour %first %last (%mail) a été rejetée."
+
+#: ldapprov.module:2230
+msgid "Upload accounts"
+msgstr "Télécharger des comptes"
+
+#: ldapprov.module:2233
+msgid "Upload users data in xml or csv format. The templates can be downloaded for the !xml or !csv formats"
+msgstr "Télécharger des données de comptes utilisateur au format xml ou csv. Les patrons peuvent être téléchargés pour les formats !xml et !csv"
+
+#: ldapprov.module:2237
+msgid "Attach new file"
+msgstr "Attacher un nouveau fichier"
+
+#: ldapprov.module:2250
+msgid "The file should be provided."
+msgstr "Un fichier devrait être fourni."
+
+#: ldapprov.module:2255
+msgid "Unsupported file extension %ext."
+msgstr "Extension de fichier non supportée %ext."
+
+#: ldapprov.module:2311
+msgid "The users data from the file %file has been uploaded."
+msgstr "Les données de comptes utilisateurs ont été téléchargées à partir du fichier %file."
+
+#: ldapprov.module:2314
+msgid "Error: %error in file %file."
+msgstr "Erreur : %error dans le fichier %file."
+
+#: ldapprov.module:2318
+msgid "File %file has unsupported extension %extension."
+msgstr "Le fichier %file a une extension non supportée %extension."
+
+#: ldapprov.module:2339
+msgid "First name"
+msgstr "Prénom"
+
+#: ldapprov.module:2339;2339;2340;2343;2368;2389;2397
+msgid "required"
+msgstr "requis"
+
+#: ldapprov.module:2339
+msgid "Last name"
+msgstr "Nom"
+
+#: ldapprov.module:2340
+#: contrib/invite/ldapprov_invite.module:229
+msgid "E-mail"
+msgstr "Adresse électronique"
+
+#: ldapprov.module:2453
+msgid "XML error: %error at line %line"
+msgstr "Erreur XML : %error a la ligne %line"
+
+#: ldapprov.module:2601
+msgid "The node %title would not be accessible to created users. The users should also be added to one of the groups the node belongs to, therefore, select any of the following groups: %groups."
+msgstr "Le noeud %title ne serait pas accessible aux utilisateurs crées. Les utilisateurs devraient aussi être ajoutés a un des groups auxquels le noeur appartient, pour ceci sélectionnez un des groupes suivants : %groups."
+
+#: ldapprov.module:377;399;407;424;434;437;442;463;466;767;789;945;949;1086;1089;1389;1716;1830;1941;1965;1968;2001;2081;2084
+msgid "ldapprov"
+msgstr "ldapprov"
+
+#: ldapprov.module:377;767;789
+msgid "User validate: user data could not be read in the LDAP directory. Could not bind as %dn."
+msgstr "Validation utilisateur : les données utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Impossible de se connecter en tant que %dn."
+
+#: ldapprov.module:399
+msgid "User update: user data could not be read in the LDAP directory. Could not bind as %dn."
+msgstr "Mise à jour utilisateur : les données utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Impossible de se connecter en tant que %dn"
+
+#: ldapprov.module:407
+msgid "User update: user %name ldap entry %dn was not renamed to a new name %name_new."
+msgstr "Mise à jour utilisateur : l'enregistrement LDAP %dn de l'utilisateur %ldap n'a pas été renommée en %name_new."
+
+#: ldapprov.module:424
+msgid "User deletion: user data could not be read in the LDAP directory. Could not bind as %dn."
+msgstr "Suppression d'utilisateur : les données utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Impossible de se connecter en tant que %dn."
+
+#: ldapprov.module:434
+msgid "User deletion: user %name has been deleted from the LDAP directory."
+msgstr "Suppression d'utilisateur : l'utilisateur %name a été supprimé de l'annuaire LDAP."
+
+#: ldapprov.module:437
+msgid "User deletion: user %name has not been deleted from the LDAP directory."
+msgstr "Suppression d'utilisateur : l'utilisateur %name n'a pas été supprimé de l'annuaire LDAP."
+
+#: ldapprov.module:442
+msgid "User deletion: user %name is not found in LDAP directory."
+msgstr "Suppression d'utilisateur : l'utilisateur %name n'a pas été trouvé dans l'annuaire LDAP."
+
+#: ldapprov.module:463
+msgid "Account deletion notification e-mail mailed to %name at %mail."
+msgstr "E-mail de notification de suppression de compte envoyé a %name (%mail)."
+
+#: ldapprov.module:466
+msgid "Error mailing account deletion notification to %name at %mail."
+msgstr "Erreur lors de l'envoi de l'e-mail de notification de suppression de compte a %name (%mail)."
+
+#: ldapprov.module:945
+msgid "E-mail validation request mailed to %first_name %last_name at %mail."
+msgstr "E-mail de confirmation envoyé a %first_name %last_name (%mail)."
+
+#: ldapprov.module:949
+msgid "Error mailing e-mail validation request to %first_name %last_name at %mail."
+msgstr "Erreur lors de l'envoi de l'e-mail de confirmation a %first_name %last_name (%mail)."
+
+#: ldapprov.module:1086
+msgid "E-mail notification message about %first_name %last_name account request mailed to %mail."
+msgstr "E-mail de notification a propos de la demande de compte de %first_name %last_name envoyé à %mail."
+
+#: ldapprov.module:1089
+msgid "Error mailing notification e-mail about %first_name %last_name account request mailed to %mail."
+msgstr "Erreur lors de l'envoi de l'e-mail de notification a propos de la demande de compte de %first_name %last_name a %mail."
+
+#: ldapprov.module:1389;1830
+msgid "User creation: user data could not be read in the LDAP directory. Could not bind as %dn."
+msgstr "Création d'utilisateur : les données utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Impossible de se connecter en tant que %dn."
+
+#: ldapprov.module:1716
+msgid "User registration: user data could not be read in the LDAP directory. Could not bind as %dn."
+msgstr "Enregistrement utilisateur : les données utilisateur n'ont pas pu être lues dans l'annuaire LDAP. Impossible de se connecter en tant que %dn."
+
+#: ldapprov.module:1941
+msgid "A new external user %name was created using module %module."
+msgstr "Un nouvel utilisateur externe %name a été crée en utilisant le module %module."
+
+#: ldapprov.module:1965
+msgid "Account creation notification e-mail mailed to %name at %mail."
+msgstr "E-mail de notification de création de compte envoyé a %name (%mail)."
+
+#: ldapprov.module:1968
+msgid "Error mailing account creation notification to %name at %mail."
+msgstr "Erreur lors de l'envoi de l'e-mail de notification de création de compte a %name (%mail)."
+
+#: ldapprov.module:2001
+msgid "User creation: user was not created in the LDAP directory."
+msgstr "Création d'utilisateur : l'utilisateur n'a pas été crée dans l'annuaire LDAP."
+
+#: ldapprov.module:2081
+msgid "E-mail rejection message mailed to %first_name %last_name at %mail."
+msgstr "E-mail de rejet envoyé à %first_name %last_name (%mail)."
+
+#: ldapprov.module:2084
+msgid "Error mailing rejection e-mail to %first_name %last_name at %mail."
+msgstr "Erreur lors de l'envoi de l'e-mail de rejet à %first_name %last_name (%mail)."
+
+#: ldapprov.module:102
+#: ldapprov.info:0
+msgid "Provisioning"
+msgstr "Approvisionnement"
+
+#: ldapprov.module:103
+msgid "Configure LDAP provisioning settings."
+msgstr "Configurer les paramêtres d'approvisionnement LDAP."
+
+#: ldapprov.module:110
+msgid "Test LDAP Server"
+msgstr "Tester le serveur LDAP"
+
+#: ldapprov.module:117
+msgid "Account management"
+msgstr "Gestion des comptes"
+
+#: ldapprov.module:118
+msgid "Configure LDAP provisioning accounts."
+msgstr "Configurer les comptes d'approvisionnement LDAP."
+
+#: ldapprov.module:124
+#: contrib/invite/ldapprov_invite.module:266
+msgid "Pending"
+msgstr "En attente"
+
+#: ldapprov.module:134
+msgid "Created"
+msgstr "Crée"
+
+#: ldapprov.module:148
+msgid "Rejected"
+msgstr "Rejeté"
+
+#: ldapprov.module:162
+#: contrib/invite/ldapprov_invite.module:253
+msgid "Deleted"
+msgstr "Supprimé"
+
+#: ldapprov.module:176
+msgid "Unverified"
+msgstr "Non vérifié"
+
+#: ldapprov.module:184
+msgid "Create"
+msgstr "Créer"
+
+#: ldapprov.module:191
+msgid "Create user"
+msgstr "Créer un utilisateur"
+
+#: ldapprov.module:199
+msgid "Batch upload file template"
+msgstr "patron de téléchargement en batch"
+
+#: ldapprov.install:16
+msgid "ldapprov module successfully installed. Please review the available <a href=\"@settings\">configuration settings</a>."
+msgstr "module ldapprov installé avec succès. Veuillez consulter les <a href \"@settings\">paramêtres de configuration</a> disponibles."
+
+#: ldapprov.install:98
+msgid "Stores LDAP provisioning user registration data."
+msgstr "Stocke les paramêtres d'approvisionnement LDAP."
+
+#: ldapprov.install:104
+msgid "The registration ID."
+msgstr "ID d'enregistrement."
+
+#: ldapprov.install:111
+msgid "{users}.name user's name."
+msgstr "{users}.name nom d'utilisateur."
+
+#: ldapprov.install:118
+msgid "User's email address."
+msgstr "Adresse email de l'utilisateur."
+
+#: ldapprov.install:125
+msgid "User's first name."
+msgstr "Prénom de l'utilisateur."
+
+#: ldapprov.install:132
+msgid "User's last name."
+msgstr "Nom de l'utilisateur."
+
+#: ldapprov.install:139
+msgid "Secret code to validate e-mail address."
+msgstr "Code secret pour valider l'adresse e-mail."
+
+#: ldapprov.install:146
+msgid "Whether the user is unverified(0), pending(1), rejected(2), created(3) or deleted(4)."
+msgstr "Selon que l'utilisateur est non vérifié(0), en attente(1), rejeté(2), crée(3) ou supprimé(4)."
+
+#: ldapprov.install:152
+msgid "Timestamp for when user filed in registration form."
+msgstr "Epoch ou l'utilisateur a rempli le formulaire d'enregistrement"
+
+#: ldapprov.install:158
+msgid "A serialized array of registration data."
+msgstr "Un tableau sérialisé de données d'enregistrement."
+
+#: ldapprov.install:164
+msgid "Timestamp for when user has been approved."
+msgstr "Epoch ou l'utilisateur a été approuvé."
+
+#: ldapprov.install:171
+msgid "{users}.uid of the account approver."
+msgstr "{users}.uid de la personne ayant approuvé le compte."
+
+#: ldapprov.install:178
+msgid "{users}.name account approver's name."
+msgstr "{users}.name nom de la personne ayant approuvé le compte."
+
+#: ldapprov.install:185
+msgid "{users}.uid of the created user."
+msgstr "{users}.uid de l'utilisateur crée."
+
+#: ldapprov.install:191
+msgid "A user registration notes."
+msgstr "Notes sur l'enregistrement d'un utilisateur."
+
+#: ldapprov.info:0
+msgid "Implements LDAP users provisioning."
+msgstr "Implémente l'approvisionnement d'utilisateurs LDAP."
+
+#: ldapprov.info:0
+#: contrib/invite/ldapprov_invite.info:0
+#: contrib/invite_og/ldapprov_invite_og.info:0
+#: contrib/invite_signup/ldapprov_invite_signup.info:0
+#: contrib/samba/ldapprov_samba.info:0
+#: contrib/sip/ldapprov_sip.info:0
+msgid "LDAP integration"
+msgstr "Intégration LDAP"
+
+#: contrib/invite/ldapprov_invite.admin.inc:20
+msgid "Settings"
+msgstr "Paramètres"
+
+#: contrib/invite/ldapprov_invite.admin.inc:23
+msgid "Enable LDAP invites"
+msgstr "Autoriser les invitations LDAP"
+
+#: contrib/invite/ldapprov_invite.admin.inc:28
+msgid "\"From\" e-mail address"
+msgstr "\"De\" adresse e-mail"
+
+#: contrib/invite/ldapprov_invite.admin.inc:30;31
+msgid "Site"
+msgstr "Site"
+
+#: contrib/invite/ldapprov_invite.admin.inc:31
+msgid "Choose which e-mail address will be in the From: header for the invitation mails sent. %site will use the default e-mail address of the site, whereas %inviter will use the e-mail address of the person who is sending the invitation."
+msgstr "Choisissez quel adresse e-mail sera dans l'en-tête De: pour les e-mails d'invitation envoyés. %site utilisera l'adresse e-mail par défaut du site, alors que %inviter utilisera l'adresse e-mail de la personne envoyant l'invitation."
+
+#: contrib/invite/ldapprov_invite.admin.inc:33
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:28
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:19
+msgid "Invite email"
+msgstr "E-mail d'invitation"
+
+#: contrib/invite/ldapprov_invite.admin.inc:36
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:31
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:22
+msgid "Subject of invite e-mail"
+msgstr "Sujet de l'e-mail d'invitation"
+
+#: contrib/invite/ldapprov_invite.admin.inc:39
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:34
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:25
+msgid "Customize the subject of your invite e-mail message."
+msgstr "Personalisez le sujet de l'e-mail d'invitation."
+
+#: contrib/invite/ldapprov_invite.admin.inc:43
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:38
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:29
+msgid "Body of invite e-mail"
+msgstr "Corps de l'e-mail d'invitation"
+
+#: contrib/invite/ldapprov_invite.admin.inc:46
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:41
+#: contrib/invite_signup/ldapprov_invite_signup.admin.inc:32
+msgid "Customize the body of your invite e-mail message."
+msgstr "Personalisez le corps de l'e-mail d'invitation."
+
+#: contrib/invite/ldapprov_invite.module:111
+#: contrib/invite_og/ldapprov_invite_og.module:93
+#: contrib/invite_signup/ldapprov_invite_signup.module:58
+msgid "You have been invited to the !site"
+msgstr "Vous avez été invité au !site"
+
+#: contrib/invite/ldapprov_invite.module:113
+msgid ""
+"Your friend, !name has invited you to join !site site. You may now register to the site at \n"
+"\n"
+"!register_uri\n"
+"\n"
+"----------\n"
+"\n"
+"!message\n"
+"\n"
+"--  !site team"
+msgstr ""
+"Votre ami, !name vous a invité a rejoindre le site du !site. Vous pouvez vous enregistrer sur le site a \n"
+"\n"
+"!register_uri\n"
+"\n"
+"----------\n"
+"\n"
+"!message\n"
+"\n"
+"--  l'équipe du !site"
+
+#: contrib/invite/ldapprov_invite.module:129
+msgid "Invite a contact to the site"
+msgstr "Inviter un contact sur le site"
+
+#: contrib/invite/ldapprov_invite.module:132;231
+msgid "To"
+msgstr "Pour"
+
+#: contrib/invite/ldapprov_invite.module:135
+msgid "Type the comma separated list of e-mails of the people you would like to invite to the site."
+msgstr "Tapez une liste séparée par des virgules d'e-mails des personnes que vous aimeriez inviter sur le site."
+
+#: contrib/invite/ldapprov_invite.module:138
+msgid "Your message"
+msgstr "Votre message"
+
+#: contrib/invite/ldapprov_invite.module:140
+msgid "This message will be added to the e-mails sent to the people you are inviting to the site."
+msgstr "Ce message sera ajouté aux e-mails envoyé aux personnes que vous invitez sur le site."
+
+#: contrib/invite/ldapprov_invite.module:144;47
+#: contrib/invite_og/ldapprov_invite_og.module:30
+msgid "Invite"
+msgstr "Inviter"
+
+#: contrib/invite/ldapprov_invite.module:162
+#: contrib/invite_og/ldapprov_invite_og.module:140
+msgid "The invitation already was sent to user with e-mail address %mail."
+msgstr "L'invitation a déja été envoyée a l'utilisateur avec l'e-mail %mail."
+
+#: contrib/invite/ldapprov_invite.module:166
+msgid "The user with e-mail address %mail is already registered with the system."
+msgstr "L'utilisateur avec l'e-mail %mail est déja enregistré sur le système."
+
+#: contrib/invite/ldapprov_invite.module:214
+#: contrib/invite_og/ldapprov_invite_og.module:178
+msgid "The invite has been mailed to e-mail address %mail."
+msgstr "L'invitation a été envoyée a l'adresse %mail."
+
+#: contrib/invite/ldapprov_invite.module:230
+msgid "Sent"
+msgstr "Envoyé"
+
+#: contrib/invite/ldapprov_invite.module:232
+msgid "Status"
+msgstr "Statut"
+
+#: contrib/invite/ldapprov_invite.module:233
+msgid "Action"
+msgstr "Action"
+
+#: contrib/invite/ldapprov_invite.module:257
+msgid "Blocked"
+msgstr "Bloqué"
+
+#: contrib/invite/ldapprov_invite.module:261
+msgid "Joined"
+msgstr "Rejoint"
+
+#: contrib/invite/ldapprov_invite.module:267
+msgid "resend"
+msgstr "réenvoyer"
+
+#: contrib/invite/ldapprov_invite.module:267
+msgid "delete"
+msgstr "supprimer"
+
+#: contrib/invite/ldapprov_invite.module:283
+msgid "No invites"
+msgstr "Pas d'invitation"
+
+#: contrib/invite/ldapprov_invite.module:317
+msgid "The invitation to %mail has been deleted."
+msgstr "L'invitation de %mail a été supprimée."
+
+#: contrib/invite/ldapprov_invite.module:320
+msgid "Unable to delete the invite."
+msgstr "Impossible de supprimer l'invitation."
+
+#: contrib/invite/ldapprov_invite.module:213;217
+msgid "ldapprov_invite"
+msgstr "ldapprov_invite"
+
+#: contrib/invite/ldapprov_invite.module:213
+#: contrib/invite_og/ldapprov_invite_og.module:177
+#: contrib/invite_signup/ldapprov_invite_signup.module:163
+msgid "Invite e-mail was mailed from %name to %mail."
+msgstr "L'e-mail d'invitation a été envoyé de %name a %mail"
+
+#: contrib/invite/ldapprov_invite.module:217
+#: contrib/invite_og/ldapprov_invite_og.module:181
+#: contrib/invite_signup/ldapprov_invite_signup.module:166
+msgid "Error mailing invite e-mail from %user to %mail."
+msgstr "Erreur lors de l'envoi de l'e-mail d'invitation de %name a %mail"
+
+#: contrib/invite/ldapprov_invite.module:33;41
+msgid "Invites"
+msgstr "Invitations"
+
+#: contrib/invite/ldapprov_invite.module:34
+msgid "Configure invites for LDAP provisioning settings."
+msgstr ""
+
+#: contrib/invite/ldapprov_invite.module:51
+msgid "Manage invites"
+msgstr "Gérer les invitations"
+
+#: contrib/invite/ldapprov_invite.module:57
+msgid "Resend"
+msgstr "Réenvoyer"
+
+#: contrib/invite/ldapprov_invite.module:64
+msgid "Delete"
+msgstr "Supprimer"
+
+#: contrib/invite/ldapprov_invite.install:16
+msgid "ldapprov_invite module successfully installed. Please review the available <a href=\"@settings\">configuration settings</a>."
+msgstr "ldapprov_invite module installé avec succés. Veuillez consulter les <a href=\"@settings\">paramêtres de configuration</a> disponibles."
+
+#: contrib/invite/ldapprov_invite.install:47
+msgid "Stores LDAP provisioning invitation data."
+msgstr ""
+
+#: contrib/invite/ldapprov_invite.install:53
+msgid "The invitation ID."
+msgstr "ID d'invitation."
+
+#: contrib/invite/ldapprov_invite.install:60
+msgid "{users}.uid of the inviter."
+msgstr "{users}.uid de l'inviteur."
+
+#: contrib/invite/ldapprov_invite.install:67
+msgid "Email address an invite was sent to."
+msgstr "Adresse e-mail a laquelle une invitation a été envoyée."
+
+#: contrib/invite/ldapprov_invite.install:73
+msgid "A message was mailed in invitation."
+msgstr "Un message a été envoyé dans l'invitation."
+
+#: contrib/invite/ldapprov_invite.install:79
+msgid "A serialized array of invitation data."
+msgstr "Un tableau sérialisé d'information d'invitation."
+
+#: contrib/invite/ldapprov_invite.install:85
+msgid "{ldapprov}.rid registration ID."
+msgstr "{ldapprov}.rid ID d'enregistrement."
+
+#: contrib/invite/ldapprov_invite.install:91
+msgid "Timestamp for when an invitation was sent out."
+msgstr "Epoch a laquelle une invitation a été envoyée."
+
+#: contrib/invite/ldapprov_invite.info:0
+msgid "Provisioning invites"
+msgstr ""
+
+#: contrib/invite/ldapprov_invite.info:0
+msgid "Implements invites for LDAP users provisioning."
+msgstr ""
+
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:20
+msgid "Visibility"
+msgstr "Visibilité"
+
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:23
+msgid "Enable tab on the group's homepage"
+msgstr "Activer l'onglet sur la page d'accueil du groupe"
+
+#: contrib/invite_og/ldapprov_invite_og.admin.inc:25
+msgid "If enabled, the tab will be shown on the group's homepage. Otherwise this functionality will be available from the menu."
+msgstr "Si activé, l'onglet sera affiché sur la page d'accueil du groupe. Sinon, cette fonctionalité sera disponible dans le menu."
+
+#: contrib/invite_og/ldapprov_invite_og.module:95
+msgid ""
+"Your friend, !name has invited you to join a group \"!group\" at !site site. You may now register to the site at\n"
+"\n"
+"!register_uri\n"
+"\n"
+"----------\n"
+"\n"
+"!message\n"
+"\n"
+"--  !site team"
+msgstr ""
+"Votre ami, !name vous a invité a rejoindre le groupe \"!group\" sur le site du !site. Vous pouvez vous enregistrer sur le site a\n"
+"\n"
+"!register_uri\n"
+"\n"
+"----------\n"
+"\n"
+"!message\n"
+"\n"
+"--  l'équipe du !site"
+
+#: contrib/invite_og/ldapprov_invite_og.module:109
+msgid "Invite a contact to the group"
+msgstr "Inviter un contact au groupe"
+
+#: contrib/invite_og/ldapprov_invite_og.module:110
+msgid "If you invite a new user to the site, then upon registration the user will be subscribed to the group %group based on the group membership settings. If you invite an existing user, the user will receive an e-mail message with the invitation to join the group."
+msgstr "Si vous invitez un nouvel utilisateur au site, lors de l'enregistrement l'utilisateur sera abonné au groupe %group selon les réglages d'abonnement au groupe. Si vous invitez un utilisateur existant, il recevra un e-mail d'invitation a rejoindre ce groupe."
+
+#: contrib/invite_og/ldapprov_invite_og.module:111
+msgid "Type the comma separated list of e-mails of the people you would like to invite to the group."
+msgstr "Tapez une liste séparée par des virgules d'e-mails de personnes que vous aimeriez inviter a rejoindre le groupe."
+
+#: contrib/invite_og/ldapprov_invite_og.module:113
+msgid "This message will be added to the e-mails sent to the people you are inviting to the group."
+msgstr "Ce message sera ajouté aux e-mails envoyés aux personnes que vous invitez a rejoindre le groupe."
+
+#: contrib/invite_og/ldapprov_invite_og.module:131
+#: contrib/invite_signup/ldapprov_invite_signup.module:85
+msgid "You may not invite yourself - @self."
+msgstr "Vous ne pouvez pas vous inviter vous-même - @self."
+
+#: contrib/invite_og/ldapprov_invite_og.module:136
+#: contrib/invite_signup/ldapprov_invite_signup.module:91
+msgid "A user %name with the e-mail address %mail is blocked."
+msgstr "Un utilisateur %name avec l'e-mail %mail est bloqué."
+
+#: contrib/invite_og/ldapprov_invite_og.module:138
+msgid "A user %name with the e-mail address %mail is already a member of the group."
+msgstr "Un utilisateur %name avec l'e-mail %mail est déja membre du groupe."
+
+#: contrib/invite_og/ldapprov_invite_og.module:147
+#: contrib/invite_signup/ldapprov_invite_signup.module:104
+msgid "Invalid email address: @value."
+msgstr "Adresse e-mail invalide : @value."
+
+#: contrib/invite_og/ldapprov_invite_og.module:189
+msgid "Group !group"
+msgstr "Groupe !group"
+
+#: contrib/invite_og/ldapprov_invite_og.module:177;181
+msgid "ldapprov_invite_og"
+msgstr "ldapprov_invite_og"
+
+#: contrib/invite_og/ldapprov_invite_og.module:22
+msgid "OG"
+msgstr "OG"
+
+#: contrib/invite_og/ldapprov_invite_og.module:23
+msgid "Configure OG invites for LDAP provisioning settings."
+msgstr "Configurer les invitations OG pour l'approvisionnement LDAP."
+
+#: contrib/invite_og/ldapprov_invite_og.module:39
+msgid "Invite autocomlete"
+msgstr "Autocomplétion des invitations"
+
+#: contrib/invite_og/ldapprov_invite_og.install:16
+msgid "ldapprov_invite_og module successfully installed. Please review the available <a href=\"@settings\">configuration settings</a>."
+msgstr "module ldapprov_invite_og installé avec succès. Veuillez consulter les <a href=\"@settings\">paramêtres de configuration</a> disponibles."
+
+#: contrib/invite_og/ldapprov_invite_og.info:0
+msgid "Provisioning OG invites"
+msgstr ""
+
+#: contrib/invite_og/ldapprov_invite_og.info:0
+msgid "Implements OG invites for LDAP users provisioning."
+msgstr ""
+
+#: contrib/invite_signup/ldapprov_invite_signup.module:60
+msgid ""
+"Your friend, !name has invited you to signup for a \"!title\" at !site site. You may now register to the site at\n"
+"\n"
+"!register_uri\n"
+"\n"
+"----------\n"
+"\n"
+"!message\n"
+"\n"
+"--  !site team"
+msgstr ""
+"Votre ami, !name vous a invité a vous abonner pour un \"!title\" au site !site. Vous pouvez vous enregister sur le site a\n"
+"\n"
+"!register_uri\n"
+"\n"
+"----------\n"
+"\n"
+"!message\n"
+"\n"
+"--  l'équipe du !site"
+
+#: contrib/invite_signup/ldapprov_invite_signup.module:94
+msgid "A user %name with the e-mail address %mail is already signuped to the node."
+msgstr "Un utilisateur %name avec l'e-mail est déja abonné au noeud."
+
+#: contrib/invite_signup/ldapprov_invite_signup.module:128
+msgid "Node !title"
+msgstr "Noeud !title"
+
+#: contrib/invite_signup/ldapprov_invite_signup.module:163;166
+msgid "ldapprov_invite_status"
+msgstr ""
+
+#: contrib/invite_signup/ldapprov_invite_signup.module:18
+msgid "Signup"
+msgstr ""
+
+#: contrib/invite_signup/ldapprov_invite_signup.module:19
+msgid "Configure signup invites for LDAP provisioning settings."
+msgstr ""
+
+#: contrib/invite_signup/ldapprov_invite_signup.install:16
+msgid "ldapprov_invite_signup module successfully installed. Please review the available <a href=\"@settings\">configuration settings</a>."
+msgstr ""
+
+#: contrib/invite_signup/ldapprov_invite_signup.info:0
+msgid "Provisioning signup invites"
+msgstr ""
+
+#: contrib/invite_signup/ldapprov_invite_signup.info:0
+msgid "Implements signup invites for LDAP users provisioning."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:20
+msgid "Samba extensions"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:23
+msgid "Enable Samba extensions"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:28
+msgid "Samba LDAP attributes"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:31
+msgid "Customize the LDAP Samba attributes in LDIF style. Available variables are: !uid_number, !gid_number, !name, !samba_sid, !primary_group_id, !pwd_next_timestamp, !pwd_timestamp, !lm_pass, !nt_pass. Empty lines and lines starting with \"#\" will be ignored."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:35
+msgid "Samba Domain SID"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:39
+msgid "Type 'net getlocalsid' on your Samba server to get SID."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:43
+msgid "Default Samba Group"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:47
+msgid "Name (cn) of the default Samba group for all new users."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:51
+msgid "Samba Groups' Base DN"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:55
+msgid "Base DN of the Samba groups. Leave it empty if it is the same as LDAP server's Base DN."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:59
+msgid "Samba Password Expiration"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.admin.inc:63
+msgid "Samba password expiration period in days."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:65;89;174;192;245
+msgid "ldapprov_samba"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:65
+msgid "User delete: user data could not be written in the LDAP directory. Could not bind as %dn."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:89
+#: contrib/sip/ldapprov_sip.module:129
+msgid "User create: user data could not be written in the LDAP directory. Could not bind as %dn."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:174
+#: contrib/sip/ldapprov_sip.module:211
+msgid "User view: user data could not be written in the LDAP directory. Could not bind as %dn."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:192;245
+#: contrib/sip/ldapprov_sip.module:232
+msgid "User edit: user data could not be written in the LDAP directory. Could not bind as %dn."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:39
+msgid "Samba"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.module:40
+msgid "Configure LDAP provisioning Samba settings."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.install:16
+msgid "ldapprov_samba module successfully installed. Please review the available <a href=\"@settings\">configuration settings</a>."
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.info:0
+msgid "Provisioning Samba"
+msgstr ""
+
+#: contrib/samba/ldapprov_samba.info:0
+msgid "Adds LDAP Samba extensions upon creation of a new usere via LDAP provisioning."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.admin.inc:20
+msgid "SIP extensions"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.admin.inc:23
+msgid "Enable SIP extensions"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.admin.inc:28
+msgid "SIP name"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.admin.inc:32
+msgid "Customize the SIP name !sip_name variable used in SIP attributes. Available variables are: !name (drupal user name), !ldap_ou (LDAP organizational unit ou)."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.admin.inc:36
+msgid "SIP LDAP attributes"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.admin.inc:39
+msgid "Customize the LDAP SIP attributes in LDIF style. Available variables are: !sip_name, !sip_pass, !sip_voicemail_pass. Empty lines and lines starting with \"#\" will be ignored."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:51
+msgid "SIP settings"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:58
+msgid "Voice mail password"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:62
+msgid "Your four digits voice mail password."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:71
+msgid "The voice mail password should be four digits."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:197
+msgid "SIP number"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:198;26
+msgid "SIP"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:129;171;188;211;232
+msgid "ldapprov_sip"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:171;188
+msgid "User view: user data could not be read in the LDAP directory. Could not bind as %dn."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.module:27
+msgid "Configure LDAP provisioning SIP settings."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.install:16
+msgid "ldapprov_sip module successfully installed. Please review the available <a href=\"@settings\">configuration settings</a>."
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.info:0
+msgid "Provisioning SIP"
+msgstr ""
+
+#: contrib/sip/ldapprov_sip.info:0
+msgid "Adds LDAP SIP extensions upon creation of a new usere via LDAP provisioning."
+msgstr ""
+
