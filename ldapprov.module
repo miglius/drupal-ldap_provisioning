@@ -1982,7 +1982,7 @@ function _ldapprov_create_user($data) {
     // Signup integration
     if (module_exists('signup') && user_access('sign up for content', $account) && isset($data['signups'])) {
       foreach (array_filter($data['signups']) as $nid) {
-        signup_sign_up_user(array('nid' => $nid, 'uid' => $account->uid));
+        signup_sign_up_user(array('nid' => $nid, 'uid' => $account->uid, 'signup_form_data' => array('Name' => $first_name .' '. $last_name)));
         if (module_exists('signup_status')) {
           $sid = db_last_insert_id('signup_log', 'sid');
           _signup_status_change('insert', (object)array('sid' => $sid, 'uid' => $account->uid, 'nid' => $nid, 'anon_mail' => '', 'status' => SIGNUP_STATUS_INVITE_STATUS));
