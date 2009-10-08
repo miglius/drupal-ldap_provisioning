@@ -1321,7 +1321,7 @@ function ldapprov_list_submit($form, &$form_state) {
     case 'create':
       $batch = array(
         'operations' => array(
-          array('ldapprov_user_create_batch_process', array($values['requests'], $register_form)),
+          array('ldapprov_user_create_batch_process', array($values, $register_form)),
         ),
         'finished' => 'ldapprov_user_create_batch_finished',
         'title' => t('Processing user creation'),
@@ -1342,14 +1342,14 @@ function ldapprov_list_submit($form, &$form_state) {
 /**
  * Batch Operation Callback.
  */
-function ldapprov_user_create_batch_process($requests, &$form, &$context) {
+function ldapprov_user_create_batch_process($values, &$form, &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
-    $context['sandbox']['max'] = count($requests);
+    $context['sandbox']['max'] = count($values['requests']);
   }
 
   if ($context['sandbox']['max'] > 0) {
-    $result = db_query("SELECT * FROM {ldapprov} WHERE rid = %d", $requests[$context['sandbox']['progress']]);
+    $result = db_query("SELECT * FROM {ldapprov} WHERE rid = %d", $values['requests'][$context['sandbox']['progress']]);
     $row = db_fetch_object($result);
     $data = unserialize($row->data);
     $data['rid'] = $row->rid;
