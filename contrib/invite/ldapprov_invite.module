@@ -182,7 +182,7 @@ function ldapprov_invite_form_submit($form, &$form_state, $data = array()) {
     // Sending invite.
     $hash = _ldapprov_hash($mail, $time);
 
-    $result = db_query("SELECT l.* FROM {ldapprov} l WHERE l.mail = '%s' AND l.status < '2'", $mail);
+    $result = db_query("SELECT * FROM {ldapprov} WHERE mail = '%s' AND status < %d", $mail, 2);
     if ($row = db_fetch_object($result)) {
       $hash = $row->code;
       $rid = $row->rid;
@@ -333,7 +333,7 @@ function ldapprov_invite_ldapuser($account) {
   if (!isset($account->rid))
     return;
 
-  $result = db_query("SELECT li.* FROM {ldapprov_invite} li WHERE li.rid = %d", $account->rid);
+  $result = db_query("SELECT * FROM {ldapprov_invite} WHERE rid = %d", $account->rid);
   while ($row = db_fetch_object($result)) {
     $data = unserialize($row->data);
     if (!empty($data)) {
@@ -347,11 +347,18 @@ function ldapprov_invite_ldapuser($account) {
  */
 function ldapprov_invite_ldapinvites($rid) {
   $rows = array();
-  $result = db_query("SELECT li.* FROM {ldapprov_invite} li WHERE li.rid = %d", $rid);
+  $result = db_query("SELECT * FROM {ldapprov_invite} WHERE rid = %d", $rid);
   while ($row = db_fetch_object($result)) {
     $row->data = unserialize($row->data);
     $rows[] = $row;
   }
   return $rows;
+}
+
+/**
+ * Implementation of hook_ldapdelete().
+ */
+function ldapprov_invite_ldapdelete($rid) {
+  db_query("DELETE FROM {ldapprov_invite} WHERE rid = %d", $rid);
 }
 

@@ -739,9 +739,8 @@ function ldapprov_register_validate($form, &$form_state) {
  */
 function _ldapprov_register_validate($values, $messages = TRUE) {
   global $_ldapprov_ldap;
-
   // When doing mass account creation, check for errors, but don't set form errors.
-  $errors = 0;
+  $errors = array();
 
   $basedn = $_ldapprov_ldap->getOption('basedn');
   $name_attr = $_ldapprov_ldap->getOption('user_attr') ? $_ldapprov_ldap->getOption('user_attr') : LDAP_DEFAULT_USER_ATTRIBUTE;
@@ -749,17 +748,29 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
   // When user is allowed to select a username.
   if (LDAPPROV_ALLOW_USERNAME) {
     if (preg_match('/^\s+/', $values['name'])) {
-      $errors = ($messages) ? form_set_error('name', t('Username cannot begin with a space.')) : $errors + 1;
+      $errors[] = t('Username cannot begin with a space.');
+      if ($messages) {
+        form_set_error('name', end($errors));
+      }
     }
     if (preg_match('/\s+$/', $values['name'])) {
-      $errors = ($messages) ? form_set_error('name', t('Username cannot end with a space.')) : $errors + 1;
+      $errors[] = t('Username cannot end with a space.');
+      if ($messages) {
+        form_set_error('name', end($errors));
+      }
     }
     if (preg_match('/[^\w\s]+/', $values['name'])) {
-      $errors = ($messages) ? form_set_error('name', t('Username should contain only letters, numbers and spaces.')) : $errors + 1;
+      $errors[] = t('Username should contain only letters, numbers and spaces.');
+      if ($messages) {
+        form_set_error('name', end($errors));
+      }
     }
     $result = db_query("SELECT uid FROM {users} WHERE name = '%s'", $values['name']);
     if ($user = db_fetch_object($result)) {
-      $errors = ($messages) ? form_set_error('name', t('The username %name is already taken. Please choose different one.', array('%name' => $values['name']))) : $errors + 1;
+      $errors[] = t('The username %name is already taken. Please choose different one.', array('%name' => $values['name']));
+      if ($messages) {
+        form_set_error('name', end($errors));
+      }
     }
 
     // When ldap users are in sync with drupal users, ldap search is not needed.
@@ -770,18 +781,27 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
     }
 
     if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $values['name'] .')', array('mail'))) {
-      $errors = ($messages) ? form_set_error('name', t('The username %name is already taken. Please choose different one.', array('%name' => $values['name']))) : $errors + 1;
+      $errors[] = t('The username %name is already taken. Please choose different one.', array('%name' => $values['name']));
+      if ($messages) {
+        form_set_error('name', end($errors));
+      }
     }
 
     $_ldapprov_ldap->disconnect();
   }
 
   if (!valid_email_address($values['mail'])) {
-    $errors = ($messages) ? form_set_error('mail', t('The e-mail address %mail is not valid.', array('%mail' => $values['mail']))) : $errors + 1;
+    $errors[] = t('The e-mail address %mail is not valid.', array('%mail' => $values['mail']));
+    if ($messages) {
+      form_set_error('mail', end($errors));
+    }
   }
-  $result = db_query("SELECT uid FROM {users} WHERE mail = '%s'", $values['mail']);
+  $result = db_query("SELECT uid, name FROM {users} WHERE mail = '%s'", $values['mail']);
   if ($user = db_fetch_object($result)) {
-    $errors = ($messages) ? form_set_error('mail', t('The user with e-mail address %mail is already registered with the system. Click !request if you forgot your login information.', array('%mail' => $values['mail'], '!request' => l(t('request new password'), 'user/password')))) : $errors + 1;
+    $errors[] = t(array_key_exists('suppress_mail', $values) ? 'The user !name with e-mail address %mail is already registered with the system.' : 'The user with e-mail address %mail is already registered with the system. Click !request if you forgot your login information.', array('!name' => l($user->name, 'user/'. $user->uid), '%mail' => $values['mail'], '!request' => l(t('request new password'), 'user/password')));
+    if ($messages) {
+      form_set_error('mail', end($errors));
+    }
   }
 
   // When ldap users are in sync with drupal users, ldap search is not needed.
@@ -792,7 +812,10 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
   }
 
   if ($ret = $_ldapprov_ldap->search($_ldapprov_ldap->getOption('basedn'), '(mail='. $values['mail'] .')', array('mail'))) {
-    $errors = ($messages) ? form_set_error('mail', t('The user with e-mail address %mail is already registered with the system. Click !request if you forgot your login information.', array('%mail' => $values['mail'], '!request' => l(t('request new password'), 'user/password')))) : $errors + 1;
+    $errors[] = t(array_key_exists('suppress_mail', $values) ? 'The user with e-mail address %mail is already registered with the LDAP.' : 'The user with e-mail address %mail is already registered with the LDAP. Click !request if you forgot your login information.', array('%mail' => $values['mail'], '!request' => l(t('request new password'), 'user/password')));
+    if ($messages) {
+      form_set_error('mail', end($errors));
+    }
   }
 
   $_ldapprov_ldap->disconnect();
@@ -828,32 +851,56 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
 
     // Username is constructed for the user.
     if (isset($first_name) && preg_match('/^\s+/', $first_name)) {
-      $errors = ($messages) ? form_set_error('first_name', t('First Name cannot begin with a space.')) : $errors + 1;
+      $errors[] = t('First Name cannot begin with a space.');
+      if ($messages) {
+        form_set_error('first_name', end($errors));
+      }
     }
     if (isset($first_name) && preg_match('/\s+$/', $first_name)) {
-      $errors = ($messages) ? form_set_error('first_name', t('First Name cannot end with a space.')) : $errors + 1;
+      $errors[] = t('First Name cannot end with a space.');
+      if ($messages) {
+        form_set_error('first_name', end($errors));
+      }
     }
     if (isset($first_name) && preg_match('/[^a-zA-Z\'-\s]+/', $first_name)) {
-      $errors = ($messages) ? form_set_error('first_name', t('First Name should contain only latin letters, apostrophe, dash or space.')) : $errors + 1;
+      $errors[] = t('First Name should contain only latin letters, apostrophe, dash or space.');
+      if ($messages) {
+        form_set_error('first_name', end($errors));
+      }
     }
     /*
     elseif ($first_bad) {
-      $errors = ($messages) ? form_set_error('first_name', t('First Name should not contain %chars characters.', array('%chars' => $first_bad))) : $errors + 1;
+      $errors[] = t('First Name should not contain %chars characters.', array('%chars' => $first_bad));
+      if ($messages) {
+        form_set_error('first_name', end($errors));
+      }
     }
     */
 
     if (isset($last_name) && preg_match('/^\s+/', $last_name)) {
-      $errors = ($messages) ? form_set_error('last_name', t('Last Name cannot begin with a space.')) : $errors + 1;
+      $errors[] = t('Last Name cannot begin with a space.');
+      if ($messages) {
+        form_set_error('last_name', end($errors));
+      }
     }
     if (isset($last_name) && preg_match('/\s+$/', $last_name)) {
-      $errors = ($messages) ? form_set_error('last_name', t('Last Name cannot end with a space.')) : $errors + 1;
+      $errors[] = t('Last Name cannot end with a space.');
+      if ($messages) {
+        form_set_error('last_name', end($errors));
+      }
     }
     if (isset($last_name) && preg_match('/[^a-zA-Z\'-\s]+/', $last_name)) {
-      $errors = ($messages) ? form_set_error('last_name', t('Last Name should contain only latin letters, apostrophe, dash or space.')) : $errors + 1;
+      $errors[] = t('Last Name should contain only latin letters, apostrophe, dash or space.');
+      if ($messages) {
+        form_set_error('last_name', end($errors));
+      }
     }
     /*
     elseif ($last_bad) {
-      $errors = ($messages) ? form_set_error('last_name', t('Last Name should not contain %chars characters.', array('%chars' => $last_bad))) : $errors + 1;
+      $errors[] = t('Last Name should not contain %chars characters.', array('%chars' => $last_bad));
+      if ($messages) {
+        form_set_error('last_name', end($errors));
+      }
     }
     */
   }
@@ -861,10 +908,16 @@ function _ldapprov_register_validate($values, $messages = TRUE) {
 
     // Custom usernames are not allowed.
     if (preg_match('/^\s+$/', $first_name)) {
-      $errors = ($messages) ? form_set_error('first_name', t('First Name can not contain only whitespace characters.')) : $errors + 1;
+      $errors[] = t('First Name can not contain only whitespace characters.');
+      if ($messages) {
+        form_set_error('first_name', end($errors));
+      }
     }
     if (preg_match('/^\s+$/', $last_name)) {
-      $errors = ($messages) ? form_set_error('last_name', t('Last Name can not contain only whitespace characters.')) : $errors + 1;
+      $errors[] = t('Last Name can not contain only whitespace characters.');
+      if ($messages) {
+        form_set_error('last_name', end($errors));
+      }
     }
   }
 
@@ -1129,6 +1182,16 @@ function _ldapprov_code_submit($values) {
 // Account management
 
 /**
+ * LDAP provisioning tabs.
+ *
+ * @return
+ *   An array with the status pointing to a tab.
+ */
+function _ldapprov_tabs() {
+  return array('unverified', 'pending', 'rejected', 'created', 'deleted');
+}
+
+/**
  * List account requests.
  *
  * @param $status
@@ -1138,11 +1201,16 @@ function _ldapprov_code_submit($values) {
  *   A HTML page.
  */
 function ldapprov_list($status = 'pending') {
-  $page = drupal_get_form('ldapprov_list_form', $status);
+  if (isset($_POST['operation']) && $_POST['operation'] == 'delete' && isset($_POST['requests'])) {
+    $page = drupal_get_form('ldapprov_list_delete_confirm');
+  }
+  else {
+    $page = drupal_get_form('ldapprov_list_form', $status);
 
-  // Print batch users upload form.
-  if ($status == 'pending') {
-    $page .= drupal_get_form('ldapprov_attach');
+    // Print batch users upload form.
+    if ($status == 'pending') {
+      $page .= drupal_get_form('ldapprov_attach');
+    }
   }
   return $page;
 }
@@ -1162,12 +1230,18 @@ function ldapprov_list_form(&$form_state, $tab) {
   // Possible $status values are.
   // unverified(0), pending(1), rejected(2), created(3), deleted(4).
 
-  $tabs = array('unverified', 'pending', 'rejected', 'created', 'deleted');
+  $tabs = _ldapprov_tabs();;
   $status = array_search($tab, $tabs);
 
   // Action options.
   if ($status != 3) {
     $form['options'] = array('#type' => 'fieldset', '#title' => t('Update options'));
+    $form['options']['suppress_mail'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Suppress e-mail messages'),
+      '#description' => t('If checked no e-mail message will be sent out on the below account request action.'),
+    );
+
     if (module_exists('og')) {
       $og_types = array(OG_OPEN, OG_MODERATED);
       $result = db_query('SELECT og.nid, n.title FROM {og} og JOIN {node} n ON og.nid = n.nid WHERE og.og_selective IN ('. db_placeholders($og_types) .') ORDER BY n.title', $og_types);
@@ -1200,10 +1274,11 @@ function ldapprov_list_form(&$form_state, $tab) {
       );
     }
     $options = array();
-    $options['create'] = t('Create the selected users');
+    $options['create'] = t('Create the selected accounts');
     if ($status < 2) {
-      $options['reject'] = t('Reject the selected users');
+      $options['reject'] = t('Reject the selected account requests');
     }
+    $options['delete'] = t('Delete the selected account requests');
     $form['options']['operation'] = array(
       '#type' => 'select',
       '#options' => $options,
@@ -1303,6 +1378,11 @@ function ldapprov_list_form(&$form_state, $tab) {
  * List account requests form validation.
  */
 function ldapprov_list_validate($form, &$form_state) {
+  $requests = isset($form_state['values']['requests']) ? array_filter($form_state['values']['requests']) : array();
+  if (count($requests) == 0) {
+    form_set_error('', t('No requests selected.'));
+  }
+
   if (module_exists('signup')) {
     _ldapprov_signup_validate($form, $form_state);
   }
@@ -1333,9 +1413,43 @@ function ldapprov_list_submit($form, &$form_state) {
       break;
     case 'reject':
       foreach ($values['requests'] as $rid) {
-        _ldapprov_reject_user(array('rid' => $rid));
+        _ldapprov_reject_user(array('rid' => $rid, 'suppress_mail' => $values['suppress_mail'] == 1 ? TRUE : FALSE));
       }
       break;
+  }
+}
+
+/**
+ * Requests deletion confirm form.
+ */
+function ldapprov_list_delete_confirm(&$form_state) {
+  $values = $form_state['post'];
+  if (!isset($values['requests'])) {
+    form_set_error('', t('No requests selected.'));
+    return;
+  }
+  $values['requests'] = array_values(array_filter($values['requests']));
+  $form['requests'] = array('#prefix' => '<ul>', '#suffix' => '</ul>', '#tree' => TRUE);
+  foreach ($values['requests'] as $rid) {
+    $mail = db_result(db_query("SELECT mail FROM {ldapprov} WHERE rid = %d", $rid));
+    $form['requests'][$rid] = array('#type' => 'hidden', '#value' => $rid, '#prefix' => '<li>', '#suffix' => check_plain($mail) ."</li>\n");
+  }
+  $form['operation'] = array('#type' => 'hidden', '#value' => 'delete');
+  $tabs = _ldapprov_tabs();
+  return confirm_form($form, t('Are you sure you want to delete these account requests?'), 'admin/user/accounts/'. $tabs[$values['status']], t('This action cannot be undone.'), t('Delete all'), t('Cancel'));
+}
+
+/**
+ * Requests deletion.
+ */
+function ldapprov_list_delete_confirm_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['confirm']) {
+    foreach ($values['requests'] as $rid) {
+      db_query("DELETE FROM {ldapprov} WHERE rid = %d", $rid);
+      module_invoke_all('ldapdelete', $rid);
+    }
+    drupal_set_message(t('The requests have been deleted.'));
   }
 }
 
@@ -1359,6 +1473,8 @@ function ldapprov_user_create_batch_process($values, &$form, &$context) {
     $data['mail'] = $row->mail;
     $data['og_groups'] = isset($values['og_groups']) ? $values['og_groups'] : array();
     $data['signups'] = isset($values['signups']) ? $values['signups'] : array();
+    $data['suppress_mail'] = $values['suppress_mail'] == 1 ? TRUE : FALSE;
+    $status = $row->status;
 
     // Validate the data.
     // Validate using common validation function.
@@ -1367,16 +1483,16 @@ function ldapprov_user_create_batch_process($values, &$form, &$context) {
     // Check required fields.
     foreach ($data as $key => $val) {
       if (!isset($val) || $val == '') {
-        $errors += _ldapprov_check_required($form, $key);
+        $errors = array_merge($errors, _ldapprov_check_required($form, $key));
       }
     }
 
     // Check if the user with the same name already created in the system.
     if (!LDAPPROV_ALLOW_USERNAME) {
       $name = _ldapprov_make_username($data['first_name'], $data['last_name']);
-      $result = db_query("SELECT mail FROM {users} WHERE name = '%s'", $name);
+      $result = db_query("SELECT uid FROM {users} WHERE name = '%s'", $name);
       if ($row = db_fetch_object($result)) {
-        $errors++;
+        $errors[] = t('A user with the name !name is already created in the system.', array('!name' => l($name, 'user/'. $row->uid)));
       }
       else {
         // When ldap users are in sync with drupal users, ldap search is not needed.
@@ -1390,15 +1506,15 @@ function ldapprov_user_create_batch_process($values, &$form, &$context) {
           drupal_set_message(t('User creation: user data could not be read in the LDAP directory. Please contact site administrator.'), 'error');
         }
         if ($ret = $_ldapprov_ldap->search($basedn, '('. $name_attr .'='. $name .')', array('mail'))) {
-          $errors++;
+          $errors[] = t('A user with the name %name is already created in the LDAP.', array('%name' => $name));
         }
         $_ldapprov_ldap->disconnect();
       }
     }
 
-    if ($errors > 0) {
+    if (count($errors) > 0) {
       $context['message'] = t('User with an e-mail address %mail was not created.', array('%mail' => $data['mail']));
-      $context['results'][1][] = $data['mail'];
+      $context['results'][1][] = array('mail' => $data['mail'], 'rid' => $data['rid'], 'status' => $status, 'errors' => $errors);
     }
     else {
 
@@ -1412,8 +1528,9 @@ function ldapprov_user_create_batch_process($values, &$form, &$context) {
         }
       }
       else {
+        $errors[] = t('The creation of the user failed.');
         $context['message'] = t('User with an e-mail address %mail was not created.', array('%mail' => $data['mail']));
-        $context['results'][1][] = $data['mail'];
+        $context['results'][1][] = array('mail' => $data['mail'], 'rid' => $data['rid'], 'status' => $status, 'errors' => $errors);
       }
     }
   }
@@ -1435,7 +1552,10 @@ function ldapprov_user_create_batch_finished($success, $results, $operations) {
       drupal_set_message(t('Following users were created.') . theme('item_list', $results[0]));
     }
     if (isset($results[1]) && count($results[1]) > 0) {
-      drupal_set_message(t('Users with the following e-mails were not created. Please create them manually.') . theme('item_list', $results[1]), 'error');
+      $tabs = _ldapprov_tabs();
+      foreach ($results[1] as $error) {
+        drupal_set_message(t('User with the %mail e-mail was not created. Please create it !link.', array('%mail' => $error['mail'], '!link' => l(t('manually'), 'admin/user/accounts/'. $tabs[$error['status']] .'/create/'. $error['rid']))) . theme('item_list', $error['errors']), 'error');
+      }
     }
   }
   else {
@@ -1457,19 +1577,19 @@ function ldapprov_user_create_batch_finished($success, $results, $operations) {
  *   A number of required elements.
  */
 function _ldapprov_check_required($form_element, $name) {
-  $err = 0;
+  $err = array();
 
   if (is_array($form_element)) {
     foreach ($form_element as $key => $val) {
       if ($key === $name) {
         foreach ($val as $k => $v) {
           if ($k == '#required' && $val[$k] == 1) {
-            $err++;
+            $err[] = t('A field %field is required.', array('%field' => $val['#title']));
           }
         }
       }
       else {
-        $err += _ldapprov_check_required($val, $name);
+        $err = array_merge($err, _ldapprov_check_required($val, $name));
       }
     }
   }
@@ -1493,7 +1613,7 @@ function _ldapprov_check_required($form_element, $name) {
 function ldapprov_create(&$form_state, $tab, $rid = NULL) {
   global $user;
 
-  $tabs = array('unverified', 'pending', 'rejected', 'created', 'deleted');
+  $tabs = _ldapprov_tabs();
   $status = $tab == 'new' ? NULL : array_search($tab, $tabs);
 
   if (isset($status) && is_numeric($rid)) {
@@ -1658,6 +1778,13 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     '#default_value' => isset($data['notes']) ? $data['notes'] : NULL,
   );
 
+  $form['ldapprov_options'] = array('#type' => 'fieldset', '#title' => t('Options'), '#collapsible' => FALSE, '#collapsed' => FALSE, '#weight' => '6');
+  $form['ldapprov_options']['suppress_mail'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Suppress e-mail messages'),
+    '#description' => t('If checked no e-mail message will be sent out to the account requester.'),
+  );
+
   $form['rid'] = array(
     '#type' => 'hidden',
     '#value' => $rid,
@@ -1737,7 +1864,7 @@ function ldapprov_create_validate($form, &$form_state) {
 
   // Remember the tab.
   $status = 1;
-  $tabs = array('unverified', 'pending', 'rejected', 'created', 'deleted');
+  $tabs = _ldapprov_tabs();
   if (isset($values['rid'])) {
     $result = db_query("SELECT rid, status FROM {ldapprov} WHERE rid = %d", $values['rid']);
     $row = db_fetch_object($result);
@@ -1786,7 +1913,7 @@ function ldapprov_create_submit($form, &$form_state) {
       drupal_set_message(t('The new user was not created. Please contact site administrator.'), 'error');
     }
   }
-  $tabs = array('unverified', 'pending', 'rejected', 'created', 'deleted');
+  $tabs = _ldapprov_tabs();
   $form_state['redirect'] = 'admin/user/accounts/'. $tabs[$values['status']];
 }
 
@@ -1960,14 +2087,16 @@ function _ldapprov_create_user($data) {
     }
 
     // Mail one time login URL and instructions.
-    $variables = array('!mailto' => $data['mail'], '!first_name' => $first_name, '!last_name' => $last_name, '!username' => $name, '!password' => $pass, '!message' => isset($data['message']) ? $data['message'] : NULL);
-    $params = array('account' => $account, 'variables' => $variables);
-    $message = drupal_mail('ldapprov', 'create', $account->mail, user_preferred_language($account), $params);
-    if ($message['result']) {
-      watchdog('ldapprov', 'Account creation notification e-mail mailed to %name at %mail.', array('%name' => $name, '%mail' => $data['mail']));
-    }
-    else {
-      watchdog('ldapprov', 'Error mailing account creation notification to %name at %mail.', array('%name' => $name, '%mail' => $data['mail']), WATCHDOG_ERROR);
+    if (!$data['suppress_mail']) {
+      $variables = array('!mailto' => $data['mail'], '!first_name' => $first_name, '!last_name' => $last_name, '!username' => $name, '!password' => $pass, '!message' => isset($data['message']) ? $data['message'] : NULL);
+      $params = array('account' => $account, 'variables' => $variables);
+      $message = drupal_mail('ldapprov', 'create', $account->mail, user_preferred_language($account), $params);
+      if ($message['result']) {
+        watchdog('ldapprov', 'Account creation notification e-mail mailed to %name at %mail.', array('%name' => $name, '%mail' => $data['mail']));
+      }
+      else {
+        watchdog('ldapprov', 'Error mailing account creation notification to %name at %mail.', array('%name' => $name, '%mail' => $data['mail']), WATCHDOG_ERROR);
+      }
     }
 
     // OG integration.
@@ -2076,14 +2205,16 @@ function _ldapprov_reject_user($data) {
   drupal_set_message(t('The account request for %first %last (%mail) has been rejected.', array('%first' => $row->first_name, '%last' => $row->last_name, '%mail' => $row->mail)));
 
   // Mail the user about rejection.
-  $variables = array('!mailto' => $row->mail, '!first_name' => $row->first_name, '!last_name' => $row->last_name, '!message' => isset($data['message']) ? $data['message'] : NULL);
-  $params = array('variables' => $variables);
-  $message = drupal_mail('ldapprov', 'reject', $row->mail, language_default(), $params);
-  if ($message['result']) {
-    watchdog('ldapprov', 'E-mail rejection message mailed to %first_name %last_name at %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $row->mail));
-  }
-  else {
-    watchdog('ldapprov', 'Error mailing rejection e-mail to %first_name %last_name at %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $row->mail), WATCHDOG_ERROR);
+  if (!$data['suppress_mail']) {
+    $variables = array('!mailto' => $row->mail, '!first_name' => $row->first_name, '!last_name' => $row->last_name, '!message' => isset($data['message']) ? $data['message'] : NULL);
+    $params = array('variables' => $variables);
+    $message = drupal_mail('ldapprov', 'reject', $row->mail, language_default(), $params);
+    if ($message['result']) {
+      watchdog('ldapprov', 'E-mail rejection message mailed to %first_name %last_name at %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $row->mail));
+    }
+    else {
+      watchdog('ldapprov', 'Error mailing rejection e-mail to %first_name %last_name at %mail.', array('%first_name' => $row->first_name, '%last_name' => $row->last_name, '%mail' => $row->mail), WATCHDOG_ERROR);
+    }
   }
 }
 
