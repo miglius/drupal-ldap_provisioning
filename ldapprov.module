@@ -130,6 +130,12 @@ function ldapprov_menu() {
       'access arguments' => array(LDAPPROV_PERMISSION),
       'type' => MENU_LOCAL_TASK,
     ),
+    'admin/user/accounts/pending/delete' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_confirm_delete', 3),
+      'access arguments' => array(LDAPPROV_PERMISSION),
+      'type' => MENU_CALLBACK,
+    ),
     'admin/user/accounts/created' => array(
       'title' => 'Created',
       'page callback' => 'ldapprov_list',
@@ -158,6 +164,12 @@ function ldapprov_menu() {
       'access arguments' => array(LDAPPROV_PERMISSION),
       'type' => MENU_LOCAL_TASK,
     ),
+    'admin/user/accounts/rejected/delete' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_confirm_delete', 3),
+      'access arguments' => array(LDAPPROV_PERMISSION),
+      'type' => MENU_CALLBACK,
+    ),
     'admin/user/accounts/deleted' => array(
       'title' => 'Deleted',
       'page callback' => 'ldapprov_list',
@@ -171,6 +183,12 @@ function ldapprov_menu() {
       'page arguments' => array('ldapprov_create', 3),
       'access arguments' => array(LDAPPROV_PERMISSION),
       'type' => MENU_LOCAL_TASK,
+    ),
+    'admin/user/accounts/deleted/delete' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_confirm_delete', 3),
+      'access arguments' => array(LDAPPROV_PERMISSION),
+      'type' => MENU_CALLBACK,
     ),
     'admin/user/accounts/unverified' => array(
       'title' => 'Unverified',
@@ -186,6 +204,12 @@ function ldapprov_menu() {
       'page arguments' => array('ldapprov_create', 3),
       'access arguments' => array(LDAPPROV_PERMISSION),
       'type' => MENU_LOCAL_TASK,
+    ),
+    'admin/user/accounts/unverified/delete' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('ldapprov_confirm_delete', 3),
+      'access arguments' => array(LDAPPROV_PERMISSION),
+      'type' => MENU_CALLBACK,
     ),
     'admin/user/accounts/new' => array(
       'title' => 'Create user',
@@ -1230,7 +1254,7 @@ function ldapprov_list_form(&$form_state, $tab) {
   // Possible $status values are.
   // unverified(0), pending(1), rejected(2), created(3), deleted(4).
 
-  $tabs = _ldapprov_tabs();;
+  $tabs = _ldapprov_tabs();
   $status = array_search($tab, $tabs);
 
   // Action options.
@@ -1431,8 +1455,9 @@ function ldapprov_list_delete_confirm(&$form_state) {
   $values['requests'] = array_values(array_filter($values['requests']));
   $form['requests'] = array('#prefix' => '<ul>', '#suffix' => '</ul>', '#tree' => TRUE);
   foreach ($values['requests'] as $rid) {
-    $mail = db_result(db_query("SELECT mail FROM {ldapprov} WHERE rid = %d", $rid));
-    $form['requests'][$rid] = array('#type' => 'hidden', '#value' => $rid, '#prefix' => '<li>', '#suffix' => check_plain($mail) ."</li>\n");
+    $data = db_fetch_object(db_query("SELECT * FROM {ldapprov} WHERE rid = %d", $rid));
+    $str = ($data->first_name ? $data->first_name .' '. $data->last_name .', ' : '') . ($data->name ? $data->name .', ' : '') . $data->mail;
+    $form['requests'][$rid] = array('#type' => 'hidden', '#value' => $rid, '#prefix' => '<li>', '#suffix' => t('@request', array('@request' => $str)) ."</li>\n");
   }
   $form['operation'] = array('#type' => 'hidden', '#value' => 'delete');
   $tabs = _ldapprov_tabs();
@@ -1795,7 +1820,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     $form['create'] = array(
       '#type' => 'submit',
       '#value' => t('Create account'),
-      '#weight' => 10
+      '#weight' => 10,
     );
   }
   if ($rid && $status < 2) {
@@ -1803,7 +1828,7 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     $form['reject'] = array(
       '#type' => 'submit',
       '#value' => t('Reject account'),
-      '#weight' => 11
+      '#weight' => 11,
     );
   }
 
@@ -1811,7 +1836,17 @@ function ldapprov_create(&$form_state, $tab, $rid = NULL) {
     $form['save'] = array(
       '#type' => 'submit',
       '#value' => t('Save notes'),
-      '#weight' => 12
+      '#weight' => 12,
+    );
+  }
+
+  if ($rid && $status != 3) {
+    // Don't print Delete button for already created requests.
+    $form['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete'),
+      '#weight' => 13,
+      '#submit' => array('ldapprov_delete_submit'),
     );
   }
 
@@ -1912,6 +1947,43 @@ function ldapprov_create_submit($form, &$form_state) {
     else {
       drupal_set_message(t('The new user was not created. Please contact site administrator.'), 'error');
     }
+  }
+  $tabs = _ldapprov_tabs();
+  $form_state['redirect'] = 'admin/user/accounts/'. $tabs[$values['status']];
+}
+
+/**
+ * Request delete form submission.
+ */
+function ldapprov_delete_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  $tabs = _ldapprov_tabs();
+  $form_state['redirect'] = array('admin/user/accounts/'. $tabs[$values['status']] .'/delete/'. $values['rid']);
+}
+
+/**
+ * Request delete form submission.
+ */
+function ldapprov_confirm_delete(&$form_state, $tab, $rid = NULL) {
+  $data = db_fetch_object(db_query("SELECT * FROM {ldapprov} WHERE rid = %d", $rid));
+  $str = ($data->first_name ? $data->first_name .' '. $data->last_name .', ' : '') . ($data->name ? $data->name .', ' : '') . $data->mail;
+  $form['rid'] = array('#type' => 'hidden', '#value' => $rid);
+
+  $tabs = array_flip(_ldapprov_tabs());
+  $form['status'] = array('#type' => 'hidden', '#value' => $tabs[$tab]);
+
+  return confirm_form($form, t('Are you sure you want to delete %request account request?', array('%request' => $str)), 'admin/user/accounts/'. $tab, t('This action cannot be undone.'), t('Delete'), t('Cancel'));
+}
+
+/**
+ * Requests deletion.
+ */
+function ldapprov_confirm_delete_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['confirm']) {
+    db_query("DELETE FROM {ldapprov} WHERE rid = %d", $values['rid']);
+    module_invoke_all('ldapdelete', $values['rid']);
+    drupal_set_message(t('The request have been deleted.'));
   }
   $tabs = _ldapprov_tabs();
   $form_state['redirect'] = 'admin/user/accounts/'. $tabs[$values['status']];
